@@ -1,0 +1,68 @@
+# bitbucket-pipelines.yml
+image: node:18 # Specify a Node.js version, choose one compatible with your project
+
+pipelines:
+  default:
+    - step:
+        name: 'Install Dependencies'
+        caches:
+          - node # Use npm cache to speed up installs
+        script:
+          - npm ci --production=false # Use npm ci for clean, consistent installs
+        artifacts:
+          - node_modules/** # Cache node_modules for subsequent steps
+
+    - parallel:
+      - step:
+          name: 'Build and Test'
+          caches:
+            - node
+          script:
+            - npm run build # Build your Next.js project for production
+            - npm test      # Run your unit/integration tests
+          artifacts:
+            - .next/** # Assuming Next.js build output
+            - public/** # Include public assets if needed for deployment
+
+      - step:
+          name: 'Lint'
+          caches:
+            - node
+          script:
+            - npm run lint # Run your linting checks
+
+      - step:
+          name: 'Security Scan'
+          caches:
+            - node
+          script:
+            - echo "Run your actual security scan tool here (e.g., npm audit, snyk, owasp dep-check)"
+            # Example: - npm audit --production # Basic npm security audit
+
+    - step:
+        name: 'Deployment to Staging'
+        deployment: staging
+        # Only cache node_modules for faster execution, no need for artifacts from previous steps
+        # as deployment usually requires built output
+        caches:
+          - node
+        script:
+          - echo "Copying build artifacts to staging server or deploying via a service (e.g., AWS S3, Vercel CLI, Netlify CLI)"
+          # Example for Next.js with Vercel CLI (ensure Vercel CLI is installed and configured in your pipeline secrets)
+          # - npx vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+          # - npx vercel build --token=$VERCEL_TOKEN
+          # - npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN # Deploy to preview/staging
+
+    - step:
+        name: 'Deployment to Production'
+        deployment: production
+        trigger: 'manual' # Requires manual approval in the Bitbucket UI
+        # Caching might not be strictly necessary if this step purely consumes artifacts
+        # from the previous build step, but good to include if running any npm commands.
+        caches:
+          - node
+        script:
+          - echo "Copying built artifacts to production server or deploying via a service"
+          # Example for Next.js with Vercel CLI (ensure Vercel CLI is installed and configured in your pipeline secrets)
+          # - npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+          - echo "Production deployment complete!"
