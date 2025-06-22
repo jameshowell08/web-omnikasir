@@ -1,21 +1,27 @@
-import jwt from "jsonwebtoken"
+import { JWTPayload, SignJWT, jwtVerify } from "jose"
 
+const encoder = new TextEncoder()
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey"
 
-export interface JwtPayload {
-  user_id: string
-  username: string
+export async function signJwt(payload: JWTPayload): Promise<string> {
+  const jwt = await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1h") // expires in 1 hour
+    .sign(encoder.encode(JWT_SECRET))
+
+  return jwt
 }
 
-export function signJwt(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" })
-}
-
-export function verifyJwt(token: string): JwtPayload | null {
+export async function verifyJwt(token: string): Promise<JWTPayload | null> {
   try {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload
-  } catch (error: any) {
-    console.log(error.message)
+    const { payload } = await jwtVerify(
+      token,
+      encoder.encode(JWT_SECRET)
+    )
+    return payload
+  } catch (err) {
+    console.error("JWT verification failed:", err)
     return null
   }
 }

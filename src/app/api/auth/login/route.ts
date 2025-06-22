@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "../../../../lib/db"
 import bcrypt from "bcryptjs"
-import { signJwt, verifyJwt } from "../../../../lib/auth"
+import { signJwt } from "../../../../lib/auth"
 const SYMBOLS = /^[!@#$%^&*()]/
 
 export async function POST(req: Request) {
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     )
   }
 
-  const token = signJwt({ user_id: user.user_id, username: user.username })
+  const token = await signJwt({ user_id: user.user_id, username: user.username })
 
   const res = NextResponse.json({ message: "Login success" })
   res.cookies.set("token", token, {
