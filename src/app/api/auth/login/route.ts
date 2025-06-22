@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "../../../../lib/db"
 import bcrypt from "bcryptjs"
-import { signJwt } from "../../../../lib/auth"
+import { signJwt, verifyJwt } from "../../../../lib/auth"
 const SYMBOLS = /^[!@#$%^&*()]/
 
 export async function POST(req: Request) {
