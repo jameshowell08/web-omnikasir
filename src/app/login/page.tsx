@@ -75,7 +75,7 @@ export default function Home() {
 
       if (res.ok) {
         toast.success("Login berhasil!")
-        router.push("/dashboard")
+        router.push("/app/dashboard")
       } else {
         // Display API error message directly using toast
         toast.error(data.message)
@@ -106,7 +106,7 @@ export default function Home() {
     <div className="flex flex-col justify-center items-center h-screen">
       <div className="flex flex-col border-2 p-8 rounded-xl min-w-sm">
         <img
-          src="/omnikasir.svg"
+          src="/assets/omnikasir.svg"
           alt="Logo Omnikasir"
           className="flex flex-row justify-center items-center max-h-16 max-w-full"
         />

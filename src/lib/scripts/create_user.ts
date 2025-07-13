@@ -6,8 +6,8 @@ export async function createUser() {
   const passwordHash = bcrypt.hashSync('admin123', 10);
   await prisma.users.create({
     data: {
-      user_id: 'US002',
-      username: 'admin2',
+      user_id: 'US000',
+      username: 'admin',
       password: passwordHash,
     },
   });
