@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
-import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 
 export default function Home() {
   const [username, setUsername] = useState("")
