@@ -1,6 +1,5 @@
 'use client'
 
-import { Inter } from "next/font/google";
 import "../globals.css";
 import { Constants } from "@/src/lib/constants";
 import { Url } from "next/dist/shared/lib/router/router";
@@ -8,11 +7,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-
-const inter = Inter({ subsets: ["latin"] });
+import Image from "next/image";
 
 interface NavTabProps {
-    name: String;
+    name: string;
     url: Url;
 }
 
@@ -57,7 +55,7 @@ export default function AppLayout({
             <aside className="w-xs h-screen sticky bg-[#D9D9D9] flex flex-col">
                 <div className="flex flex-col items-center bg-[#C5C5C5] h-fit w-full p-8">
                     <div className="w-52 aspect-square bg-[#8C8C8C] rounded-full flex items-center justify-center mb-5">
-                        <img src="/assets/omnikasir.svg" alt="Profile Picture" className="absolute" />
+                        <Image src="/assets/omnikasir.svg" alt="Profile Picture" className="absolute" />
                     </div>
                     <h1 className="font-bold">[ Username ]</h1>
                     <h3 className="">[ Role ]</h3>
@@ -82,7 +80,7 @@ export default function AppLayout({
 
 function NavTabComponent(props: NavTabProps) {
     const pathName = usePathname();
-    let tabSelected = props.url === pathName;
+    const tabSelected = props.url === pathName;
 
     return (
         <Link href={props.url} className={`
