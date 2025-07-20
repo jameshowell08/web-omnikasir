@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 const inter = Inter({ subsets: ["latin"] });
 
 interface NavTabProps {
-    name: String;
+    name: string;
     url: Url;
 }
 
