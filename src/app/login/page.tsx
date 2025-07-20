@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
+import { Constants } from "@/src/lib/constants"
 
 export default function Home() {
   const [username, setUsername] = useState("")
@@ -75,7 +76,7 @@ export default function Home() {
 
       if (res.ok) {
         toast.success("Login berhasil!")
-        router.push("/app/dashboard")
+        router.push(Constants.LOGIN_URL)
       } else {
         // Display API error message directly using toast
         toast.error(data.message)
