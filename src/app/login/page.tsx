@@ -64,7 +64,7 @@ export default function Home() {
 
     setIsLoading(true)
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(Constants.LOGIN_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
