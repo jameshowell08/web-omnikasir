@@ -4,4 +4,5 @@ export class Constants {
     static readonly LOGIN_URL = "/login"
 
     static readonly LOGIN_API_URL = "/api/auth/login"
+    static readonly LOGOUT_API_URL = "/api/auth/logout"
 }
