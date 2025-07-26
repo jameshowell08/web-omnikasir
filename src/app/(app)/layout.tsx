@@ -55,7 +55,7 @@ export default function AppLayout({
             <aside className="w-xs h-screen sticky bg-[#D9D9D9] flex flex-col">
                 <div className="flex flex-col items-center bg-[#C5C5C5] h-fit w-full p-8">
                     <div className="w-52 aspect-square bg-[#8C8C8C] rounded-full flex items-center justify-center mb-5">
-                        <Image src="/assets/omnikasir.svg" alt="Profile Picture" className="absolute" />
+                        <Image src="/assets/omnikasir.svg" alt="Profile Picture" width={60} height={60} className="absolute" />
                     </div>
                     <h1 className="font-bold">[ Username ]</h1>
                     <h3 className="">[ Role ]</h3>
