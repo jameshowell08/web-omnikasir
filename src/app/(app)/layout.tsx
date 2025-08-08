@@ -43,7 +43,7 @@ export default function AppLayout({
         const data = await res.json()
 
         if (res.ok) {
-            toast.success("Logout berhasil!")
+            toast.info("Logout berhasil!")
             router.push(Constants.LOGIN_URL)
         } else {
             toast.error(data.message)
@@ -51,8 +51,8 @@ export default function AppLayout({
     }
 
     return (
-        <div className="flex flex-row h-full w-screen">
-            <aside className="w-xs h-screen sticky bg-[#D9D9D9] flex flex-col">
+        <div className="flex flex-row h-screen w-screen">
+            <aside className="w-xs flex-shrink-0 h-full sticky bg-[#D9D9D9] flex flex-col">
                 <div className="flex flex-col items-center bg-[#C5C5C5] h-fit w-full p-8">
                     <div className="w-52 aspect-square bg-[#8C8C8C] rounded-full flex items-center justify-center mb-5">
                         <Image src="/assets/omnikasir.svg" alt="Profile Picture" width={60} height={60} className="absolute" />

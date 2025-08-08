@@ -1,9 +1,7 @@
 "use client"
 
+import SettingsView from "./view/SettingsView"
+
 export default function SettingsPage() {
-    return (
-        <div>
-            <h1>Settings Page</h1>
-        </div>
-    )
+    return (<SettingsView />)
 }

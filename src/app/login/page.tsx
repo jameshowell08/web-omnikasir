@@ -3,6 +3,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 import { Constants } from "@/src/lib/constants"
+import Image from "next/image"
+import LoadingOverlay from "../(app)/components/LoadingOverlay"
 
 export default function Home() {
   const [username, setUsername] = useState("")
@@ -75,15 +77,14 @@ export default function Home() {
       const data = await res.json()
 
       if (res.ok) {
-        toast.success("Login berhasil!")
+        toast.info("Login berhasil!")
         router.push(Constants.LOGIN_URL)
       } else {
         // Display API error message directly using toast
         toast.error(data.message)
       }
     } catch (error) {
-      // Handle network errors
-      toast.error("Koneksi jaringan bermasalah. Silakan coba lagi.")
+      toast.error(`${error}. Silakan coba lagi.`)
     } finally {
       setIsLoading(false)
     }
@@ -104,78 +105,81 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen">
-      <div className="flex flex-col border-2 p-8 rounded-xl min-w-sm">
-        <img
-          src="/assets/omnikasir.svg"
-          alt="Logo Omnikasir"
-          className="flex flex-row justify-center items-center max-h-16 max-w-full"
-        />
-
-        <hr className="my-8 border-1" />
-
-        <h1 className="text-center font-bold text-2xl mb-2">Login</h1>
-
-        <label htmlFor="username" className="mt-2 font-bold">
-          Username
-        </label>
-        <input
-          type="text"
-          name="username"
-          id="username"
-          className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${
-            isUsernameError ? "border-red-600" : ""
-          }`}
-          placeholder="Username"
-          autoComplete="username"
-          value={username}
-          onChange={(e) => {
-            onUsernameChange(e.target.value)
-          }}
-        />
-        {isUsernameError && <p className="text-red-600">{usernameError}</p>}
-
-        <label htmlFor="password" className="mt-3 font-bold">
-          Password
-        </label>
-        <input
-          type={showPassword ? "text" : "password"}
-          name="password"
-          id="password"
-          className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${
-            isPasswordError ? "border-red-600" : ""
-          }`}
-          placeholder="Password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => {
-            onPasswordChange(e.target.value)
-          }}
-        />
-        {isPasswordError && <p className="text-red-600">{passwordError}</p>}
-
-        <span className="flex flex-row items-center mt-3">
-          <input
-            type="checkbox"
-            name="showPassword"
-            id="showPassword"
-            checked={showPassword}
-            onChange={onShowPassword}
-            className="accent-black cursor-pointer"
+    <div>
+      <div className="flex flex-col justify-center items-center h-screen">
+        <div className="flex flex-col border-2 p-8 rounded-xl min-w-sm">
+          <Image
+            width={100}
+            height={100}
+            src="/assets/omnikasir.svg"
+            alt="Logo Omnikasir"
+            className="flex flex-row justify-center items-center max-h-16 w-full"
           />
-          <label htmlFor="showPassword" className="ml-2">
-            Show Password
-          </label>
-        </span>
 
-        <button
-          className="mt-5 bg-black text-white p-2 rounded-xl max-w cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          onClick={loginBtnClick}
-          disabled={disableBtn}
-        >
-          Login
-        </button>
+          <hr className="my-8 border-1" />
+
+          <h1 className="text-center font-bold text-2xl mb-2">Login</h1>
+
+          <label htmlFor="username" className="mt-2 font-bold">
+            Username
+          </label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${isUsernameError ? "border-red-600" : ""
+              }`}
+            placeholder="Username"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => {
+              onUsernameChange(e.target.value)
+            }}
+          />
+          {isUsernameError && <p className="text-red-600">{usernameError}</p>}
+
+          <label htmlFor="password" className="mt-3 font-bold">
+            Password
+          </label>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            id="password"
+            className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${isPasswordError ? "border-red-600" : ""
+              }`}
+            placeholder="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => {
+              onPasswordChange(e.target.value)
+            }}
+          />
+          {isPasswordError && <p className="text-red-600">{passwordError}</p>}
+
+          <span className="flex flex-row items-center mt-3">
+            <input
+              type="checkbox"
+              name="showPassword"
+              id="showPassword"
+              checked={showPassword}
+              onChange={onShowPassword}
+              className="accent-black cursor-pointer"
+            />
+            <label htmlFor="showPassword" className="ml-2">
+              Show Password
+            </label>
+          </span>
+
+          <button
+            className="mt-5 bg-black text-white p-2 rounded-xl max-w cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            onClick={loginBtnClick}
+            disabled={disableBtn}
+          >
+            Login
+          </button>
+        </div>
       </div>
+      <LoadingOverlay isLoading={isLoading} />
     </div>
   )
 }
