@@ -1,7 +1,8 @@
 "use client"
 import { useState } from "react"
-import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
+import { Constants } from "@/src/lib/constants"
 
 export default function Home() {
   const [username, setUsername] = useState("")
@@ -63,7 +64,7 @@ export default function Home() {
 
     setIsLoading(true)
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(Constants.LOGIN_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +76,7 @@ export default function Home() {
 
       if (res.ok) {
         toast.success("Login berhasil!")
-        router.push("/dashboard")
+        router.push(Constants.LOGIN_URL)
       } else {
         // Display API error message directly using toast
         toast.error(data.message)
@@ -106,7 +107,7 @@ export default function Home() {
     <div className="flex flex-col justify-center items-center h-screen">
       <div className="flex flex-col border-2 p-8 rounded-xl min-w-sm">
         <img
-          src="/omnikasir.svg"
+          src="/assets/omnikasir.svg"
           alt="Logo Omnikasir"
           className="flex flex-row justify-center items-center max-h-16 max-w-full"
         />
