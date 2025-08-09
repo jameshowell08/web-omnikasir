@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 async function main() {
   //--users seed --
   const passwordHash = bcrypt.hashSync("admin123", 10)
-  const admin = await prisma.users.upsert({
+  await prisma.users.upsert({
     where: { user_id: "US000" },
     update: {},
     create: {
@@ -22,7 +22,7 @@ async function main() {
 
   const imageBuffer = fs.readFileSync(imagePath) // Load image as buffer
 
-  const store = await prisma.store.upsert({
+  await prisma.store.upsert({
     where: { id: "dummy-store-1" },
     update: {},
     create: {
