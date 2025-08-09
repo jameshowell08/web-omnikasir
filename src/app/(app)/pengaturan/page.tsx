@@ -1,11 +1,7 @@
 "use client"
 
-import Pengaturan from "./components/pengaturan"
+import SettingsView from "./view/SettingsView"
 
 export default function SettingsPage() {
-    return (
-        <div>
-            <Pengaturan />
-        </div>
-    )
+    return (<SettingsView />)
 }
