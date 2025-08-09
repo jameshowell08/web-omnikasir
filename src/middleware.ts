@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
   
   // If the path is public (or the root) and the user is authenticated, redirect to the dashboard.
   if ((isPublicPath || pathname === "/") && user) {
-    return NextResponse.redirect(new URL(Constants.TRANSACTION_URL, req.url));
+    return NextResponse.redirect(new URL(Constants.DASHBOARD_URL, req.url));
   }
 
   return NextResponse.next()

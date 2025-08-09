@@ -18,6 +18,10 @@ interface NavTabProps {
 
 const navTabs: NavTabProps[] = [
     {
+        name: "Dashboard",
+        url: Constants.DASHBOARD_URL
+    },
+    {
         name: "Transaksi",
         url: Constants.TRANSACTION_URL
     },

@@ -1,4 +1,5 @@
 export class Constants {
+    static readonly DASHBOARD_URL = "/dashboard"
     static readonly TRANSACTION_URL = "/transaksi"
     static readonly SETTING_URL = "/pengaturan"
     static readonly LOGIN_URL = "/login"
