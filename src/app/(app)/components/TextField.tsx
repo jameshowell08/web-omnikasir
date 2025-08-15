@@ -1,7 +1,7 @@
 import React from "react";
 
 interface TextFieldProps {
-  label: string;
+  name: string;
   placeholder?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -10,7 +10,7 @@ interface TextFieldProps {
 }
 
 export default function TextField({
-  label,
+  name,
   placeholder,
   value,
   onChange,
@@ -18,10 +18,9 @@ export default function TextField({
   type = "text",
 }: TextFieldProps) {
   return (
-    <div className="flex flex-col space-y-1 w-full py-4">
-      <label className="text-sm font-medium text-off-black text-bold">{label}</label>
-
+    <div className="flex flex-col space-y-1 flex-1">
       <input
+        name={name}
         type={type}
         value={value}
         onChange={onChange}

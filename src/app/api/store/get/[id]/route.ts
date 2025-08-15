@@ -1,11 +1,11 @@
-import { db } from "../../../../lib/db"
+import { db } from "@/src/lib/db"
 import { NextResponse } from "next/server"
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
+  const { id } = await params
 
   try {
     const store = await db.store.findUnique({
@@ -13,26 +13,19 @@ export async function GET(
       select: {
         nama: true,
         alamat: true,
-        noHp: true,
-        profilePicture: true,
+        noHp: true
       },
     })
 
     if (!store) {
       return NextResponse.json({ message: "Store not found" }, { status: 404 })
     }
-    let base64Image: string | null = null
-
-    if (store.profilePicture) {
-      const buffer = store.profilePicture as Buffer
-      base64Image = `data:image/png;base64,${buffer.toString("base64")}`
-    }
 
     return NextResponse.json({
-      nama: store.nama,
-      alamat: store.alamat,
-      noHp: store.noHp,
-      profilePicture: base64Image,
+      storeName: store.nama,
+      address: store.alamat,
+      phoneNumber: store.noHp,
+      profilePictureUrl: "/api/store/get/profilePicture/" + id,
     })
   } catch (error) {
     console.error("Error fetching store:", error)
