@@ -22,7 +22,7 @@ function LoginPage() {
                 <form className="mt-6 flex flex-col" onSubmit={(e) => {e.preventDefault()}}>
                     <label className="mb-2" htmlFor="username">Username</label>
                     <input 
-                        className="border-1 p-3 rounded-lg w-sm"
+                        className="border p-3 rounded-lg w-sm"
                         type="text" 
                         name="username" 
                         placeholder="Ketik disini..." 
@@ -30,7 +30,7 @@ function LoginPage() {
 
                     <label className="mt-4 mb-2" htmlFor="password">Password</label>
                     <input 
-                        className="border-1 p-3 rounded-lg w-sm"
+                        className="border p-3 rounded-lg w-sm"
                         type="password" 
                         name="password" 
                         placeholder="Ketik disini..." 
