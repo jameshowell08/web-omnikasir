@@ -3,21 +3,21 @@ import { verifyJwt } from "./lib/auth"
 import { Constants } from "./lib/constants"
 
 export async function middleware(req: NextRequest) {
-  const token = req.cookies.get("token")?.value
-  const user = token ? await verifyJwt(token) : null
-  const { pathname } = req.nextUrl
+  // const token = req.cookies.get("token")?.value
+  // const user = token ? await verifyJwt(token) : null
+  // const { pathname } = req.nextUrl
 
-  const isPublicPath = pathname === Constants.LOGIN_URL
+  // const isPublicPath = pathname === Constants.LOGIN_URL
 
-  // If the path is protected and the user is not authenticated, redirect to login.
-  if (!isPublicPath && !user) {
-    return NextResponse.redirect(new URL(Constants.LOGIN_URL, req.url));
-  }
+  // // If the path is protected and the user is not authenticated, redirect to login.
+  // if (!isPublicPath && !user) {
+  //   return NextResponse.redirect(new URL(Constants.LOGIN_URL, req.url));
+  // }
   
-  // If the path is public (or the root) and the user is authenticated, redirect to the dashboard.
-  if ((isPublicPath || pathname === "/") && user) {
-    return NextResponse.redirect(new URL(Constants.TRANSACTION_URL, req.url));
-  }
+  // // If the path is public (or the root) and the user is authenticated, redirect to the dashboard.
+  // if ((isPublicPath || pathname === "/") && user) {
+  //   return NextResponse.redirect(new URL(Constants.TRANSACTION_URL, req.url));
+  // }
 
   return NextResponse.next()
 }
