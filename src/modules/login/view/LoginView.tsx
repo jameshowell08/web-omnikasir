@@ -1,9 +1,12 @@
 'use client'
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 function LoginView() {
     const router = useRouter();
+
+    const [showPassword, setShowPassword] = useState(false);
 
     return (
         <div className="flex flex-row w-screen h-screen">
@@ -22,7 +25,7 @@ function LoginView() {
             <div className="flex-1 flex flex-col justify-center items-center px-10">
                 <h1 className="font-bold text-3xl">Login</h1>
 
-                <form className="mt-6 flex flex-col w-full  max-w-sm" onSubmit={(e) => {e.preventDefault()}}>
+                <form className="mt-6 flex flex-col w-full max-w-sm" onSubmit={(e) => {e.preventDefault()}}>
                     <label className="mb-2" htmlFor="username">Username</label>
                     <input 
                         className="border p-3 rounded-lg w-full"
@@ -32,12 +35,19 @@ function LoginView() {
                     />
 
                     <label className="mt-4 mb-2" htmlFor="password">Password</label>
-                    <input 
-                        className="border p-3 rounded-lg w-full"
-                        type="password" 
-                        name="password" 
-                        placeholder="Ketik disini..." 
-                    />
+                    <div className="relative">
+                        <input 
+                            className="border p-3 pr-11 rounded-lg w-full"
+                            type={showPassword ? "text" : "password"}
+                            name="password" 
+                            placeholder="Ketik disini..." 
+                        />
+                        <span className="flex items-center absolute inset-y-0 right-0 select-none">
+                            <span className="material-symbols-rounded m-2 p-1 rounded-lg hover:bg-black/10" onClick={() => {setShowPassword(!showPassword)}}>
+                                { !showPassword ? "visibility" : "visibility_off" }
+                            </span>
+                        </span>
+                    </div>
 
                     <button 
                         className="mt-6 font-bold text-xl bg-black text-white p-3 rounded-lg hover:bg-black/85"
