@@ -12,7 +12,7 @@ function SettingsView() {
                 <Image 
                     className="border border-black rounded-lg"
                     src="/assets/placeholder_image.png"
-                    alt=""
+                    alt="Logo Toko"
                     width={240}
                     height={240}
                 />

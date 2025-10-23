@@ -1,13 +1,18 @@
 'use client'
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TextField from "../../components/TextField";
+import { LoginController } from "../controller/LoginController";
+import { LoginEventCallback } from "../model/LoginEventCallback";
 
 function LoginView() {
-    const router = useRouter();
-
     const [showPassword, setShowPassword] = useState(false);
+
+    function listener(eventCallback: LoginEventCallback) {
+        console.log(eventCallback)
+    }
+
+    const [controller] = useState(() => { return new LoginController(listener) })    
 
     return (
         <div className="flex flex-row w-screen h-screen">
@@ -26,7 +31,9 @@ function LoginView() {
             <div className="flex-1 flex flex-col justify-center items-center px-10">
                 <h1 className="font-bold text-3xl">Login</h1>
 
-                <form className="mt-6 flex flex-col w-full max-w-sm" onSubmit={(e) => {e.preventDefault()}}>
+                <form className="mt-6 flex flex-col w-full max-w-sm" action={async (formData) => {
+                    controller.login(formData)
+                }}>
                     <label className="mb-2" htmlFor="username">Username</label>
                     <TextField 
                         name="username"
@@ -42,7 +49,7 @@ function LoginView() {
 
                     <button 
                         className="mt-6 font-bold text-xl bg-black text-white p-3 rounded-lg hover:bg-black/85"
-                        onClick={() => router.push("/settings")}
+                        type="submit"
                     >Login</button>
                     <p className="mt-3 text-center text-gray-400 text-xs">Powered by Omnikasir⚡</p>
                 </form>
