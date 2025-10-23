@@ -39,7 +39,7 @@ function AppLayout({
                     </span>
                 </nav>
 
-                <div className={`transition-all ease-in-out duration-200 flex-1 ${isNavbarVisible && 'ml-[18rem]'}`}>
+                <div className={`transition-all ease-in-out duration-200 flex justify-center flex-1 ${isNavbarVisible && 'ml-[18rem]'}`}>
                     {children}
                 </div>
             </section>

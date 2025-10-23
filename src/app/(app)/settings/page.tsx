@@ -1,5 +1,7 @@
+import SettingsView from "@/src/modules/(app)/settings/view/SettingsView";
+
 function SettingsPage() {
-    return <h1>Settings</h1>;
+    return <SettingsView />;
 }
 
 export default SettingsPage

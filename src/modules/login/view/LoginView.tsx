@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import TextField from "../../components/TextField";
 
 function LoginView() {
     const router = useRouter();
@@ -27,27 +28,17 @@ function LoginView() {
 
                 <form className="mt-6 flex flex-col w-full max-w-sm" onSubmit={(e) => {e.preventDefault()}}>
                     <label className="mb-2" htmlFor="username">Username</label>
-                    <input 
-                        className="border p-3 rounded-lg w-full"
-                        type="text" 
-                        name="username" 
-                        placeholder="Ketik disini..." 
+                    <TextField 
+                        name="username"
                     />
 
                     <label className="mt-4 mb-2" htmlFor="password">Password</label>
-                    <div className="relative">
-                        <input 
-                            className="border p-3 pr-11 rounded-lg w-full"
-                            type={showPassword ? "text" : "password"}
-                            name="password" 
-                            placeholder="Ketik disini..." 
-                        />
-                        <span className="flex items-center absolute inset-y-0 right-0 select-none">
-                            <span className="material-symbols-rounded m-2 p-1 rounded-lg hover:bg-black/10" onClick={() => {setShowPassword(!showPassword)}}>
-                                { !showPassword ? "visibility" : "visibility_off" }
-                            </span>
-                        </span>
-                    </div>
+                    <TextField 
+                        name = "password"
+                        type="password"
+                        showPassword={showPassword}
+                        setShowPassword={setShowPassword}
+                    />
 
                     <button 
                         className="mt-6 font-bold text-xl bg-black text-white p-3 rounded-lg hover:bg-black/85"
