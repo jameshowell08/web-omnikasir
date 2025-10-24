@@ -1,5 +1,5 @@
 import { Constants } from "@/src/lib/constants"
-import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 
 export class LoginController {
     eventCallback: (event: LoginEventCallback) => void
@@ -40,7 +40,10 @@ export class LoginController {
 
             if (response.ok) {
                 this.eventCallback(new NavigateToHomePage())
-            } 
+            } else {
+                const errorJson: { message: string } = await response.json()
+                this.eventCallback(new ShowErrorToast(errorJson.message))
+            }
         } catch (error) {
             console.error(error)
         }

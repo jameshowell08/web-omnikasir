@@ -10,3 +10,11 @@ export class ShowErrorOnField implements LoginEventCallback {
         this.error = error
     }
 }
+
+export class ShowErrorToast implements LoginEventCallback {
+    errorMessage: string
+
+    constructor(errorMessage: string) {
+        this.errorMessage = errorMessage
+    }
+}

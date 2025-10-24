@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import LoadingOverlay from "../modules/shared/view/LoadingOverlay";
 import "./globals.css";
-import { Bounce, ToastContainer } from "react-toastify";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -23,20 +24,13 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} font-sans antialiased`}
       >
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-          transition={Bounce}
-        />
-        {children}
+        <LoadingOverlay>
+          <Toaster
+            position="bottom-center"
+            reverseOrder={false}
+          />
+          {children}
+        </LoadingOverlay>
       </body>
     </html>
   );

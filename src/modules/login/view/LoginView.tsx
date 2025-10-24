@@ -1,17 +1,20 @@
 'use client'
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import TextField from "../../components/TextField";
 import { LoginController } from "../controller/LoginController";
-import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 import { useRouter } from "next/navigation";
 import { Constants } from "@/src/lib/constants";
+import { LoadingOverlayContext } from "../../shared/view/LoadingOverlay";
+import toast from "react-hot-toast";
 
 function LoginView() {
     const router = useRouter()
     const [errorOnUsername, setErrorOnUsername] = useState("")
     const [errorOnPassword, setErrorOnPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false);
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
 
     function listener(eventCallback: LoginEventCallback) {
         if (eventCallback instanceof NavigateToHomePage) {
@@ -22,6 +25,8 @@ function LoginView() {
             } else if (eventCallback.fieldName === "password") {
                 setErrorOnPassword(eventCallback.error)
             }
+        } else if (eventCallback instanceof ShowErrorToast) {
+            toast.error(eventCallback.errorMessage)
         }
     }
 
@@ -49,15 +54,18 @@ function LoginView() {
 
                 <form
                     className="mt-6 flex flex-col w-full max-w-sm"
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                         e.preventDefault()
-                        controller.login(new FormData(e.currentTarget))
+                        showLoadingOverlay(true)
+                        await controller.login(new FormData(e.currentTarget))
+                        showLoadingOverlay(false)
                     }}>
                     <label className="mb-2" htmlFor="username">Username</label>
                     <TextField
                         name="username"
                         error={errorOnUsername}
                         showError={errorOnUsername.length > 0}
+                        onChange={() => setErrorOnUsername("")}
                     />
 
                     <label className="mt-4 mb-2" htmlFor="password">Password</label>
@@ -68,6 +76,7 @@ function LoginView() {
                         setShowPassword={setShowPassword}
                         error={errorOnPassword}
                         showError={errorOnPassword.length > 0}
+                        onChange={() => setErrorOnPassword("")}
                     />
 
                     <button

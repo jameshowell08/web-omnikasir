@@ -1,3 +1,5 @@
+import { ChangeEventHandler } from "react";
+
 function TextField({
     name,
     error = "",
@@ -5,7 +7,8 @@ function TextField({
     placeholder = "Ketik disini...",
     showPassword = false,
     showError = false,
-    setShowPassword = (() => {})
+    setShowPassword = (() => {}),
+    onChange = ((_) => {})
 }: {
     name: string,
     error?: string,
@@ -13,7 +16,8 @@ function TextField({
     placeholder?: string,
     showPassword?: boolean,
     showError?: boolean,
-    setShowPassword?: (value: boolean) => void
+    setShowPassword?: (value: boolean) => void,
+    onChange?: ChangeEventHandler<HTMLInputElement>
 }) {
     return type == 'password' ? (
         <div className="flex flex-col">
@@ -23,6 +27,7 @@ function TextField({
                     type={showPassword ? "text" : "password"}
                     name={name}
                     placeholder={placeholder}
+                    onChange={onChange}
                 />
                 <span className="flex items-center absolute inset-y-0 right-0 select-none">
                     <span className={`material-symbols-rounded m-2 p-1 rounded-lg hover:bg-black/10 ${showError && "text-red-500"}`} onClick={() => {setShowPassword(!showPassword)}}>
@@ -39,6 +44,7 @@ function TextField({
                 type={type}
                 name={name}
                 placeholder={placeholder}
+                onChange={onChange}
             />
             {showError && <span className="mx-1 mt-1 text-sm text-red-500">{error}</span>} 
         </div>
