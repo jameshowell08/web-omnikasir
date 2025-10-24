@@ -11,7 +11,7 @@ function SettingsView() {
             <div className="flex flex-row mt-6">
                 <Image 
                     className="border border-black rounded-lg"
-                    src="/assets/placeholder_image.png"
+                    src="/assets/placeholder-image.png"
                     alt="Logo Toko"
                     width={240}
                     height={240}
