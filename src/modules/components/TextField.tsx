@@ -8,7 +8,7 @@ function TextField({
     showPassword = false,
     showError = false,
     setShowPassword = (() => {}),
-    onChange = ((_) => {})
+    onChange = (() => {})
 }: {
     name: string,
     error?: string,
