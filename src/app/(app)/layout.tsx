@@ -1,5 +1,6 @@
 'use client'
 
+import { Constants } from "@/src/lib/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -27,7 +28,7 @@ function AppLayout({
                     <p className="text-right text-2xs">Admin</p>
                     <p className="text-right text-xs font-bold">John Doe</p>
                 </div>
-                <span className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none" onClick={() => {router.push("/")}}>logout</span>
+                <span className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none" onClick={() => {router.push(Constants.LOGIN_URL)}}>logout</span>
             </header>
 
             <section className="flex flex-row flex-1">

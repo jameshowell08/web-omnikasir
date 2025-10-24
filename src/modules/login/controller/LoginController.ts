@@ -1,5 +1,5 @@
 import { Constants } from "@/src/lib/constants"
-import { LoginEventCallback, NavigateToHomePage } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField } from "../model/LoginEventCallback";
 
 export class LoginController {
     eventCallback: (event: LoginEventCallback) => void
@@ -11,10 +11,23 @@ export class LoginController {
     }
 
     async login(formData: FormData) {
+        let error = false
         const payload = {
-            username: formData.get("username"),
-            password: formData.get("password")
+            username: formData.get("username")?.toString() ?? "",
+            password: formData.get("password")?.toString() ?? ""
         }
+
+        if (payload.username.length < 5) {
+            this.eventCallback(new ShowErrorOnField("username", "Username minimal 5 karakter!"))
+            error = true
+        }
+
+        if (payload.password.length < 8) {
+            this.eventCallback(new ShowErrorOnField("password", "Password minimal 8 karakter!"))
+            error = true
+        }
+
+        if (error) return
 
         try {
             const response = await fetch(Constants.LOGIN_API_URL, {

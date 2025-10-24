@@ -3,16 +3,32 @@ import Image from "next/image";
 import { useState } from "react";
 import TextField from "../../components/TextField";
 import { LoginController } from "../controller/LoginController";
-import { LoginEventCallback } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField } from "../model/LoginEventCallback";
+import { useRouter } from "next/navigation";
+import { Constants } from "@/src/lib/constants";
 
 function LoginView() {
+    const router = useRouter()
+    const [errorOnUsername, setErrorOnUsername] = useState("")
+    const [errorOnPassword, setErrorOnPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false);
 
     function listener(eventCallback: LoginEventCallback) {
-        console.log(eventCallback)
+        if (eventCallback instanceof NavigateToHomePage) {
+            router.push(Constants.SETTING_URL)
+        } else if (eventCallback instanceof ShowErrorOnField) {
+            if (eventCallback.fieldName === "username") {
+                setErrorOnUsername(eventCallback.error)
+            } else if (eventCallback.fieldName === "password") {
+                setErrorOnPassword(eventCallback.error)
+            }
+        }
     }
 
-    const [controller] = useState(() => { return new LoginController(listener) })    
+    const [controller] = useState(() => {
+        console.log("LoginController created!")
+        return new LoginController(listener)
+    })
 
     return (
         <div className="flex flex-row w-screen h-screen">
@@ -31,23 +47,30 @@ function LoginView() {
             <div className="flex-1 flex flex-col justify-center items-center px-10">
                 <h1 className="font-bold text-3xl">Login</h1>
 
-                <form className="mt-6 flex flex-col w-full max-w-sm" action={async (formData) => {
-                    controller.login(formData)
-                }}>
+                <form
+                    className="mt-6 flex flex-col w-full max-w-sm"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        controller.login(new FormData(e.currentTarget))
+                    }}>
                     <label className="mb-2" htmlFor="username">Username</label>
-                    <TextField 
+                    <TextField
                         name="username"
+                        error={errorOnUsername}
+                        showError={errorOnUsername.length > 0}
                     />
 
                     <label className="mt-4 mb-2" htmlFor="password">Password</label>
-                    <TextField 
-                        name = "password"
+                    <TextField
+                        name="password"
                         type="password"
                         showPassword={showPassword}
                         setShowPassword={setShowPassword}
+                        error={errorOnPassword}
+                        showError={errorOnPassword.length > 0}
                     />
 
-                    <button 
+                    <button
                         className="mt-6 font-bold text-xl bg-black text-white p-3 rounded-lg hover:bg-black/85"
                         type="submit"
                     >Login</button>

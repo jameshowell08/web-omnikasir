@@ -19,13 +19,13 @@ function TextField({
         <div className="flex flex-col">
             <div className="relative">
                 <input 
-                    className={`border p-3 pr-11 rounded-lg w-full ${showError && "border-red-500 focus:border-red-500 focus:outline-red-500"}`}
+                    className={`border p-3 pr-11 rounded-lg w-full ${showError && "text-red-500 border-red-500 focus:border-red-500 focus:outline-red-500"}`}
                     type={showPassword ? "text" : "password"}
                     name={name}
                     placeholder={placeholder}
                 />
                 <span className="flex items-center absolute inset-y-0 right-0 select-none">
-                    <span className="material-symbols-rounded m-2 p-1 rounded-lg hover:bg-black/10" onClick={() => {setShowPassword(!showPassword)}}>
+                    <span className={`material-symbols-rounded m-2 p-1 rounded-lg hover:bg-black/10 ${showError && "text-red-500"}`} onClick={() => {setShowPassword(!showPassword)}}>
                         { showPassword ? "visibility_off" : "visibility" }
                     </span>
                 </span>
@@ -35,7 +35,7 @@ function TextField({
     ) : (
         <div className="flex flex-col">
             <input 
-                className={`border p-3 rounded-lg w-full ${showError && "border-red-500 focus:border-red-500 focus:outline-red-500"}`}
+                className={`border p-3 rounded-lg w-full ${showError && "text-red-500 border-red-500 focus:border-red-500 focus:outline-red-500"}`}
                 type={type}
                 name={name}
                 placeholder={placeholder}
