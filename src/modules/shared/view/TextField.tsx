@@ -1,7 +1,10 @@
-import { ChangeEventHandler } from "react";
+import clsx from "clsx";
+import { ChangeEventHandler, ReactNode } from "react";
 
 function TextField({
     name,
+    className = "",
+    prefixIcon = null,
     error = "",
     type = 'text',
     placeholder = "Ketik disini...",
@@ -11,6 +14,8 @@ function TextField({
     onChange = (() => {})
 }: {
     name: string,
+    className?: string,
+    prefixIcon?: ReactNode | null,
     error?: string,
     type?: string,
     placeholder?: string,
@@ -20,7 +25,7 @@ function TextField({
     onChange?: ChangeEventHandler<HTMLInputElement>
 }) {
     return type == 'password' ? (
-        <div className="flex flex-col">
+        <div className={`flex flex-col ${className}`}>
             <div className="relative">
                 <input 
                     className={`border p-3 pr-11 rounded-lg w-full ${showError && "text-red-500 border-red-500 focus:border-red-500 focus:outline-red-500"}`}
@@ -38,14 +43,23 @@ function TextField({
             {showError && <span className="mx-1 mt-1 text-sm text-red-500">{error}</span>} 
         </div>
     ) : (
-        <div className="flex flex-col">
-            <input 
-                className={`border p-3 rounded-lg w-full ${showError && "text-red-500 border-red-500 focus:border-red-500 focus:outline-red-500"}`}
-                type={type}
-                name={name}
-                placeholder={placeholder}
-                onChange={onChange}
-            />
+        <div className={`flex flex-col ${className}`}>
+            <div className="relative">
+                <input 
+                    className={clsx(
+                        "border p-3 rounded-lg w-full",
+                        showError && "text-red-500 border-red-500 focus:border-red-500 focus:outline-red-500",
+                        prefixIcon != null && "pl-11"
+                    )}
+                    type={type}
+                    name={name}
+                    placeholder={placeholder}
+                    onChange={onChange}
+                />
+                <span className="absolute flex flex-row left-0 inset-y-0 m-3 w-fit">
+                    {prefixIcon}
+                </span>
+            </div>
             {showError && <span className="mx-1 mt-1 text-sm text-red-500">{error}</span>} 
         </div>
     )
