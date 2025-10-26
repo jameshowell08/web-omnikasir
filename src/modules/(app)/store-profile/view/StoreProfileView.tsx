@@ -1,15 +1,15 @@
 import Image from "next/image";
 
-function SettingsView() {
+function StoreProfileView() {
     return (
         <section className="flex flex-col p-6 max-w-7xl">
-            <h1 className="text-2xl font-bold mb-6">Pengaturan</h1>
+            <h1 className="text-2xl font-bold mb-6">Profil Toko</h1>
             <div className="flex justify-between items-center bg-black rounded-lg p-3">
                 <h2 className="text-white text-lg font-bold">Profil Toko</h2>
                 <span className="material-symbols-rounded filled text-white p-2 select-none rounded-lg hover:bg-white/20">edit</span>
             </div>
             <div className="flex flex-row mt-6">
-                <Image 
+                <Image
                     className="border border-black rounded-lg"
                     src="/assets/placeholder-image.png"
                     alt="Logo Toko"
@@ -31,10 +31,10 @@ function SettingsView() {
                         <h5 className="text-xs">Alamat Toko</h5>
                         <p className="font-bold text-lg">Jl. Boulevard Palem Raya 15810, Klp. Dua, Kecamatan Kelapa Dua, Kabupaten Tangerang, Banten 15810</p>
                     </div>
-                </div>  
+                </div>
             </div>
         </section>
     )
 }
 
-export default SettingsView;
+export default StoreProfileView;

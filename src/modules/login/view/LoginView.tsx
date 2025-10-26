@@ -1,13 +1,13 @@
 'use client'
+import { Constants } from "@/src/modules/shared/model/constants";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
-import TextField from "../../components/TextField";
+import toast from "react-hot-toast";
+import { LoadingOverlayContext } from "../../shared/view/LoadingOverlay";
+import TextField from "../../shared/view/TextField";
 import { LoginController } from "../controller/LoginController";
 import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
-import { useRouter } from "next/navigation";
-import { Constants } from "@/src/modules/shared/model/constants";
-import { LoadingOverlayContext } from "../../shared/view/LoadingOverlay";
-import toast from "react-hot-toast";
 
 function LoginView() {
     const router = useRouter()
@@ -18,7 +18,7 @@ function LoginView() {
 
     function listener(eventCallback: LoginEventCallback) {
         if (eventCallback instanceof NavigateToHomePage) {
-            router.push(Constants.SETTING_URL)
+            router.push(Constants.STORE_PROFILE_URL)
         } else if (eventCallback instanceof ShowErrorOnField) {
             if (eventCallback.fieldName === "username") {
                 setErrorOnUsername(eventCallback.error)

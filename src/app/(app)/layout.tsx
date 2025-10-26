@@ -1,7 +1,7 @@
 'use client'
 
 import { Constants } from "@/src/modules/shared/model/constants";
-import { IconChartBar, IconChevronRight, IconClock, IconHome, IconLayoutDashboard, IconReceiptDollar } from "@tabler/icons-react";
+import { IconBuildingStore, IconChartBar, IconChevronRight, IconClock, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceiptDollar, IconSettings, IconStackPush, IconTags, IconUserCircle } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +21,7 @@ function AppLayout({
                 {
                     menuItemName: "Overview",
                     menuItemIcon: IconHome,
-                    menuItemPath: "/settings"
+                    menuItemPath: "/overview"
                 },
                 {
                     menuItemName: "Laporan",
@@ -51,6 +51,50 @@ function AppLayout({
                     menuItemPath: "/cashier-shift"
                 }
             ]
+        },
+        {
+            menuName: "Inventori",
+            menuIcon: IconPackages,
+            expanded: false,
+            menuItems: [
+                {
+                    menuItemName: "Produk",
+                    menuItemIcon: IconPackage,
+                    menuItemPath: "/products"
+                },
+                {
+                    menuItemName: "Kategori Produk",
+                    menuItemIcon: IconTags,
+                    menuItemPath: "/product-categories"
+                },
+                {
+                    menuItemName: "Stok",
+                    menuItemIcon: IconStackPush,
+                    menuItemPath: "/product-stock"
+                }
+            ]
+        },
+        {
+            menuName: "Pengaturan",
+            menuIcon: IconSettings,
+            expanded: false,
+            menuItems: [
+                {
+                    menuItemName: "Profil",
+                    menuItemIcon: IconUserCircle,
+                    menuItemPath: "/profile"
+                },
+                {
+                    menuItemName: "Profil Toko",
+                    menuItemIcon: IconBuildingStore,
+                    menuItemPath: "/store-profile"
+                },
+                {
+                    menuItemName: "Metode Pembayaran",
+                    menuItemIcon: IconCreditCardPay,
+                    menuItemPath: "/payment-method"
+                }
+            ]
         }
     ];
 
@@ -78,7 +122,7 @@ function AppLayout({
             <section className="flex flex-row flex-1">
                 <nav className={`fixed h-full transition ease-in-out duration-200 p-6 w-2xs border-r ${!isNavbarVisible && '-translate-x-full'}`}>
                     {menus.map((menu, index) => (
-                        <div key={menu.menuName}>
+                        <div key={menu.menuName} className="select-none">
                             <div
                                 className={`flex flex-row items-center py-1 px-2 rounded-lg hover:bg-black/10 ${index > 0 && "mt-2"}`}
                                 onClick={() => {
