@@ -78,9 +78,8 @@ function AppLayout({
             <section className="flex flex-row flex-1">
                 <nav className={`fixed h-full transition ease-in-out duration-200 p-6 w-2xs border-r ${!isNavbarVisible && '-translate-x-full'}`}>
                     {menus.map((menu, index) => (
-                        <>
+                        <div key={menu.menuName}>
                             <div
-                                key={menu.menuName}
                                 className={`flex flex-row items-center py-1 px-2 rounded-lg hover:bg-black/10 ${index > 0 && "mt-2"}`}
                                 onClick={() => {
                                     setMenus(prevMenus => prevMenus.map((m, i) =>
@@ -99,7 +98,7 @@ function AppLayout({
                                     <p className="text-sm pl-2 flex-1">{menuItem.menuItemName}</p>
                                 </Link>
                             ))}
-                        </>
+                        </div>
                     ))}
                 </nav>
 
