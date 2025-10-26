@@ -19,7 +19,7 @@ function ProductsView() {
                         className="w-sm"
                         name="search"
                         placeholder="Cari SKU / Nama produk..."
-                        prefixIcon={<IconSearch />} />
+                        prefixIcon={IconSearch}/>
                     <button className="bg-black p-3 rounded-lg hover:bg-black/85" title="filter">
                         <IconFilter color="white" />
                     </button>

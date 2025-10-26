@@ -1,5 +1,6 @@
+import { Icon, IconProps } from "@tabler/icons-react";
 import clsx from "clsx";
-import { ChangeEventHandler, ReactNode } from "react";
+import React, { ChangeEventHandler, ForwardRefExoticComponent, RefAttributes } from "react";
 
 function TextField({
     name,
@@ -15,7 +16,7 @@ function TextField({
 }: {
     name: string,
     className?: string,
-    prefixIcon?: ReactNode | null,
+    prefixIcon?: ForwardRefExoticComponent<IconProps & RefAttributes<Icon>> | null,
     error?: string,
     type?: string,
     placeholder?: string,
@@ -57,7 +58,7 @@ function TextField({
                     onChange={onChange}
                 />
                 <span className="absolute flex flex-row left-0 inset-y-0 m-3 w-fit">
-                    {prefixIcon}
+                    {prefixIcon != null && React.createElement(prefixIcon)}
                 </span>
             </div>
             {showError && <span className="mx-1 mt-1 text-sm text-red-500">{error}</span>} 
