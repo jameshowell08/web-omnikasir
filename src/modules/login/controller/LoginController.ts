@@ -1,5 +1,5 @@
 import { Constants } from "@/src/modules/shared/model/constants"
-import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToOverviewPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 
 export class LoginController {
     eventCallback: (event: LoginEventCallback) => void
@@ -39,7 +39,7 @@ export class LoginController {
             });
 
             if (response.ok) {
-                this.eventCallback(new NavigateToHomePage())
+                this.eventCallback(new NavigateToOverviewPage())
             } else {
                 const errorJson: { message: string } = await response.json()
                 this.eventCallback(new ShowErrorToast(errorJson.message))

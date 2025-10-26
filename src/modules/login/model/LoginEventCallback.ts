@@ -1,6 +1,6 @@
 export type LoginEventCallback = object
 
-export class NavigateToHomePage implements LoginEventCallback {}
+export class NavigateToOverviewPage implements LoginEventCallback { }
 export class ShowErrorOnField implements LoginEventCallback {
     fieldName: string
     error: string

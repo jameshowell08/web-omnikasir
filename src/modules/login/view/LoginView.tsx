@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { LoadingOverlayContext } from "../../shared/view/LoadingOverlay";
 import TextField from "../../shared/view/TextField";
 import { LoginController } from "../controller/LoginController";
-import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToOverviewPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 
 function LoginView() {
     const router = useRouter()
@@ -17,8 +17,8 @@ function LoginView() {
     const showLoadingOverlay = useContext(LoadingOverlayContext)
 
     function listener(eventCallback: LoginEventCallback) {
-        if (eventCallback instanceof NavigateToHomePage) {
-            router.push(Constants.STORE_PROFILE_URL)
+        if (eventCallback instanceof NavigateToOverviewPage) {
+            router.push(Constants.OVERVIEW_URL)
         } else if (eventCallback instanceof ShowErrorOnField) {
             if (eventCallback.fieldName === "username") {
                 setErrorOnUsername(eventCallback.error)

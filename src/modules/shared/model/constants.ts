@@ -1,4 +1,5 @@
 export class Constants {
+    static readonly OVERVIEW_URL = "/overview"
     static readonly PRODUCTS_URL = "/products"
     static readonly STORE_PROFILE_URL = "/store-profile"
     static readonly TRANSACTION_URL = "/transaksi"
