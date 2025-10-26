@@ -1,6 +1,6 @@
 'use client'
 
-import { Constants } from "@/src/lib/constants";
+import { Constants } from "@/src/modules/shared/model/constants";
 import { IconChartBar, IconChevronRight, IconClock, IconHome, IconLayoutDashboard, IconReceiptDollar } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";

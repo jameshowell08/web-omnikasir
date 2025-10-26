@@ -5,7 +5,7 @@ import TextField from "../../components/TextField";
 import { LoginController } from "../controller/LoginController";
 import { LoginEventCallback, NavigateToHomePage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 import { useRouter } from "next/navigation";
-import { Constants } from "@/src/lib/constants";
+import { Constants } from "@/src/modules/shared/model/constants";
 import { LoadingOverlayContext } from "../../shared/view/LoadingOverlay";
 import toast from "react-hot-toast";
 
