@@ -39,23 +39,28 @@ function ProductsView() {
                 </div>
             </section>
 
-            <section className="flex flex-col gap-1">
-                <header className="flex flex-row py-2 px-3 bg-black rounded-lg text-white text-sm font-bold mt-2">
-                    <span className="flex-1/6">SKU</span>
-                    <span className="flex-1/2">Nama Produk</span>
-                    <span className="flex-1/6">Kategori</span>
-                    <span className="flex-1/6">Harga</span>
-                </header>
-
-                {Array.from({ length: 10 }).map((_, i) => (
-                    <div key={i} className="flex flex-row py-2 px-3 text-sm hover:bg-black/10 rounded-lg">
-                        <span className="flex-1/6">SM-A546E-128G</span>
-                        <span className="flex-1/2">Samsung Galaxy A54 5G 128GB</span>
-                        <span className="flex-1/6">Smartphone</span>
-                        <span className="flex-1/6">Rp5.499.000</span>
-                    </div>
-                ))}
-            </section>
+            <table className="table-auto w-full border-separate border-spacing-y-1 mt-2">
+                <thead>
+                    <tr className="bg-black text-white text-sm font-bold text-left">
+                        <th className="py-2 pl-3 rounded-l-lg">SKU</th>
+                        <th className="py-2">Nama Produk</th>
+                        <th className="py-2">Kategori</th>
+                        <th className="py-2">Stok</th>
+                        <th className="py-2 pr-3 rounded-r-lg">Harga</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Array.from({ length: 10 }).map((_, i) => (
+                        <tr key={i} className="text-sm hover:bg-black/10">
+                            <td className="py-2 pl-3 rounded-l-lg">SM-A546E-128G</td>
+                            <td className="py-2">Samsung Galaxy A54 5G 128GB</td>
+                            <td className="py-2">Smartphone</td>
+                            <td className="py-2">7</td>
+                            <td className="py-2 pr-3 rounded-r-lg">Rp5.499.000</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
             <footer className="mt-12 flex flex-row items-center justify-between text-sm">
                 <span className="flex flex-row items-center gap-1 px-2 py-1 text-black/20 w-fit select-none font-bold">
