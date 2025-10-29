@@ -12,6 +12,9 @@ model users {
   username     String    @unique @db.VarChar(255)
   password     String    @db.VarChar(255)
   created_date DateTime? @default(now()) @db.Timestamp(6)
+
+  userAccesses          userAccess[]
+  transactionHeaders    transactionHeader[]
 }
 
 model seq_no {
@@ -20,3 +23,94 @@ model seq_no {
   format String @db.VarChar(10)
   seqno  Int    @default(0)
 }
+
+model store {
+  id             String   @id @default(uuid())
+  nama           String
+  alamat         String
+  noHp           String
+  profilePicture Bytes? 
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model customer {
+  customer_id         String    @id @default(uuid())
+  customerName        String    @unique @db.VarChar(255)
+  customerPhoneNumber String
+  created_date        DateTime? @default(now()) @db.Timestamp(6)
+
+  transactionHeaders transactionHeader[]
+}
+
+model product {
+  product_id      String    @id @default(uuid())
+  productName     String    
+  productPrice    Float     
+  productQuantity Int       
+
+  transactionDetails transactionDetail[]
+  productInventories productInventory[]
+}
+
+model inventory {
+  inventory_id    String    @id @default(uuid())
+  date            DateTime  
+  note            String    
+
+  productInventories productInventory[]
+}
+
+model paymentMethod {
+  payment_id          String    @id @default(uuid())
+  paymentName         String
+
+  transactionHeaders  transactionHeader[]
+}
+
+model userAccess {
+  user_id String
+  access  String
+
+  users users @relation(fields: [user_id], references: [user_id])
+
+  @@id([user_id, access])  // composite primary key
+}
+
+model transactionHeader {
+  transactionHeaderID String   @id @db.VarChar(255)
+  transactionDate     DateTime
+  totalPrice          String   @db.VarChar(255)
+  payment_id          String
+  user_id             String
+  transactionMethod   String   @db.VarChar(255)
+  customer_id         String
+
+  paymentMethod paymentMethod @relation(fields: [payment_id], references: [payment_id])
+  user          users         @relation(fields: [user_id], references: [user_id])
+  customer      customer      @relation(fields: [customer_id], references: [customer_id])
+  transactionDetails transactionDetail[]
+}
+
+model transactionDetail {
+  transactionDetailID   String      @id @db.VarChar(255)
+  transactionHeaderID   String
+  product_id            String
+  quantity              Int
+  price                 String      @db.VarChar(255)
+
+  transactionHeader     transactionHeader @relation(fields: [transactionHeaderID], references: [transactionHeaderID])
+  product               product           @relation(fields: [product_id], references: [product_id])
+}
+
+model productInventory {
+  inventory_id String
+  product_id   String
+  quantity     BigInt
+
+  inventory inventory @relation(fields: [inventory_id], references: [inventory_id])
+  product   product   @relation(fields: [product_id], references: [product_id])
+
+  @@id([inventory_id, product_id]) // composite primary key
+}
+
