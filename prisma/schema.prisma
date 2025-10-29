@@ -13,8 +13,8 @@ model users {
   password     String    @db.VarChar(255)
   created_date DateTime? @default(now()) @db.Timestamp(6)
 
-  userAccesses          userAccess[]
-  transactionHeaders    transactionHeader[]
+  userAccesses       userAccess[]
+  transactionHeaders transactionHeader[]
 }
 
 model seq_no {
@@ -44,19 +44,23 @@ model customer {
 }
 
 model product {
-  product_id      String    @id @default(uuid())
-  productName     String    
-  productPrice    Float     
-  productQuantity Int       
+  product_id       String    @id @default(uuid())
+  productName      String    
+  productPrice     Float     
+  productQuantity  Int       
 
-  transactionDetails transactionDetail[]
-  productInventories productInventory[]
+  transactionDetails  transactionDetail[]
+  productInventories  productInventory[]
 }
 
 model inventory {
   inventory_id    String    @id @default(uuid())
   date            DateTime  
   note            String    
+
+  // 🔽 Tambahkan relasi ke kategori
+  category_id     String?
+  category        itemCategory? @relation(fields: [category_id], references: [category_id])
 
   productInventories productInventory[]
 }
@@ -74,7 +78,7 @@ model userAccess {
 
   users users @relation(fields: [user_id], references: [user_id])
 
-  @@id([user_id, access])  // composite primary key
+  @@id([user_id, access])
 }
 
 model transactionHeader {
@@ -111,6 +115,11 @@ model productInventory {
   inventory inventory @relation(fields: [inventory_id], references: [inventory_id])
   product   product   @relation(fields: [product_id], references: [product_id])
 
-  @@id([inventory_id, product_id]) // composite primary key
+  @@id([inventory_id, product_id])
 }
 
+model itemCategory {
+  category_id   String       @id @db.VarChar(255)
+  category_name String
+  inventories   inventory[]  // 1 kategori → banyak inventory
+}
