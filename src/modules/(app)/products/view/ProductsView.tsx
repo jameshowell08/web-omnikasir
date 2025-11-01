@@ -1,13 +1,22 @@
 'use client';
 import TextField from "@/src/modules/shared/view/TextField"
 import { IconArrowNarrowLeft, IconArrowNarrowRight, IconFilter, IconPlus, IconSearch } from "@tabler/icons-react"
+import ItemButton from "./component/ItemButton";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Constants } from "@/src/modules/shared/model/constants";
 
 function ProductsView() {
+    const router = useRouter();
+    const [selectedAmountOfItem, setSelectedAmountOfItem] = useState(10)
+
     return (
         <div className="w-full p-6">
             <header className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold">Produk</h1>
-                <span className="flex flex-row gap-1 items-center px-2 py-1 rounded-lg hover:bg-black/10 select-none">
+                <span 
+                    className="flex flex-row gap-1 items-center px-2 py-1 rounded-lg hover:bg-black/10 select-none"
+                    onClick={() => {router.push(Constants.ADD_PRODUCT_URL)}}>
                     <IconPlus />
                     <span className="text-xs font-bold">Tambah Produk</span>
                 </span>
@@ -19,7 +28,7 @@ function ProductsView() {
                         className="w-sm"
                         name="search"
                         placeholder="Cari SKU / Nama produk..."
-                        prefixIcon={IconSearch}/>
+                        prefixIcon={IconSearch} />
                     <button className="bg-black p-3 rounded-lg hover:bg-black/85" title="filter">
                         <IconFilter color="white" />
                     </button>
@@ -27,15 +36,18 @@ function ProductsView() {
 
                 <div className="flex flex-row gap-2 items-center">
                     <span className="text-xs">Produk per halaman</span>
-                    <span className="px-2 py-1 bg-black rounded-lg text-white text-xs select-none hover:bg-black/85">
-                        10 item
-                    </span>
-                    <span className="px-2 py-1 border border-black rounded-lg text-xs select-none hover:bg-black/10">
-                        20 item
-                    </span>
-                    <span className="px-2 py-1 border border-black rounded-lg text-xs select-none hover:bg-black/10">
-                        50 item
-                    </span>
+                    <ItemButton
+                        text="10 item"
+                        isSelected={selectedAmountOfItem == 10}
+                        onClick={() => {setSelectedAmountOfItem(10)}} />
+                    <ItemButton
+                        text="20 item"
+                        isSelected={selectedAmountOfItem == 20}
+                        onClick={() => {setSelectedAmountOfItem(20)}} />
+                    <ItemButton
+                        text="50 item"
+                        isSelected={selectedAmountOfItem == 50}
+                        onClick={() => setSelectedAmountOfItem(50)} />
                 </div>
             </section>
 
@@ -50,7 +62,7 @@ function ProductsView() {
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.from({ length: 10 }).map((_, i) => (
+                    {Array.from({ length: selectedAmountOfItem }).map((_, i) => (
                         <tr key={i} className="text-sm hover:bg-black/10">
                             <td className="py-2 pl-3 rounded-l-lg">SM-A546E-128G</td>
                             <td className="py-2">Samsung Galaxy A54 5G 128GB</td>
