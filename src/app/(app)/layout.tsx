@@ -147,7 +147,9 @@ function AppLayout({
                 </nav>
 
                 <div className={`transition-all ease-in-out duration-200 flex justify-center flex-1 ${isNavbarVisible && 'ml-[18rem]'}`}>
-                    {children}
+                    <div className="flex flex-col p-6 max-w-7xl w-full">
+                        {children}
+                    </div>
                 </div>
             </section>
         </div>

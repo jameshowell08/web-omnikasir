@@ -11,7 +11,7 @@ function ProductsView() {
     const [selectedAmountOfItem, setSelectedAmountOfItem] = useState(10)
 
     return (
-        <div className="w-full p-6">
+        <>
             <header className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold">Produk</h1>
                 <span 
@@ -87,7 +87,7 @@ function ProductsView() {
                     <IconArrowNarrowRight />
                 </span>
             </footer>
-        </div>
+        </>
     )
 }
 

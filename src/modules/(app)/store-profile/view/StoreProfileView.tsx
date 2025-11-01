@@ -2,7 +2,7 @@ import Image from "next/image";
 
 function StoreProfileView() {
     return (
-        <section className="flex flex-col p-6 max-w-7xl">
+        <>
             <h1 className="text-2xl font-bold mb-6">Profil Toko</h1>
             <div className="flex justify-between items-center bg-black rounded-lg p-3">
                 <h2 className="text-white text-lg font-bold">Profil Toko</h2>
@@ -33,7 +33,7 @@ function StoreProfileView() {
                     </div>
                 </div>
             </div>
-        </section>
+        </>
     )
 }
 
