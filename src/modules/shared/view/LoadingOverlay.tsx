@@ -12,7 +12,7 @@ export default function LoadingOverlay({children}: {children: React.ReactNode}) 
         <LoadingOverlayContext.Provider value = { setShowLoadingOverlay }>
           {
             showLoadingOverlay && 
-            <div className="fixed flex justify-center items-center h-screen w-screen bg-black/30 z-1">
+            <div className="fixed flex justify-center items-center h-screen w-screen bg-black/30 z-[100]">
               <div className="rounded-lg bg-white flex justify-center items-center p-5 shadow">
                 <Image 
                   src="/assets/loading-animation.gif"

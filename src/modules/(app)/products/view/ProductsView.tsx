@@ -63,7 +63,7 @@ function ProductsView() {
                 </thead>
                 <tbody>
                     {Array.from({ length: selectedAmountOfItem }).map((_, i) => (
-                        <tr key={i} className="text-sm hover:bg-black/10">
+                        <tr key={i} className="text-sm hover:bg-black/10" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
                             <td className="py-2 pl-3 rounded-l-lg">SM-A546E-128G</td>
                             <td className="py-2">Samsung Galaxy A54 5G 128GB</td>
                             <td className="py-2">Smartphone</td>
