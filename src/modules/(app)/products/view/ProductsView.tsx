@@ -2,21 +2,41 @@
 import TextField from "@/src/modules/shared/view/TextField"
 import { IconArrowNarrowLeft, IconArrowNarrowRight, IconFilter, IconPlus, IconSearch } from "@tabler/icons-react"
 import ItemButton from "./component/ItemButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Constants } from "@/src/modules/shared/model/constants";
+import { ProductsController } from "../controller/ProductsController";
+import { Product } from "../model/Product";
+import clsx from "clsx";
 
 function ProductsView() {
     const router = useRouter();
     const [selectedAmountOfItem, setSelectedAmountOfItem] = useState(10)
 
+    const [controller] = useState(() => {
+        console.log("ProductsController created!")
+        return new ProductsController(() => { })
+    })
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [maxPageSize, setMaxPageSize] = useState(() => controller.getMaxPageSize(selectedAmountOfItem))
+    const [displayedProducts, setDisplayedProducts] = useState(() => controller.getAllProducts(selectedAmountOfItem, currentPage))
+
+    useEffect(() => {
+        setMaxPageSize(controller.getMaxPageSize(selectedAmountOfItem))
+    }, [controller, selectedAmountOfItem])
+
+    useEffect(() => {
+        setDisplayedProducts(controller.getAllProducts(selectedAmountOfItem, currentPage))
+    }, [controller, selectedAmountOfItem, currentPage])
+
     return (
         <>
             <header className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold">Produk</h1>
-                <span 
+                <span
                     className="flex flex-row gap-1 items-center px-2 py-1 rounded-lg hover:bg-black/10 select-none"
-                    onClick={() => {router.push(Constants.ADD_PRODUCT_URL)}}>
+                    onClick={() => { router.push(Constants.ADD_PRODUCT_URL) }}>
                     <IconPlus />
                     <span className="text-xs font-bold">Tambah Produk</span>
                 </span>
@@ -39,15 +59,24 @@ function ProductsView() {
                     <ItemButton
                         text="10 item"
                         isSelected={selectedAmountOfItem == 10}
-                        onClick={() => {setSelectedAmountOfItem(10)}} />
+                        onClick={() => {
+                            setCurrentPage(1)
+                            setSelectedAmountOfItem(10)
+                        }} />
                     <ItemButton
                         text="20 item"
                         isSelected={selectedAmountOfItem == 20}
-                        onClick={() => {setSelectedAmountOfItem(20)}} />
+                        onClick={() => {
+                            setCurrentPage(1)
+                            setSelectedAmountOfItem(20)
+                        }} />
                     <ItemButton
                         text="50 item"
                         isSelected={selectedAmountOfItem == 50}
-                        onClick={() => setSelectedAmountOfItem(50)} />
+                        onClick={() => {
+                            setCurrentPage(1)
+                            setSelectedAmountOfItem(50)
+                        }} />
                 </div>
             </section>
 
@@ -62,29 +91,43 @@ function ProductsView() {
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.from({ length: selectedAmountOfItem }).map((_, i) => (
-                        <tr key={i} className="text-sm hover:bg-black/10" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
-                            <td className="py-2 pl-3 rounded-l-lg">SM-A546E-128G</td>
-                            <td className="py-2">Samsung Galaxy A54 5G 128GB</td>
-                            <td className="py-2">Smartphone</td>
-                            <td className="py-2">7</td>
-                            <td className="py-2 pr-3 rounded-r-lg">Rp5.499.000</td>
+                    {displayedProducts.map((value: Product) => (
+                        <tr key={value.sku} className="text-sm hover:bg-black/10" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
+                            <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
+                            <td className="py-2">{value.name}</td>
+                            <td className="py-2">{value.category}</td>
+                            <td className="py-2">{value.stock}</td>
+                            <td className="py-2 pr-3 rounded-r-lg">{value.formatRupiah()}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
             <footer className="mt-12 flex flex-row items-center justify-between text-sm">
-                <span className="flex flex-row items-center gap-1 px-2 py-1 text-black/20 w-fit select-none font-bold">
-                    <IconArrowNarrowLeft color="black" className="opacity-20" />
+                <span
+                    className={clsx(
+                        "flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold",
+                        currentPage <= 1 ? "text-black/20" : "hover:bg-black/10 rounded-lg",
+                    )}
+                    onClick={() => {
+                        if (currentPage > 1) setCurrentPage(currentPage - 1)
+                    }}>
+                    <IconArrowNarrowLeft className={clsx(currentPage <= 1 && "opacity-20")} />
                     Halaman sebelum
                 </span>
 
-                <span>Halaman 1 dari 21</span>
+                <span>Halaman {currentPage} dari {maxPageSize}</span>
 
-                <span className="flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold hover:bg-black/10 rounded-lg">
+                <span
+                    className={clsx(
+                        "flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold",
+                        currentPage >= maxPageSize ? "text-black/20" : "hover:bg-black/10 rounded-lg",
+                    )}
+                    onClick={() => {
+                        if (currentPage < maxPageSize) setCurrentPage(currentPage + 1)
+                    }}>
                     Halaman selanjutnya
-                    <IconArrowNarrowRight />
+                    <IconArrowNarrowRight className={clsx(currentPage >= maxPageSize && "opacity-20")} />
                 </span>
             </footer>
         </>
