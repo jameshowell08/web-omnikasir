@@ -51,7 +51,7 @@ function ProductsView() {
                 </div>
             </section>
 
-            <table className="table-auto w-full border-separate border-spacing-y-1 mt-2">
+            <table className="table-auto w-full border-separate border-spacing-y-1 mt-3">
                 <thead>
                     <tr className="bg-black text-white text-sm font-bold text-left">
                         <th className="py-2 pl-3 rounded-l-lg">SKU</th>
