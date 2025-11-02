@@ -2,13 +2,9 @@ import { Constants } from "@/src/modules/shared/model/constants"
 import { LoginEventCallback, NavigateToOverviewPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 
 export class LoginController {
-    eventCallback: (event: LoginEventCallback) => void
-
     constructor(
-        eventCallback: (event: LoginEventCallback) => void
-    ) {
-        this.eventCallback = eventCallback
-    }
+        private eventCallback: (event: LoginEventCallback) => void
+    ) { }
 
     async login(formData: FormData) {
         let error = false

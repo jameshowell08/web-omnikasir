@@ -103,8 +103,8 @@ function AppLayout({
     const pathname = usePathname();
 
     return (
-        <div className="flex flex-col h-screen">
-            <header className="px-5 py-3 flex items-center border-b sticky top-0 bg-white">
+        <div className="flex flex-col h-full min-h-screen">
+            <header className="px-5 py-3 flex items-center border-b z-10 sticky top-0 bg-white">
                 <span
                     className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
                     onClick={() => showNavbar(!isNavbarVisible)}
