@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import * as Prisma from '@prisma/client';
+const { PrismaClient } = Prisma as any;
 import bcrypt from 'bcryptjs';
 
 // Initialize the client for the seed script

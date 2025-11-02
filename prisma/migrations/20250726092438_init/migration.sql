@@ -19,7 +19,4 @@ CREATE TABLE "seq_no" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
-
--- CreateIndex
 CREATE UNIQUE INDEX "seq_no_name_key" ON "seq_no"("name");
