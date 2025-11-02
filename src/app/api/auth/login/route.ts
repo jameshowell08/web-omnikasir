@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server"
-import { db } from "../../../../lib/db"
+import { db } from "../../../../modules/shared/util/db"
 import bcrypt from "bcryptjs"
-import { signJwt } from "../../../../lib/auth"
+import { signJwt } from "../../../../modules/shared/util/auth"
 const SYMBOLS = /^[!@#$%^&*()]/
 
 export async function POST(req: Request) {
-  const { username, password } = await req.json()
+  const { username, password }: { username: string, password: string } = await req.json()
 
-  const user = await db.users.findUnique({ where: { username } })
+  const user = await db.users.findFirst({ where: { username } })
 
   if (username.length < 5) {
     return NextResponse.json(
