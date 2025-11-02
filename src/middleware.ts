@@ -1,23 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyJwt } from "./modules/shared/util/auth"
-import { Constants } from "./modules/shared/model/constants"
+import { Constants } from "./lib/constants"
 
 export async function middleware(req: NextRequest) {
-  // const token = req.cookies.get("token")?.value
-  // const user = token ? await verifyJwt(token) : null
-  // const { pathname } = req.nextUrl
+  // Define public paths that don't require authentication
+  const publicPaths = [Constants.LOGIN_URL]
 
-  // const isPublicPath = pathname === Constants.LOGIN_URL
+  const token = req.cookies.get("token")?.value
+  const user = token ? await verifyJwt(token) : null
+  const { pathname } = req.nextUrl
 
-  // // If the path is protected and the user is not authenticated, redirect to login.
-  // if (!isPublicPath && !user) {
-  //   return NextResponse.redirect(new URL(Constants.LOGIN_URL, req.url));
-  // }
+  const isPublicPath = publicPaths.includes(pathname)
 
-  // // If the path is public (or the root) and the user is authenticated, redirect to the dashboard.
-  // if ((isPublicPath || pathname === "/") && user) {
-  //   return NextResponse.redirect(new URL(Constants.TRANSACTION_URL, req.url));
-  // }
+  // If the path is protected and the user is not authenticated, redirect to login.
+  if (!isPublicPath && !user) {
+    return NextResponse.redirect(new URL(Constants.LOGIN_URL, req.url))
+  }
+
+  // If the path is public (or the root) and the user is authenticated, redirect to the transaction page.
+  if ((isPublicPath || pathname === "/") && user) {
+    return NextResponse.redirect(new URL(Constants.PRODUCT_URL, req.url))
+  }
 
   return NextResponse.next()
 }
