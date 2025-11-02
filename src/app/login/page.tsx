@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
-import { Constants } from "@/src/lib/constants"
+import { Constants } from "../../../src/lib/constants"
 import Image from "next/image"
 import LoadingOverlay from "../(app)/components/LoadingOverlay"
 
@@ -127,8 +127,9 @@ export default function Home() {
             type="text"
             name="username"
             id="username"
-            className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${isUsernameError ? "border-red-600" : ""
-              }`}
+            className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${
+              isUsernameError ? "border-red-600" : ""
+            }`}
             placeholder="Username"
             autoComplete="username"
             value={username}
@@ -145,8 +146,9 @@ export default function Home() {
             type={showPassword ? "text" : "password"}
             name="password"
             id="password"
-            className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${isPasswordError ? "border-red-600" : ""
-              }`}
+            className={`border-2 p-2 rounded-lg my-1 focus:outline-none ${
+              isPasswordError ? "border-red-600" : ""
+            }`}
             placeholder="Password"
             autoComplete="current-password"
             value={password}

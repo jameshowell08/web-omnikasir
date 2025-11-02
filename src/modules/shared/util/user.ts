@@ -2,7 +2,7 @@ import { prisma } from "./db"
 
 export async function generateUserId(): Promise<string> {
   return await prisma.$transaction(async (tx) => {
-    const sequence = await tx.seq_no.findUnique({
+    const sequence = await tx.seqNo.findUnique({
       where: { name: "user_id" },
     })
 
@@ -12,7 +12,7 @@ export async function generateUserId(): Promise<string> {
 
     const nextSeq = sequence.seqno + 1
 
-    await tx.seq_no.update({
+    await tx.seqNo.update({
       where: { name: "user_id" },
       data: { seqno: nextSeq },
     })
