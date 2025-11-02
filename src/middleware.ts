@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyJwt } from "./modules/shared/util/auth"
-import { Constants } from "./lib/constants"
+import { Constants } from "./modules/shared/model/constants"
 
 export async function middleware(req: NextRequest) {
   // Define public paths that don't require authentication
@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
 
   // If the path is public (or the root) and the user is authenticated, redirect to the transaction page.
   if ((isPublicPath || pathname === "/") && user) {
-    return NextResponse.redirect(new URL(Constants.PRODUCT_URL, req.url))
+    return NextResponse.redirect(new URL(Constants.OVERVIEW_URL, req.url))
   }
 
   return NextResponse.next()

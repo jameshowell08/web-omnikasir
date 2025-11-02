@@ -1,6 +1,7 @@
 'use client'
 
-import { Constants } from "@/src/modules/shared/model/constants";
+import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderController";
+import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
 import { IconBuildingStore, IconChartBar, IconChevronRight, IconClock, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceiptDollar, IconSettings, IconStackPush, IconTags, IconUserCircle } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -12,6 +13,13 @@ function AppLayout({
     children: React.ReactNode;
 }>) {
     const router = useRouter();
+    function eventCallback(e: AppHeaderEventCallback) {
+        if (e instanceof NavigateToUrl) {
+            router.replace(e.url)
+        }
+    }
+
+    const [controller] = useState(() => new AppHeaderController(eventCallback))
     const initialMenus = [
         {
             menuName: "Dashboard",
@@ -116,7 +124,11 @@ function AppLayout({
                     <p className="text-right text-2xs">Admin</p>
                     <p className="text-right text-xs font-bold">John Doe</p>
                 </div>
-                <span className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none" onClick={() => { router.push(Constants.LOGIN_URL) }}>logout</span>
+                <span
+                    className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
+                    onClick={() => controller.logout()}>
+                    logout
+                </span>
             </header>
 
             <section className="flex flex-row flex-1">
