@@ -1,48 +1,43 @@
-import * as Prisma from '@prisma/client';
-const { PrismaClient } = Prisma as any;
-import bcrypt from 'bcryptjs';
+import { PrismaClient } from "@prisma/client"
+import bcrypt from "bcryptjs"
 
-// Initialize the client for the seed script
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
   console.log("Start seeding...")
 
-  const seqNo = {
-    id: 0,
-    name: "user_id",
-    format: "US",
-    seqno: 1
-  }
-
-  const insertedSeqNo = await prisma.seq_no.upsert({
-    where: { id: seqNo.id, name: seqNo.name },
+  // ✅ Correct seq_no upsert
+  const insertedSeqNo = await prisma.seqNo.upsert({
+    where: { name: "user_id" }, // name is unique
     update: {},
-    create: { id: seqNo.id, name: seqNo.name, format: seqNo.format, seqno: seqNo.seqno }
+    create: {
+      name: "user_id",
+      format: "US",
+      seqno: 1,
+    },
   })
 
-  console.log(`Inserted seqNo with these data: ${insertedSeqNo.id} | ${insertedSeqNo.name} | ${insertedSeqNo.format} | ${insertedSeqNo.seqno}`)
+  console.log(`Inserted seqNo: ${insertedSeqNo.name}`)
 
-  const user = {
-    userId: "US000",
-    username: "admin",
-    password: "admin123"
-  }
-
+  // ✅ Correct user upsert
   const insertedUser = await prisma.users.upsert({
-    where: { user_id: user.userId },
+    where: { userId: "US000" }, // use Prisma field name
     update: {},
-    create: { user_id: user.userId, username: user.username, password: bcrypt.hashSync('admin123', 10) }
+    create: {
+      userId: "US000",
+      username: "admin",
+      password: bcrypt.hashSync("admin123", 10),
+    },
   })
 
-  console.log(`Inserted user with these credentials: ${insertedUser.username} | ${insertedUser.password}`)
+  console.log(`Inserted user: ${insertedUser.username}`)
 }
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    console.error("Error seeding:", e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })

@@ -7,119 +7,181 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  user_id      String    @id @db.VarChar(255)
-  username     String    @unique @db.VarChar(255)
-  password     String    @db.VarChar(255)
-  created_date DateTime? @default(now()) @db.Timestamp(6)
+model Users {
+  userId      String    @id @map("user_id") @db.VarChar(255)
+  username    String    @unique @db.VarChar(255)
+  password    String    @db.VarChar(255)
+  createdDate DateTime? @default(now()) @map("created_date") @db.Timestamp(6)
 
-  userAccesses       userAccess[]
-  transactionHeaders transactionHeader[]
+  userAccesses       UserAccess[]
+  transactionHeaders TransactionHeader[]
 }
 
-model seq_no {
+model SeqNo {
   id     BigInt @id @default(autoincrement())
   name   String @unique @db.VarChar(50)
   format String @db.VarChar(10)
   seqno  Int    @default(0)
 }
 
-model store {
+model Store {
   id             String   @id @default(uuid())
   nama           String
   alamat         String
   noHp           String
-  profilePicture Bytes? 
+  profilePicture Bytes?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
 
-model customer {
-  customer_id         String    @id @default(uuid())
+model Customer {
+  customerId          String    @id @default(uuid()) @map("customer_id")
   customerName        String    @unique @db.VarChar(255)
-  customerPhoneNumber String
-  created_date        DateTime? @default(now()) @db.Timestamp(6)
+  customerPhoneNumber String?
+  createdDate         DateTime? @default(now()) @map("created_date") @db.Timestamp(6)
 
-  transactionHeaders transactionHeader[]
+  transactionHeaders TransactionHeader[]
 }
 
-model product {
-  product_id       String    @id @default(uuid())
-  productName      String    
-  productPrice     Float     
-  productQuantity  Int       
+model ProductCategory {
+  categoryId   String    @id @default(uuid()) @map("category_id")
+  categoryName String    @map("category_name")
+  description  String?
 
-  transactionDetails  transactionDetail[]
-  productInventories  productInventory[]
+  createdBy    String?
+  createdDate  DateTime  @default(now())
+  modifiedBy   String?
+  modifiedDate DateTime  @updatedAt
+
+  products    Product[]
+  inventories Inventory[]
 }
 
-model inventory {
-  inventory_id    String    @id @default(uuid())
-  date            DateTime  
-  note            String    
+model Product {
+  productId       String   @id @default(uuid()) @map("product_id")
+  productName     String
+  brand           String?
+  description     String?
+  categoryId      String?  @map("category_id")
+  category        ProductCategory? @relation(fields: [categoryId], references: [categoryId])
 
-  // 🔽 Tambahkan relasi ke kategori
-  category_id     String?
-  category        itemCategory? @relation(fields: [category_id], references: [category_id])
+  createdBy    String?
+  createdDate  DateTime @default(now())
+  modifiedBy   String?
+  modifiedDate DateTime @updatedAt
 
-  productInventories productInventory[]
+  // Relations
+  skus             ProductSku[]
+  transactionDetails TransactionDetail[] 
 }
 
-model paymentMethod {
-  payment_id          String    @id @default(uuid())
-  paymentName         String
+model ProductSku {
+  skuId         String   @id @default(uuid())
+  sku           String   @unique
+  productId     String
+  product       Product  @relation(fields: [productId], references: [productId])
 
-  transactionHeaders  transactionHeader[]
+  barcode       String?  @unique
+  priceSell     Decimal  @db.Decimal(12, 2)
+  priceBuy      Decimal? @db.Decimal(12, 2)
+  stock         Int      @default(0)  // NEW: Stock column
+  attributes    Json?    
+  serialRequired Boolean @default(false)
+
+  createdDate   DateTime @default(now())
+  modifiedDate  DateTime @updatedAt
+
+  // Relations
+  inventories    ProductInventory[]
+  serialNumbers  SerialNumber[]
+  transactionDetails TransactionDetail[] 
 }
 
-model userAccess {
-  user_id String
-  access  String
+model ProductInventory {
+  id          String   @id @default(uuid())
+  skuId       String
+  sku         ProductSku @relation(fields: [skuId], references: [skuId])
 
-  users users @relation(fields: [user_id], references: [user_id])
+  inventoryId String?   @map("inventory_id")
+  inventory   Inventory? @relation(fields: [inventoryId], references: [inventoryId])
 
-  @@id([user_id, access])
+  quantity    Int      @default(0)
+  reserved    Int      @default(0) 
+  inTransit   Int      @default(0)
+
+  updatedAt   DateTime @updatedAt
+
+  @@unique([skuId, inventoryId], map: "ux_sku_inventory")
 }
 
-model transactionHeader {
-  transactionHeaderID String   @id @db.VarChar(255)
+model SerialNumber {
+  serialId   String   @id @default(uuid())
+  skuId      String
+  sku        ProductSku @relation(fields: [skuId], references: [skuId])
+
+  serialNo   String   @unique
+  status     String   @default("IN_STOCK")
+  soldAt     DateTime?
+  soldTo     String?  
+  warrantyUntil DateTime?
+
+  createdDate DateTime @default(now())
+  modifiedDate DateTime @updatedAt
+}
+
+model Inventory {
+  inventoryId String   @id @default(uuid()) @map("inventory_id")
+  date        DateTime
+  note        String?
+
+  categoryId  String?  @map("category_id")
+  category    ProductCategory? @relation(fields: [categoryId], references: [categoryId])
+
+  productInventories ProductInventory[]
+}
+
+model PaymentMethod {
+  paymentId   String   @id @default(uuid()) @map("payment_id")
+  paymentName String
+
+  transactionHeaders TransactionHeader[]
+}
+
+model UserAccess {
+  userId String @map("user_id")
+  access String
+
+  user Users @relation(fields: [userId], references: [userId])
+
+  @@id([userId, access])
+}
+
+model TransactionHeader {
+  transactionHeaderId String   @id @map("transactionHeaderID") @db.VarChar(255)
   transactionDate     DateTime
-  totalPrice          String   @db.VarChar(255)
-  payment_id          String
-  user_id             String
+  totalPrice          Decimal  @db.Decimal(12,2)
+  paymentId           String   @map("payment_id")
+  userId              String   @map("user_id")
   transactionMethod   String   @db.VarChar(255)
-  customer_id         String
+  customerId          String   @map("customer_id")
 
-  paymentMethod paymentMethod @relation(fields: [payment_id], references: [payment_id])
-  user          users         @relation(fields: [user_id], references: [user_id])
-  customer      customer      @relation(fields: [customer_id], references: [customer_id])
-  transactionDetails transactionDetail[]
+  paymentMethod       PaymentMethod @relation(fields: [paymentId], references: [paymentId])
+  user                Users         @relation(fields: [userId], references: [userId])
+  customer            Customer      @relation(fields: [customerId], references: [customerId])
+  transactionDetails  TransactionDetail[]
 }
 
-model transactionDetail {
-  transactionDetailID   String      @id @db.VarChar(255)
-  transactionHeaderID   String
-  product_id            String
-  quantity              Int
-  price                 String      @db.VarChar(255)
+model TransactionDetail {
+  transactionDetailId String   @id @map("transactionDetailID") @db.VarChar(255)
+  transactionHeaderId String   @map("transactionHeaderID")
+  transactionHeader   TransactionHeader @relation(fields: [transactionHeaderId], references: [transactionHeaderId])
 
-  transactionHeader     transactionHeader @relation(fields: [transactionHeaderID], references: [transactionHeaderID])
-  product               product           @relation(fields: [product_id], references: [product_id])
-}
+  skuId    String?  
+  sku      ProductSku? @relation(fields: [skuId], references: [skuId])
 
-model productInventory {
-  inventory_id String
-  product_id   String
-  quantity     BigInt
+  productId String? @map("product_id")
+  product   Product? @relation(fields: [productId], references: [productId])
 
-  inventory inventory @relation(fields: [inventory_id], references: [inventory_id])
-  product   product   @relation(fields: [product_id], references: [product_id])
-
-  @@id([inventory_id, product_id])
-}
-
-model itemCategory {
-  category_id   String       @id @db.VarChar(255)
-  category_name String
-  inventories   inventory[]  // 1 kategori → banyak inventory
+  quantity  Int
+  price     Decimal  @db.Decimal(12,2)
 }
