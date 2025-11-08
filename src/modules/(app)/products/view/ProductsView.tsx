@@ -2,32 +2,44 @@
 import TextField from "@/src/modules/shared/view/TextField"
 import { IconArrowNarrowLeft, IconArrowNarrowRight, IconFilter, IconPlus, IconSearch } from "@tabler/icons-react"
 import ItemButton from "./component/ItemButton";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Constants } from "@/src/modules/shared/model/constants";
 import { ProductsController } from "../controller/ProductsController";
 import { Product } from "../model/Product";
 import clsx from "clsx";
+import { ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import toast from "react-hot-toast";
 
 function ProductsView() {
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
     const router = useRouter();
     const [selectedAmountOfItem, setSelectedAmountOfItem] = useState(10)
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
+    const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
+
+    function eventCallback(e: ProductsEventCallback) {
+        if (e instanceof UpdateTotalPageAmount) {
+            setTotalPage(e.newTotalPage)
+        } else if (e instanceof UpdateDisplayedProducts) {
+            setDisplayedProducts(e.newDisplayedProducts)
+        } else if (e instanceof ShowHideLoadingOverlay) {
+            showLoadingOverlay(e.showLoadingOverlay)
+        } else if (e instanceof ShowErrorToast) {
+            toast.error(e.errorMessage)
+        }
+    }
     const [controller] = useState(() => {
         console.log("ProductsController created!")
-        return new ProductsController(() => { })
+        return new ProductsController(eventCallback)
     })
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [maxPageSize, setMaxPageSize] = useState(() => controller.getMaxPageSize(selectedAmountOfItem))
-    const [displayedProducts, setDisplayedProducts] = useState(() => controller.getAllProducts(selectedAmountOfItem, currentPage))
-
     useEffect(() => {
-        setMaxPageSize(controller.getMaxPageSize(selectedAmountOfItem))
-    }, [controller, selectedAmountOfItem])
-
-    useEffect(() => {
-        setDisplayedProducts(controller.getAllProducts(selectedAmountOfItem, currentPage))
+        console.log("Refreshed Product")
+        controller.getAllProducts(selectedAmountOfItem, currentPage)
     }, [controller, selectedAmountOfItem, currentPage])
 
     return (
@@ -92,7 +104,7 @@ function ProductsView() {
                 </thead>
                 <tbody>
                     {displayedProducts.map((value: Product) => (
-                        <tr key={value.sku} className="text-sm hover:bg-black/10" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
+                        <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
                             <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
                             <td className="py-2">{value.name}</td>
                             <td className="py-2">{value.category}</td>
@@ -116,18 +128,18 @@ function ProductsView() {
                     Halaman sebelum
                 </span>
 
-                <span>Halaman {currentPage} dari {maxPageSize}</span>
+                <span>Halaman {currentPage} dari {totalPage}</span>
 
                 <span
                     className={clsx(
                         "flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold",
-                        currentPage >= maxPageSize ? "text-black/20" : "hover:bg-black/10 rounded-lg",
+                        currentPage >= totalPage ? "text-black/20" : "hover:bg-black/10 rounded-lg",
                     )}
                     onClick={() => {
-                        if (currentPage < maxPageSize) setCurrentPage(currentPage + 1)
+                        if (currentPage < totalPage) setCurrentPage(currentPage + 1)
                     }}>
                     Halaman selanjutnya
-                    <IconArrowNarrowRight className={clsx(currentPage >= maxPageSize && "opacity-20")} />
+                    <IconArrowNarrowRight className={clsx(currentPage >= totalPage && "opacity-20")} />
                 </span>
             </footer>
         </>
