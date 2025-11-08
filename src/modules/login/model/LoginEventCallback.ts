@@ -1,20 +1,18 @@
-export type LoginEventCallback = object
-
-export class NavigateToOverviewPage implements LoginEventCallback { }
-export class ShowErrorOnField implements LoginEventCallback {
-    fieldName: string
-    error: string
-
-    constructor(fieldName: string, error: string) {
-        this.fieldName = fieldName
-        this.error = error
-    }
+export abstract class LoginEventCallback {
+  readonly eventType = "login";
 }
 
-export class ShowErrorToast implements LoginEventCallback {
-    errorMessage: string
+export class NavigateToOverviewPage extends LoginEventCallback { }
 
-    constructor(errorMessage: string) {
-        this.errorMessage = errorMessage
-    }
+export class ShowErrorOnField extends LoginEventCallback {
+    constructor(
+        public fieldName: string, 
+        public error: string
+    ) { super() }
+}
+
+export class ShowErrorToast extends LoginEventCallback {
+    constructor(
+        public errorMessage: string
+    ) { super() }
 }

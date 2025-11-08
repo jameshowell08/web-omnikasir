@@ -1,27 +1,29 @@
 import { Product } from "./Product";
 
-export type ProductsEventCallback = object;
+export abstract class ProductsEventCallback {
+  readonly eventType = "products";
+}
 
-export class UpdateTotalPageAmount implements ProductsEventCallback {
+export class UpdateTotalPageAmount extends ProductsEventCallback {
     constructor(
         public newTotalPage: number
-    ) { }
+    ) { super() }
 }
 
-export class UpdateDisplayedProducts implements ProductsEventCallback {
+export class UpdateDisplayedProducts extends ProductsEventCallback {
     constructor(
         public newDisplayedProducts: Product[]
-    ) { }
+    ) { super() }
 }
 
-export class ShowHideLoadingOverlay implements ProductsEventCallback {
+export class ShowHideLoadingOverlay extends ProductsEventCallback {
     constructor(
         public showLoadingOverlay: boolean
-    ) { }
+    ) { super() }
 }
 
-export class ShowErrorToast implements ProductsEventCallback {
+export class ShowErrorToast extends ProductsEventCallback {
     constructor(
         public errorMessage: string
-    ) { }
+    ) { super() }
 }
