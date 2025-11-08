@@ -15,6 +15,7 @@ export async function GET(req: Request) {
     const skip = (page - 1) * limit
 
     // Build filter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filter: any = {}
 
     if (search) {
