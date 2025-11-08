@@ -1,5 +1,7 @@
-export abstract class LoginEventCallback {
-  readonly eventType = "login";
+import { Callback } from "../../shared/model/Callback"
+
+export abstract class LoginEventCallback extends Callback {
+    constructor() { super("login") }
 }
 
 export class NavigateToOverviewPage extends LoginEventCallback { }

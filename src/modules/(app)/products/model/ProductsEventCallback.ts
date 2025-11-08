@@ -1,7 +1,8 @@
+import { Callback } from "@/src/modules/shared/model/Callback";
 import { Product } from "./Product";
 
-export abstract class ProductsEventCallback {
-  readonly eventType = "products";
+export abstract class ProductsEventCallback extends Callback {
+  constructor() { super("products") }
 }
 
 export class UpdateTotalPageAmount extends ProductsEventCallback {
