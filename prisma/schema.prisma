@@ -13,9 +13,11 @@ model Users {
   password    String    @db.VarChar(255)
   createdDate DateTime? @default(now()) @map("created_date") @db.Timestamp(6)
 
+
   userAccesses       UserAccess[]
   transactionHeaders TransactionHeader[]
-}
+  
+  }
 
 model SeqNo {
   id     BigInt @id @default(autoincrement())
@@ -48,97 +50,72 @@ model ProductCategory {
   categoryName String    @map("category_name")
   description  String?
 
-  createdBy    String?
   createdDate  DateTime  @default(now())
-  modifiedBy   String?
   modifiedDate DateTime  @updatedAt
 
+
+  createdBy   Users   @relation(fields: [createdByID], references: [user_id])
+  modifiedBy  Users?  @relation(fields: [modifiedByID], references: [user_id])
+  user Users[]
   products    Product[]
   inventories Inventory[]
 }
 
 model Product {
-  productId       String   @id @default(uuid()) @map("product_id")
+  sku             String            @id @default(uuid())
   productName     String
-  brand           String?
-  description     String?
-  categoryId      String?  @map("category_id")
-  category        ProductCategory? @relation(fields: [categoryId], references: [categoryId])
+  brand           String
+  categoryId      String          @map("category_id")
+  category        ProductCategory @relation(fields: [categoryId], references: [categoryId])
 
-  createdBy    String?
   createdDate  DateTime @default(now())
-  modifiedBy   String?
   modifiedDate DateTime @updatedAt
 
+
+  createdBy   users   @relation("createdByUser", fields: [createdByID], references: [user_id])
+  modifiedBy  users?  @relation("modifiedByUser", fields: [modifiedByID], references: [user_id])
   // Relations
-  skus             ProductSku[]
-  transactionDetails TransactionDetail[] 
+  user Users[]
+  skus                ProductSku[]
+  transactionDetails  TransactionDetail[] 
+  imeis               Imei[]
 }
 
-model ProductSku {
-  skuId         String   @id @default(uuid())
-  sku           String   @unique
-  productId     String
-  product       Product  @relation(fields: [productId], references: [productId])
+model Imei {
+  sku       String
+  imei      String 
 
-  barcode       String?  @unique
-  priceSell     Decimal  @db.Decimal(12, 2)
-  priceBuy      Decimal? @db.Decimal(12, 2)
-  stock         Int      @default(0)  // NEW: Stock column
-  attributes    Json?    
-  serialRequired Boolean @default(false)
-
-  createdDate   DateTime @default(now())
-  modifiedDate  DateTime @updatedAt
-
-  // Relations
-  inventories    ProductInventory[]
-  serialNumbers  SerialNumber[]
-  transactionDetails TransactionDetail[] 
+  product Product @relation(fields: [sku], references: [sku])
 }
 
-model ProductInventory {
-  id          String   @id @default(uuid())
-  skuId       String
-  sku         ProductSku @relation(fields: [skuId], references: [skuId])
+model ProductInventoryHeader {
+  id            String      @id @default(uuid())
+  supplier      String 
 
-  inventoryId String?   @map("inventory_id")
-  inventory   Inventory? @relation(fields: [inventoryId], references: [inventoryId])
+  createdBy     String
+  createdDate   DateTime
+  modifiedBy    String
+  modifiedDate  DateTime
 
-  quantity    Int      @default(0)
-  reserved    Int      @default(0) 
-  inTransit   Int      @default(0)
+  createdBy   users   @relation("createdByUser", fields: [createdByID], references: [user_id])
+  modifiedBy  users?  @relation("modifiedByUser", fields: [modifiedByID], references: [user_id])
 
-  updatedAt   DateTime @updatedAt
-
-  @@unique([skuId, inventoryId], map: "ux_sku_inventory")
+  user Users[]
+  productInventoryDetail ProducInventoryDetail[]
 }
 
-model SerialNumber {
-  serialId   String   @id @default(uuid())
-  skuId      String
-  sku        ProductSku @relation(fields: [skuId], references: [skuId])
+model ProductInventoryDetail {
+  headerId    String   
+  sku         String
+  quantity    Int
+  price       Decimal
+  
 
-  serialNo   String   @unique
-  status     String   @default("IN_STOCK")
-  soldAt     DateTime?
-  soldTo     String?  
-  warrantyUntil DateTime?
-
-  createdDate DateTime @default(now())
-  modifiedDate DateTime @updatedAt
+  productHeader ProductInventoryHeader @relations(fields: [headerId],references: [id])
+  @@id([headerId, sku]) primary key
 }
 
-model Inventory {
-  inventoryId String   @id @default(uuid()) @map("inventory_id")
-  date        DateTime
-  note        String?
 
-  categoryId  String?  @map("category_id")
-  category    ProductCategory? @relation(fields: [categoryId], references: [categoryId])
-
-  productInventories ProductInventory[]
-}
 
 model PaymentMethod {
   paymentId   String   @id @default(uuid()) @map("payment_id")
@@ -159,7 +136,7 @@ model UserAccess {
 model TransactionHeader {
   transactionHeaderId String   @id @map("transactionHeaderID") @db.VarChar(255)
   transactionDate     DateTime
-  totalPrice          Decimal  @db.Decimal(12,2)
+ 
   paymentId           String   @map("payment_id")
   userId              String   @map("user_id")
   transactionMethod   String   @db.VarChar(255)
