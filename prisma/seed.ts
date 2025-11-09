@@ -6,9 +6,9 @@ const prisma = new PrismaClient()
 async function main() {
   console.log("Start seeding...")
 
-  // ✅ Correct seq_no upsert
+  // SeqNo
   const insertedSeqNo = await prisma.seqNo.upsert({
-    where: { name: "user_id" }, // name is unique
+    where: { name: "user_id" },
     update: {},
     create: {
       name: "user_id",
@@ -18,9 +18,9 @@ async function main() {
   })
   console.log(`Inserted seqNo: ${insertedSeqNo.name}`)
 
-  // ✅ Correct user upsert
+  // Users
   const insertedUser = await prisma.users.upsert({
-    where: { userId: "US000" }, // use Prisma field name
+    where: { userId: "US000" },
     update: {},
     create: {
       userId: "US000",
@@ -38,96 +38,70 @@ async function main() {
       categoryId: "cat-dummy-001",
       categoryName: "Electronics",
       description: "Electronic items",
-      createdBy: "US000",
+      createdBy: { connect: { userId: insertedUser.userId } },
+      createdDate: new Date(),
     },
   })
   console.log(`Inserted category: ${insertedCategory.categoryName}`)
 
   // Product
   const insertedProduct = await prisma.product.upsert({
-    where: { productId: "prod-dummy-001" },
+    where: { sku: "sku-dummy-001" },
     update: {},
     create: {
-      productId: "prod-dummy-001",
+      sku: "sku-dummy-001",
       productName: "Smartphone",
       brand: "BrandX",
-      description: "A dummy smartphone",
-      categoryId: insertedCategory.categoryId,
-      createdBy: "US000",
+      category: { connect: { categoryId: insertedCategory.categoryId } },
+      createdBy: { connect: { userId: insertedUser.userId } },
     },
   })
   console.log(`Inserted product: ${insertedProduct.productName}`)
 
-  // ProductSku
-  const insertedSku = await prisma.productSku.upsert({
-    where: { skuId: "sku-dummy-001" },
+  // ProductInventoryHeader
+  const insertedInventoryHeader = await prisma.productInventoryHeader.upsert({
+    where: { id: "invhdr-dummy-001" },
     update: {},
     create: {
-      skuId: "sku-dummy-001",
-      sku: "SMX-001",
-      productId: insertedProduct.productId,
-      barcode: "1234567890123",
-      priceSell: 299.99,
-      priceBuy: 199.99,
-      stock: 50,
-      attributes: { color: "black", memory: "128GB" },
-      serialRequired: true,
+      id: "invhdr-dummy-001",
+      supplier: "Main Supplier",
+      createdBy: { connect: { userId: insertedUser.userId } },
+      createdDate: new Date(),
     },
   })
-  console.log(`Inserted productSku: ${insertedSku.sku}`)
+  console.log(`Inserted inventory header: ${insertedInventoryHeader.id}`)
 
-  // Inventory
-  const insertedInventory = await prisma.inventory.upsert({
-    where: { inventoryId: "inv-dummy-001" },
+  // ProductInventoryDetail
+  const insertedInventoryDetail = await prisma.productInventoryDetail.upsert({
+    where: { headerId_sku: { headerId: insertedInventoryHeader.id, sku: insertedProduct.sku } },
     update: {},
     create: {
-      inventoryId: "inv-dummy-001",
-      date: new Date(),
-      note: "Main warehouse",
-      categoryId: insertedCategory.categoryId,
-    },
-  })
-  console.log(`Inserted inventory: ${insertedInventory.inventoryId}`)
-
-  // ProductInventory
-  const insertedProductInventory = await prisma.productInventory.upsert({
-    where: { id: "prodinv-dummy-001" },
-    update: {},
-    create: {
-      id: "prodinv-dummy-001",
-      skuId: insertedSku.skuId,
-      inventoryId: insertedInventory.inventoryId,
+      headerId: insertedInventoryHeader.id,
+      sku: insertedProduct.sku,
       quantity: 50,
-      reserved: 5,
-      inTransit: 2,
+      price: 299.99,
     },
   })
-  console.log(`Inserted productInventory: ${insertedProductInventory.id}`)
+  console.log(`Inserted inventory detail: ${insertedInventoryDetail.headerId}, ${insertedInventoryDetail.sku}`)
 
-  // SerialNumber
-  const insertedSerial1 = await prisma.serialNumber.upsert({
-    where: { serialId: "ser-dummy-001" },
+  // Imei
+  const insertedImei1 = await prisma.imei.upsert({
+    where: { sku_imei: { sku: insertedProduct.sku, imei: "IMEI0001" } },
     update: {},
     create: {
-      serialId: "ser-dummy-001",
-      skuId: insertedSku.skuId,
-      serialNo: "SN-0001",
-      status: "IN_STOCK",
-      warrantyUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      sku: insertedProduct.sku,
+      imei: "IMEI0001",
     },
   })
-  const insertedSerial2 = await prisma.serialNumber.upsert({
-    where: { serialId: "ser-dummy-002" },
+  const insertedImei2 = await prisma.imei.upsert({
+    where: { sku_imei: { sku: insertedProduct.sku, imei: "IMEI0002" } },
     update: {},
     create: {
-      serialId: "ser-dummy-002",
-      skuId: insertedSku.skuId,
-      serialNo: "SN-0002",
-      status: "IN_STOCK",
-      warrantyUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      sku: insertedProduct.sku,
+      imei: "IMEI0002",
     },
   })
-  console.log(`Inserted serialNumbers: ${insertedSerial1.serialNo}, ${insertedSerial2.serialNo}`)
+  console.log(`Inserted IMEIs: ${insertedImei1.imei}, ${insertedImei2.imei}`)
 
   // Customer
   const insertedCustomer = await prisma.customer.upsert({
@@ -172,11 +146,10 @@ async function main() {
     create: {
       transactionHeaderId: "trx-dummy-001",
       transactionDate: new Date(),
-      totalPrice: 299.99,
-      paymentId: insertedPaymentMethod.paymentId,
-      userId: insertedUser.userId,
+      paymentMethod: { connect: { paymentId: insertedPaymentMethod.paymentId } },
+      user: { connect: { userId: insertedUser.userId } },
       transactionMethod: "Cash",
-      customerId: insertedCustomer.customerId,
+      customer: { connect: { customerId: insertedCustomer.customerId } },
     },
   })
   console.log(`Inserted transactionHeader: ${insertedTransactionHeader.transactionHeaderId}`)
@@ -188,8 +161,7 @@ async function main() {
     create: {
       transactionDetailId: "trxd-dummy-001",
       transactionHeaderId: insertedTransactionHeader.transactionHeaderId,
-      skuId: insertedSku.skuId,
-      productId: insertedProduct.productId,
+      sku: insertedProduct.sku,
       quantity: 1,
       price: 299.99,
     },

@@ -13,11 +13,21 @@ model Users {
   password    String    @db.VarChar(255)
   createdDate DateTime? @default(now()) @map("created_date") @db.Timestamp(6)
 
-
   userAccesses       UserAccess[]
   transactionHeaders TransactionHeader[]
-  
-  }
+
+  // Relasi ke ProductCategory
+  createdCategories  ProductCategory[]      @relation("ProductCategoryCreatedBy")
+  modifiedCategories ProductCategory[]      @relation("ProductCategoryModifiedBy")
+
+  // Relasi ke Product
+  createdProducts    Product[]              @relation("ProductCreatedBy")
+  modifiedProducts   Product[]              @relation("ProductModifiedBy")
+
+  // Relasi ke Inventory Header
+  createdInventoryHeaders  ProductInventoryHeader[] @relation("InventoryHeaderCreatedBy")
+  modifiedInventoryHeaders ProductInventoryHeader[] @relation("InventoryHeaderModifiedBy")
+}
 
 model SeqNo {
   id     BigInt @id @default(autoincrement())
@@ -50,35 +60,33 @@ model ProductCategory {
   categoryName String    @map("category_name")
   description  String?
 
+  createdById  String
+  modifiedById String?
   createdDate  DateTime  @default(now())
   modifiedDate DateTime  @updatedAt
 
+  createdBy   Users   @relation("ProductCategoryCreatedBy", fields: [createdById], references: [userId])
+  modifiedBy  Users?  @relation("ProductCategoryModifiedBy", fields: [modifiedById], references: [userId])
 
-  createdBy   Users   @relation(fields: [createdByID], references: [user_id])
-  modifiedBy  Users?  @relation(fields: [modifiedByID], references: [user_id])
-  user Users[]
   products    Product[]
-  inventories Inventory[]
 }
 
 model Product {
-  sku             String            @id @default(uuid())
-  productName     String
-  brand           String
-  categoryId      String          @map("category_id")
-  category        ProductCategory @relation(fields: [categoryId], references: [categoryId])
+  sku          String  @id @default(uuid())
+  productName  String
+  brand        String
+  categoryId   String
 
-  createdDate  DateTime @default(now())
-  modifiedDate DateTime @updatedAt
+  createdById  String
+  modifiedById String?
 
+  category     ProductCategory @relation(fields: [categoryId], references: [categoryId])
+  createdBy    Users           @relation("ProductCreatedBy", fields: [createdById], references: [userId])
+  modifiedBy   Users?          @relation("ProductModifiedBy", fields: [modifiedById], references: [userId])
 
-  createdBy   users   @relation("createdByUser", fields: [createdByID], references: [user_id])
-  modifiedBy  users?  @relation("modifiedByUser", fields: [modifiedByID], references: [user_id])
-  // Relations
-  user Users[]
-  skus                ProductSku[]
-  transactionDetails  TransactionDetail[] 
-  imeis               Imei[]
+  imeis                 Imei[]
+  transactionDetails    TransactionDetail[]
+  productInventoryDetails ProductInventoryDetail[]
 }
 
 model Imei {
@@ -86,36 +94,36 @@ model Imei {
   imei      String 
 
   product Product @relation(fields: [sku], references: [sku])
+
+  @@id([sku, imei])
 }
 
 model ProductInventoryHeader {
   id            String      @id @default(uuid())
   supplier      String 
 
-  createdBy     String
-  createdDate   DateTime
-  modifiedBy    String
-  modifiedDate  DateTime
+  createdById   String
+  modifiedById  String?
+  createdDate   DateTime    @default(now())
+  modifiedDate  DateTime    @updatedAt
 
-  createdBy   users   @relation("createdByUser", fields: [createdByID], references: [user_id])
-  modifiedBy  users?  @relation("modifiedByUser", fields: [modifiedByID], references: [user_id])
+  createdBy   Users   @relation("InventoryHeaderCreatedBy", fields: [createdById], references: [userId])
+  modifiedBy  Users?  @relation("InventoryHeaderModifiedBy", fields: [modifiedById], references: [userId])
 
-  user Users[]
-  productInventoryDetail ProducInventoryDetail[]
+  productInventoryDetails ProductInventoryDetail[]
 }
 
 model ProductInventoryDetail {
-  headerId    String   
-  sku         String
-  quantity    Int
-  price       Decimal
-  
+  headerId  String
+  sku       String
+  quantity  Int
+  price     Decimal  @db.Decimal(12, 2)
 
-  productHeader ProductInventoryHeader @relations(fields: [headerId],references: [id])
-  @@id([headerId, sku]) primary key
+  productHeader ProductInventoryHeader @relation(fields: [headerId], references: [id])
+  product       Product                @relation(fields: [sku], references: [sku])
+
+  @@id([headerId, sku])
 }
-
-
 
 model PaymentMethod {
   paymentId   String   @id @default(uuid()) @map("payment_id")
@@ -136,7 +144,6 @@ model UserAccess {
 model TransactionHeader {
   transactionHeaderId String   @id @map("transactionHeaderID") @db.VarChar(255)
   transactionDate     DateTime
- 
   paymentId           String   @map("payment_id")
   userId              String   @map("user_id")
   transactionMethod   String   @db.VarChar(255)
@@ -149,16 +156,12 @@ model TransactionHeader {
 }
 
 model TransactionDetail {
-  transactionDetailId String   @id @map("transactionDetailID") @db.VarChar(255)
-  transactionHeaderId String   @map("transactionHeaderID")
-  transactionHeader   TransactionHeader @relation(fields: [transactionHeaderId], references: [transactionHeaderId])
+  transactionDetailId  String   @id @map("transactionDetailID") @db.VarChar(255)
+  transactionHeaderId  String   @map("transactionHeaderID")
+  quantity             Int
+  price                Decimal  @db.Decimal(12,2)
+  sku                  String  
 
-  skuId    String?  
-  sku      ProductSku? @relation(fields: [skuId], references: [skuId])
-
-  productId String? @map("product_id")
-  product   Product? @relation(fields: [productId], references: [productId])
-
-  quantity  Int
-  price     Decimal  @db.Decimal(12,2)
+  transactionHeader TransactionHeader @relation(fields: [transactionHeaderId], references: [transactionHeaderId])
+  product           Product?          @relation(fields: [sku], references: [sku])
 }
