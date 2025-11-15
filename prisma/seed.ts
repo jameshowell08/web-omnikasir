@@ -54,6 +54,9 @@ async function main() {
       brand: "BrandX",
       category: { connect: { categoryId: insertedCategory.categoryId } },
       createdBy: { connect: { userId: insertedUser.userId } },
+      quantity: 100,
+      sellingPrice: 399.99,
+      buyingPrice: 299.99,
     },
   })
   console.log(`Inserted product: ${insertedProduct.productName}`)
@@ -80,13 +83,14 @@ async function main() {
       sku: insertedProduct.sku,
       quantity: 50,
       price: 299.99,
+      // imeiCode: "IMEI0001", // Only include if client expects it
     },
   })
   console.log(`Inserted inventory detail: ${insertedInventoryDetail.headerId}, ${insertedInventoryDetail.sku}`)
 
   // Imei
   const insertedImei1 = await prisma.imei.upsert({
-    where: { sku_imei: { sku: insertedProduct.sku, imei: "IMEI0001" } },
+    where: { imei: "IMEI0001" },
     update: {},
     create: {
       sku: insertedProduct.sku,
@@ -94,7 +98,7 @@ async function main() {
     },
   })
   const insertedImei2 = await prisma.imei.upsert({
-    where: { sku_imei: { sku: insertedProduct.sku, imei: "IMEI0002" } },
+    where: { imei: "IMEI0002" },
     update: {},
     create: {
       sku: insertedProduct.sku,
@@ -164,6 +168,7 @@ async function main() {
       sku: insertedProduct.sku,
       quantity: 1,
       price: 299.99,
+      // imeiCode: "IMEI0001", // Only include if client expects it
     },
   })
   console.log(`Inserted transactionDetail: ${insertedTransactionDetail.transactionDetailId}`)
