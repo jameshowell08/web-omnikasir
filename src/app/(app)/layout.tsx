@@ -111,7 +111,7 @@ function AppLayout({
     const pathname = usePathname();
 
     return (
-        <div className="flex flex-col h-full min-h-screen">
+        <div className="flex flex-col h-full min-h-screen overflow-x-clip">
             <header className="px-5 py-3 flex items-center border-b z-10 sticky top-0 bg-white">
                 <span
                     className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
@@ -158,8 +158,8 @@ function AppLayout({
                     ))}
                 </nav>
 
-                <div className={`transition-all ease-in-out duration-200 flex justify-center flex-1 ${isNavbarVisible && 'ml-[18rem]'}`}>
-                    <div className="flex flex-col p-6 max-w-7xl w-full">
+                <div className={`max-w-full transition-all ease-in-out duration-200 flex justify-center flex-1 ${isNavbarVisible && 'ml-[18rem]'}`}>
+                    <div className="flex flex-col p-6 max-w-7xl w-full overflow-x-scroll">
                         {children}
                     </div>
                 </div>
