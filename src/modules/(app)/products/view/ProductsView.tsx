@@ -97,9 +97,12 @@ function ProductsView() {
                     <tr className="bg-black text-white text-sm font-bold text-left">
                         <th className="py-2 pl-3 rounded-l-lg">SKU</th>
                         <th className="py-2">Nama Produk</th>
+                        <th className="py-2">Brand</th>
                         <th className="py-2">Kategori</th>
                         <th className="py-2">Stok</th>
-                        <th className="py-2 pr-3 rounded-r-lg">Harga</th>
+                        <th className="py-2">Harga</th>
+                        <th className="py-2">Dibuat oleh</th>
+                        <th className="py-2 pr-3 rounded-r-lg">Diubah oleh</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,9 +110,12 @@ function ProductsView() {
                         <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
                             <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
                             <td className="py-2">{value.name}</td>
+                            <td className="py-2">{value.brand}</td>
                             <td className="py-2">{value.category}</td>
                             <td className="py-2">{value.stock}</td>
-                            <td className="py-2 pr-3 rounded-r-lg">{value.formatRupiah()}</td>
+                            <td className="py-2">{value.formatRupiah()}</td>
+                            <td className="py-2">{value.createdBy}</td>
+                            <td className="py-2 pr-3 rounded-r-lg">{value.modifiedBy}</td>
                         </tr>
                     ))}
                 </tbody>

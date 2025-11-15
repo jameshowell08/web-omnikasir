@@ -5,9 +5,12 @@ export class Product {
     constructor(
         public sku: string,
         public name: string,
+        public brand: string,
         public category: string,
         public stock: number,
         public price: number,
+        public createdBy: string,
+        public modifiedBy: string
     ) { }
 
     public formatRupiah(): string {
@@ -21,9 +24,12 @@ export class Product {
         return new Product(
             data.sku ?? "",
             data.productName ?? "",
+            "",
             data.category?.categoryName ?? "",
             data.stock ?? 0,
-            data.priceSell ? Number(data.priceSell) : 0
+            data.priceSell ? Number(data.priceSell) : 0,
+            "",
+            ""
         );
     }
 }
