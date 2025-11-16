@@ -92,7 +92,7 @@ function ProductsView() {
                 </div>
             </section>
 
-            <table className="table-auto w-full border-separate border-spacing-y-1 mt-3">
+            <table className="table-auto w-full overflow-x-auto border-separate border-spacing-y-1 mt-3">
                 <thead>
                     <tr className="bg-black text-white text-sm font-bold text-left">
                         <th className="py-2 pl-3 rounded-l-lg">SKU</th>
@@ -100,9 +100,7 @@ function ProductsView() {
                         <th className="py-2">Brand</th>
                         <th className="py-2">Kategori</th>
                         <th className="py-2">Stok</th>
-                        <th className="py-2">Harga</th>
-                        <th className="py-2">Dibuat oleh</th>
-                        <th className="py-2 pr-3 rounded-r-lg">Diubah oleh</th>
+                        <th className="py-2 pr-3 rounded-r-lg">Harga</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,9 +111,7 @@ function ProductsView() {
                             <td className="py-2">{value.brand}</td>
                             <td className="py-2">{value.category}</td>
                             <td className="py-2">{value.stock}</td>
-                            <td className="py-2">{value.formatRupiah()}</td>
-                            <td className="py-2">{value.createdBy}</td>
-                            <td className="py-2 pr-3 rounded-r-lg">{value.modifiedBy}</td>
+                            <td className="py-2 pr-3 rounded-r-lg">{value.formatRupiah()}</td>
                         </tr>
                     ))}
                 </tbody>
