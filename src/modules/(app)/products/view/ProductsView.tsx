@@ -11,9 +11,13 @@ import clsx from "clsx";
 import { ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import toast from "react-hot-toast";
+import { DialogHostContext } from "@/src/modules/shared/view/DialogHost";
+import { DialogData } from "@/src/modules/shared/model/DialogData";
+import FilterDialog from "./dialog/FilterDialog";
 
 function ProductsView() {
     const showLoadingOverlay = useContext(LoadingOverlayContext)
+    const setDialog = useContext(DialogHostContext)
     const router = useRouter();
     const [selectedAmountOfItem, setSelectedAmountOfItem] = useState(10)
 
@@ -61,7 +65,16 @@ function ProductsView() {
                         name="search"
                         placeholder="Cari SKU / Nama produk..."
                         prefixIcon={IconSearch} />
-                    <button className="bg-black p-3 rounded-lg hover:bg-black/85" title="filter">
+                    <button
+                        className="bg-black p-3 rounded-lg hover:bg-black/85"
+                        title="filter"
+                        onClick={() => {
+                            setDialog(new DialogData(
+                                "Filter",
+                                true,
+                                <FilterDialog />
+                            ))
+                        }}>
                         <IconFilter color="white" />
                     </button>
                 </div>
