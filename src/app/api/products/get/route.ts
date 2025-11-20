@@ -1,3 +1,4 @@
+// ...existing code...
 import { NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
 
@@ -5,156 +6,96 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url)
 
-    // Query parameters
     const search = url.searchParams.get("search") || ""
     const page = Number(url.searchParams.get("page")) || 1
     const limit = Number(url.searchParams.get("limit")) || 10
     const categoryId = url.searchParams.get("categoryId") || ""
-    const skuId = url.searchParams.get("skuId") || ""
+    const categoryName = url.searchParams.get("categoryName") || "" // <-- new
+    const brand = url.searchParams.get("brand") || ""
+
+    const minPrice = url.searchParams.get("minPrice")
+    const maxPrice = url.searchParams.get("maxPrice")
+    const minStock = url.searchParams.get("minStock")
+    const maxStock = url.searchParams.get("maxStock")
 
     const skip = (page - 1) * limit
 
-    // Build filter
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filter: any = {}
+    // Build Prisma filter
+    const where: any = {}
 
+    // Search filter
     if (search) {
-      filter.OR = [
-        {
-          sku: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          product: {
-            productName: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-        },
-        {
-          product: {
-            brand: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-        },
+      where.OR = [
+        { sku: { contains: search, mode: "insensitive" } },
+        { productName: { contains: search, mode: "insensitive" } },
+        { brand: { contains: search, mode: "insensitive" } },
       ]
     }
 
+    // Category filter by ID
     if (categoryId) {
-      filter.product = {
-        ...filter.product,
-        categoryId: categoryId,
+      where.categoryId = categoryId
+    }
+
+    // Category filter by name (relation)
+    if (categoryName) {
+      where.category = {
+        categoryName: { contains: categoryName, mode: "insensitive" },
       }
     }
 
-    if (skuId) {
-      filter.skuId = skuId
+    // Brand filter
+    if (brand) {
+      where.brand = {
+        contains: brand,
+        mode: "insensitive",
+      }
     }
 
-    const products = await db.productSku.findMany({
-      where: filter,
+    // Price filters
+    if (minPrice || maxPrice) {
+      where.sellingPrice = {}
+      if (minPrice) where.sellingPrice.gte = Number(minPrice)
+      if (maxPrice) where.sellingPrice.lte = Number(maxPrice)
+    }
+
+    // Stock filters
+    if (minStock || maxStock) {
+      where.quantity = {}
+      if (minStock) where.quantity.gte = Number(minStock)
+      if (maxStock) where.quantity.lte = Number(maxStock)
+    }
+
+    // Query DB
+    const products = await db.product.findMany({
+      where,
       skip,
       take: limit,
-      orderBy: { createdDate: "desc" },
+      orderBy: { productName: "asc" },
       include: {
-        product: {
-          include: {
-            category: true,
-          },
-        },
-        inventories: {
-          include: {
-            inventory: true,
-          },
-        },
-        serialNumbers: {
-          where: {
-            status: "IN_STOCK",
-          },
-        },
-        transactionDetails: {
-          include: {
-            transactionHeader: true,
-          },
-          orderBy: {
-            transactionHeader: {
-              transactionDate: "desc",
-            },
-          },
-          take: 5,
-        },
+        category: true,
       },
     })
 
-    const totalRows = await db.productSku.count({ where: filter })
-    const totalPages = Math.ceil(totalRows / limit)
+    const totalRows = await db.product.count({ where })
+    const totalPages = limit > 0 ? Math.ceil(totalRows / limit) : 0
 
-    const data = products.map((sku) => ({
-      skuId: sku.skuId,
-      sku: sku.sku,
-      barcode: sku.barcode,
-      productId: sku.product.productId,
-      productName: sku.product.productName,
-      brand: sku.product.brand,
-      description: sku.product.description,
+    // Format for UI
+    const data = products.map((p) => {
+      const sellingPriceNumber =
+        p.sellingPrice && typeof (p.sellingPrice as any).toNumber === "function"
+          ? (p.sellingPrice as any).toNumber()
+          : Number(p.sellingPrice)
 
-      category: {
-        categoryId: sku.product.category?.categoryId,
-        categoryName: sku.product.category?.categoryName,
-        description: sku.product.category?.description,
-      },
-
-      priceSell: sku.priceSell,
-      priceBuy: sku.priceBuy,
-
-      stock: sku.stock,
-      stockBreakdown: {
-        totalStock: sku.stock,
-        reserved: sku.inventories.reduce((sum, inv) => sum + inv.reserved, 0),
-        inTransit: sku.inventories.reduce((sum, inv) => sum + inv.inTransit, 0),
-        available:
-          sku.stock -
-          sku.inventories.reduce((sum, inv) => sum + inv.reserved, 0),
-      },
-
-      inventories: sku.inventories.map((inv) => ({
-        inventoryId: inv.inventoryId,
-        quantity: inv.quantity,
-        reserved: inv.reserved,
-        inTransit: inv.inTransit,
-        inventoryNote: inv.inventory?.note,
-      })),
-
-      serialRequired: sku.serialRequired,
-      availableSerialNumbers: sku.serialNumbers.length,
-      serialNumbers: sku.serialRequired
-        ? sku.serialNumbers.map((sn) => ({
-            serialId: sn.serialId,
-            serialNo: sn.serialNo,
-            status: sn.status,
-            warrantyUntil: sn.warrantyUntil,
-          }))
-        : [],
-
-      attributes: sku.attributes,
-
-      createdDate: sku.createdDate,
-      modifiedDate: sku.modifiedDate,
-      productCreatedDate: sku.product.createdDate,
-      productModifiedDate: sku.product.modifiedDate,
-
-      recentTransactions: sku.transactionDetails.map((td) => ({
-        transactionId: td.transactionHeader.transactionHeaderId,
-        transactionDate: td.transactionHeader.transactionDate,
-        quantity: td.quantity,
-        price: td.price,
-      })),
-    }))
+      return {
+        sku: p.sku,
+        productName: p.productName,
+        brand: p.brand,
+        categoryName: p.category?.categoryName || "Unknown",
+        quantity: p.quantity,
+        sellingPrice: sellingPriceNumber,
+      }
+    })
 
     return NextResponse.json({
       status: true,
@@ -172,3 +113,4 @@ export async function GET(req: Request) {
     )
   }
 }
+// ...existing code...

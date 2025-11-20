@@ -1,3 +1,4 @@
+// ...existing code...
 import { NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
 
@@ -6,67 +7,85 @@ export async function PUT(req: Request) {
     const body = await req.json()
 
     const {
-      skuId,
-      sku,
+      sku, // primary key
       productName,
-      stock,
       categoryId,
-      priceSell,
-      priceBuy,
-      barcode,
-      attributes,
-      serialRequired,
+      quantity,
+      sellingPrice,
     } = body
 
-    if (!skuId) {
+    // Basic required fields check
+    if (!sku) {
       return NextResponse.json(
-        { status: false, message: "SKU ID is required" },
+        { status: false, message: "SKU is required" },
         { status: 400 }
       )
     }
 
     if (
-      !sku ||
       !productName ||
-      stock === undefined ||
-      !categoryId ||
-      !priceSell
+      categoryId === undefined ||
+      quantity === undefined ||
+      sellingPrice === undefined
     ) {
       return NextResponse.json(
-        { status: false, message: "All required fields are missing" },
+        { status: false, message: "All required fields must be filled" },
         { status: 400 }
       )
     }
 
-    const existingSku = await db.productSku.findUnique({
-      where: { skuId },
-      include: {
-        product: true,
-      },
+    // Coerce/validate types
+    const skuStr = String(sku).trim()
+    const categoryIdStr = String(categoryId).trim()
+    const quantityNum = Number(quantity)
+    const sellingPriceNum = Number(sellingPrice)
+
+    if (!skuStr) {
+      return NextResponse.json(
+        { status: false, message: "SKU is invalid" },
+        { status: 400 }
+      )
+    }
+
+    if (!categoryIdStr) {
+      return NextResponse.json(
+        { status: false, message: "categoryId is invalid" },
+        { status: 400 }
+      )
+    }
+
+    if (!Number.isInteger(quantityNum) || quantityNum < 0) {
+      return NextResponse.json(
+        { status: false, message: "quantity must be a non-negative integer" },
+        { status: 400 }
+      )
+    }
+
+    if (Number.isNaN(sellingPriceNum) || sellingPriceNum < 0) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: "sellingPrice must be a non-negative number",
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if product exists
+    const existingProduct = await db.product.findUnique({
+      where: { sku: skuStr },
     })
 
-    if (!existingSku) {
+    if (!existingProduct) {
       return NextResponse.json(
-        { status: false, message: "Product SKU not found" },
+        { status: false, message: "Product not found" },
         { status: 404 }
       )
     }
 
-    if (sku !== existingSku.sku) {
-      const skuExists = await db.productSku.findUnique({
-        where: { sku },
-      })
-
-      if (skuExists) {
-        return NextResponse.json(
-          { status: false, message: "SKU code already exists" },
-          { status: 400 }
-        )
-      }
-    }
-
+    // Check if category exists (categoryId is a string/uuid in Prisma schema)
     const categoryExists = await db.productCategory.findUnique({
-      where: { categoryId },
+      where: { categoryId: categoryIdStr },
     })
 
     if (!categoryExists) {
@@ -76,119 +95,40 @@ export async function PUT(req: Request) {
       )
     }
 
-    const result = await db.$transaction(async (tx) => {
-      const updatedProduct = await tx.product.update({
-        where: { productId: existingSku.productId },
-        data: {
-          productName,
-          categoryId,
-          modifiedBy: "system",
-          modifiedDate: new Date(),
-        },
-        include: {
-          category: true,
-        },
-      })
-
-      const updatedSku = await tx.productSku.update({
-        where: { skuId },
-        data: {
-          sku,
-          priceSell: parseFloat(priceSell),
-          priceBuy: priceBuy ? parseFloat(priceBuy) : null,
-          stock: parseInt(stock),
-          barcode: barcode || null,
-          attributes: attributes
-            ? typeof attributes === "string"
-              ? JSON.parse(attributes)
-              : attributes
-            : null,
-          serialRequired: serialRequired ?? existingSku.serialRequired,
-          modifiedDate: new Date(),
-        },
-        include: {
-          product: {
-            include: {
-              category: true,
-            },
-          },
-          inventories: true,
-          serialNumbers: {
-            where: {
-              status: "IN_STOCK",
-            },
-          },
-        },
-      })
-
-      return {
-        product: updatedProduct,
-        sku: updatedSku,
-      }
+    // Update
+    const updatedProduct = await db.product.update({
+      where: { sku: skuStr },
+      data: {
+        productName,
+        categoryId: categoryIdStr,
+        quantity: quantityNum,
+        // Prisma Decimal column accepts string/number; use string to be explicit
+        sellingPrice: String(sellingPriceNum),
+        // don't set modifiedDate — field doesn't exist on Product in schema
+        modifiedById: "system", // adjust based on your auth later
+      },
+      include: {
+        category: true,
+      },
     })
-
-    const reservedStock = result.sku.inventories.reduce(
-      (sum, inv) => sum + inv.reserved,
-      0
-    )
-    const availableStock = result.sku.stock - reservedStock
 
     return NextResponse.json({
       status: true,
       message: "Product updated successfully",
       data: {
-        // SKU Information
-        skuId: result.sku.skuId,
-        sku: result.sku.sku,
-        barcode: result.sku.barcode,
-
-        // Product Information
-        productId: result.product.productId,
-        productName: result.product.productName,
-        brand: result.product.brand,
-        description: result.product.description,
-
-        // Category Information
-        categoryId: result.product.categoryId,
-        categoryName: result.product.category?.categoryName,
-
-        // Pricing Information
-        priceSell: result.sku.priceSell.toString(),
-        priceBuy: result.sku.priceBuy?.toString() || null,
-
-        // Stock Information
-        stock: result.sku.stock,
-        availableStock: availableStock,
-        reservedStock: reservedStock,
-
-        // Serial Information
-        serialRequired: result.sku.serialRequired,
-        availableSerialNumbers: result.sku.serialNumbers.length,
-
-        // Attributes
-        attributes: result.sku.attributes,
-
-        // Timestamps
-        createdDate: result.sku.createdDate,
-        modifiedDate: result.sku.modifiedDate,
-        productCreatedDate: result.product.createdDate,
-        productModifiedDate: result.product.modifiedDate,
+        sku: updatedProduct.sku,
+        productName: updatedProduct.productName,
+        brand: updatedProduct.brand,
+        categoryId: updatedProduct.categoryId,
+        categoryName: updatedProduct.category?.categoryName ?? null,
+        quantity: updatedProduct.quantity,
+        sellingPrice: updatedProduct.sellingPrice,
+        createdById: updatedProduct.createdById ?? null,
+        modifiedById: updatedProduct.modifiedById ?? null,
       },
     })
   } catch (error) {
     console.error("Update Product API Error:", error)
-
-    if (
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "P2025"
-    ) {
-      return NextResponse.json(
-        { status: false, message: "Record not found" },
-        { status: 404 }
-      )
-    }
 
     return NextResponse.json(
       { status: false, message: "Failed to update product" },
@@ -196,3 +136,4 @@ export async function PUT(req: Request) {
     )
   }
 }
+// ...existing code...
