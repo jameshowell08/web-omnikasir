@@ -134,13 +134,13 @@ function ProductsView() {
                 <span
                     className={clsx(
                         "flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold",
-                        currentPage <= 1 ? "text-black/20" : "hover:bg-black/10 rounded-lg",
+                        currentPage > 1 && "hover:bg-black/10 rounded-lg",
                     )}
                     onClick={() => {
                         if (currentPage > 1) setCurrentPage(currentPage - 1)
                     }}>
-                    <IconArrowNarrowLeft className={clsx(currentPage <= 1 && "opacity-20")} />
-                    Halaman sebelum
+                    <IconArrowNarrowLeft opacity={currentPage <= 1 ? 0.2 : 1} />
+                    <span className={clsx(currentPage <= 1 && "text-black/20")}>Halaman sebelum</span>
                 </span>
 
                 <span>Halaman {currentPage} dari {totalPage}</span>
@@ -148,13 +148,13 @@ function ProductsView() {
                 <span
                     className={clsx(
                         "flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold",
-                        currentPage >= totalPage ? "text-black/20" : "hover:bg-black/10 rounded-lg",
+                        currentPage < totalPage && "hover:bg-black/10 rounded-lg",
                     )}
                     onClick={() => {
                         if (currentPage < totalPage) setCurrentPage(currentPage + 1)
                     }}>
-                    Halaman selanjutnya
-                    <IconArrowNarrowRight className={clsx(currentPage >= totalPage && "opacity-20")} />
+                    <span className={clsx(currentPage >= totalPage && "text-black/20")}>Halaman selanjutnya</span>
+                    <IconArrowNarrowRight opacity={currentPage >= totalPage ? 0.2 : 1} />
                 </span>
             </footer>
         </>
