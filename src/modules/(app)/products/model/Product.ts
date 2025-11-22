@@ -8,9 +8,7 @@ export class Product {
         public brand: string,
         public category: string,
         public stock: number,
-        public price: number,
-        public createdBy: string,
-        public modifiedBy: string
+        public price: number
     ) { }
 
     public formatRupiah(): string {
@@ -24,12 +22,10 @@ export class Product {
         return new Product(
             data.sku ?? "",
             data.productName ?? "",
-            "",
-            data.category?.categoryName ?? "",
-            data.stock ?? 0,
-            data.priceSell ? Number(data.priceSell) : 0,
-            "",
-            ""
+            data.brand ?? "",
+            data.categoryName ?? "",
+            data.quantity ?? 0,
+            data.sellingPrice ?? 0
         );
     }
 }
