@@ -1,15 +1,22 @@
 'use client';
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconArrowBackUp, IconTrash } from "@tabler/icons-react";
+import { IconArrowBackUp, IconTrash, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
+
+const IMEI = z.object({
+    imei: z.string()
+})
+
 const formScheme = z.object({
     sku: z.string().min(1, "SKU tidak boleh kosong."),
     name: z.string().min(1, "Nama produk tidak boleh kosong."),
@@ -19,12 +26,11 @@ const formScheme = z.object({
         .transform((val) => Number(val.replace(/\./g, "")))
         .pipe(z.number().min(1, "Harga jual tidak boleh kosong.")),
     buyPrice: z.string()
-        .transform((val) => Number(val.replace(/\./g, "")))
-        .pipe(z.number().min(1, "Harga beli tidak boleh kosong.")),
+        .transform((val) => Number(val.replace(/\./g, ""))),
     stock: z.string()
         .transform((val) => Number(val.replace(/\./g, ""))),
     needImei: z.boolean(),
-    // imeis: z.array(z.string()),
+    imeis: z.array(IMEI),
 })
 
 const formatNumber = (value: string | number) => {
@@ -54,9 +60,18 @@ function ProductDetailForm(
             buyPrice: "",
             stock: "",
             needImei: false,
-            // imeis: [],
+            imeis: [],
         }
     })
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "imeis",
+    })
+
+    const [imeiField, setImeiField] = useState("");
+    const needImei = form.watch("needImei");
+    const stockAmount = form.watch("stock");
 
     function onSubmit(data: z.infer<typeof formScheme>) {
         console.log("hi")
@@ -86,7 +101,7 @@ function ProductDetailForm(
                         name="sku"
                         control={form.control}
                         render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
+                            <Field data-invalid={fieldState.invalid} className="gap-2">
                                 <FieldLabel className="gap-0 font-bold">SKU<span className="text-red-500">*</span></FieldLabel>
                                 <Input
                                     {...field}
@@ -106,7 +121,7 @@ function ProductDetailForm(
                         name="name"
                         control={form.control}
                         render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
+                            <Field data-invalid={fieldState.invalid} className="gap-2">
                                 <FieldLabel className="gap-0 font-bold">Nama<span className="text-red-500">*</span></FieldLabel>
                                 <Input
                                     {...field}
@@ -127,7 +142,7 @@ function ProductDetailForm(
                             name="brand"
                             control={form.control}
                             render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
+                                <Field data-invalid={fieldState.invalid} className="gap-2">
                                     <FieldLabel className="gap-0 font-bold">Merek<span className="text-red-500">*</span></FieldLabel>
                                     <Select
                                         {...field}
@@ -153,7 +168,7 @@ function ProductDetailForm(
                             name="category"
                             control={form.control}
                             render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
+                                <Field data-invalid={fieldState.invalid} className="gap-2">
                                     <FieldLabel className="gap-0 font-bold">Kategori<span className="text-red-500">*</span></FieldLabel>
                                     <Select
                                         {...field}
@@ -181,7 +196,7 @@ function ProductDetailForm(
                             name="sellPrice"
                             control={form.control}
                             render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
+                                <Field data-invalid={fieldState.invalid} className="gap-2">
                                     <FieldLabel className="gap-0 font-bold">Harga Jual<span className="text-red-500">*</span></FieldLabel>
                                     <InputGroup>
                                         <InputGroupInput
@@ -211,8 +226,8 @@ function ProductDetailForm(
                             name="buyPrice"
                             control={form.control}
                             render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
-                                    <FieldLabel className="gap-0 font-bold">Harga Beli<span className="text-red-500">*</span></FieldLabel>
+                                <Field data-invalid={fieldState.invalid} className="gap-2">
+                                    <FieldLabel className="gap-0 font-bold">Harga Beli</FieldLabel>
                                     <InputGroup>
                                         <InputGroupInput
                                             {...field}
@@ -243,7 +258,7 @@ function ProductDetailForm(
                             name="stock"
                             control={form.control}
                             render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="gap-2 w-80">
+                                <Field data-invalid={fieldState.invalid} className="gap-2">
                                     <FieldLabel className="gap-0 font-bold">Stok<span className="text-red-500">*</span></FieldLabel>
                                     <Input
                                         {...field}
@@ -264,7 +279,7 @@ function ProductDetailForm(
                             )}
                         />
 
-                        <FieldGroup data-slot="checkbox-group" className="justify-center pt-6 w-80">
+                        <FieldGroup data-slot="checkbox-group" className="justify-center pt-6">
                             <Controller
                                 name="needImei"
                                 control={form.control}
@@ -276,7 +291,7 @@ function ProductDetailForm(
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
                                         />
-                                        <FieldLabel className="gap-0">Perlu IMEI<span className="text-red-500">*</span></FieldLabel>
+                                        <FieldLabel className="gap-0">Perlu IMEI</FieldLabel>
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]} />
                                         )}
@@ -285,6 +300,57 @@ function ProductDetailForm(
                             />
                         </FieldGroup>
                     </div>
+
+                    {
+                        needImei &&
+                        <Field>
+                            <FieldLabel className="font-bold">IMEI</FieldLabel>
+                            <div className="flex flex-row gap-2">
+                                <div className="flex flex-col w-full">
+                                    <Input
+                                        id="product-form-imeis"
+                                        placeholder="Ketik disini..."
+                                        autoComplete="off"
+                                        value={imeiField}
+                                        onChange={(e) => setImeiField(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault()
+                                                append({ imei: imeiField })
+                                                setImeiField("")
+                                            }
+                                        }}
+                                    />
+                                    <p className="text-xs text-end mt-2">{form.getValues("imeis").length}/{stockAmount == "" ? 0 : stockAmount}</p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        append({ imei: imeiField })
+                                        setImeiField("")
+                                    }}
+                                >Tambah</Button>
+                            </div>
+                            {form.formState.errors.imeis && (
+                                <FieldError errors={[form.formState.errors.imeis]} />
+                            )}
+                            {
+                                <div className="flex flex-row flex-wrap gap-2">
+                                    {
+                                        fields.map((field, index) => (
+                                            <Badge key={field.id} variant="outline" className="flex items-center gap-2">
+                                                {field.imei}
+                                                <IconX
+                                                    onClick={() => remove(index)}
+                                                    className="cursor-pointer !pointer-events-auto"
+                                                />
+                                            </Badge>
+                                        ))
+                                    }
+                                </div>
+                            }
+                        </Field>
+                    }
                     <Button type="submit" className="w-fit self-end">Simpan</Button>
                 </FieldGroup>
             </form>
