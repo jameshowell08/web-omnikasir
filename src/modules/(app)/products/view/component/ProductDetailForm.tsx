@@ -31,6 +31,9 @@ const formScheme = z.object({
         .transform((val) => Number(val.replace(/\./g, ""))),
     needImei: z.boolean(),
     imeis: z.array(IMEI),
+}).refine((data) => (!data.needImei || data.imeis.length === data.stock), {
+    message: "Jumlah IMEI harus sama dengan jumlah stok.",
+    path: ["imeis"],
 })
 
 const formatNumber = (value: string | number) => {
@@ -76,6 +79,15 @@ function ProductDetailForm(
     function onSubmit(data: z.infer<typeof formScheme>) {
         console.log("hi")
         console.log(data)
+    }
+
+    function addImei(imei: string) {
+        append({ imei: imeiField })
+        setImeiField("")
+    }
+
+    function removeImei(index: number) {
+        remove(index)
     }
 
     return (
@@ -303,37 +315,43 @@ function ProductDetailForm(
 
                     {
                         needImei &&
-                        <Field>
-                            <FieldLabel className="font-bold">IMEI</FieldLabel>
+                        <Field data-invalid={form.formState.errors.imeis?.message !== undefined} >
+                            <FieldLabel className="font-bold gap-0">IMEI<span className="text-red-500">*</span></FieldLabel>
                             <div className="flex flex-row gap-2">
                                 <div className="flex flex-col w-full">
                                     <Input
                                         id="product-form-imeis"
                                         placeholder="Ketik disini..."
                                         autoComplete="off"
+                                        aria-invalid={form.formState.errors.imeis?.message !== undefined}
                                         value={imeiField}
                                         onChange={(e) => setImeiField(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter") {
                                                 e.preventDefault()
-                                                append({ imei: imeiField })
-                                                setImeiField("")
+                                                addImei(imeiField)
                                             }
                                         }}
                                     />
-                                    <p className="text-xs text-end mt-2">{form.getValues("imeis").length}/{stockAmount == "" ? 0 : stockAmount}</p>
+                                    <div className="flex flex-row justify-between mt-2">
+                                        {
+                                            form.formState.errors.imeis && (
+                                                <FieldError errors={[form.formState.errors.imeis]} />
+                                            )
+                                        }
+                                        {
+                                            stockAmount !== "" &&
+                                            <p className="text-xs text-end flex-1">{form.getValues("imeis").length}/{stockAmount}</p>
+                                        }
+                                    </div>
                                 </div>
                                 <Button
                                     type="button"
                                     onClick={() => {
-                                        append({ imei: imeiField })
-                                        setImeiField("")
+                                        addImei(imeiField)
                                     }}
                                 >Tambah</Button>
                             </div>
-                            {form.formState.errors.imeis && (
-                                <FieldError errors={[form.formState.errors.imeis]} />
-                            )}
                             {
                                 <div className="flex flex-row flex-wrap gap-2">
                                     {
@@ -341,7 +359,7 @@ function ProductDetailForm(
                                             <Badge key={field.id} variant="outline" className="flex items-center gap-2">
                                                 {field.imei}
                                                 <IconX
-                                                    onClick={() => remove(index)}
+                                                    onClick={() => removeImei(index)}
                                                     className="cursor-pointer !pointer-events-auto"
                                                 />
                                             </Badge>
@@ -351,7 +369,7 @@ function ProductDetailForm(
                             }
                         </Field>
                     }
-                    <Button type="submit" className="w-fit self-end">Simpan</Button>
+                    <Button type="submit" className="w-fit self-end">Buat Produk</Button>
                 </FieldGroup>
             </form>
         </div>
