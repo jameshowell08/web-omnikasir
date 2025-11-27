@@ -9,9 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowBackUp, IconTrash, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
+import { ProductFormController } from "../../controller/ProductFormController";
+import { ProductFormEventCallback, ShowHideLoadingOverlay, UpdateBrands, UpdateCategories } from "../../model/ProductFormEventCallback";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { Category } from "../../model/Category";
+import { Brand } from "../../model/Brand";
 
 const IMEI = z.object({
     imei: z.string()
@@ -51,6 +56,21 @@ function ProductDetailForm(
         isEdit?: boolean
     }
 ) {
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
+    const [categories, setCategories] = useState<Category[]>([])
+    const [brands, setBrands] = useState<Brand[]>([])
+
+    function onEventCallback(e: ProductFormEventCallback) {
+        if (e instanceof ShowHideLoadingOverlay) {
+            showLoadingOverlay(e.show)
+        } else if (e instanceof UpdateBrands) {
+            setBrands(e.brands)
+        } else if (e instanceof UpdateCategories) {
+            setCategories(e.categories)
+        }
+    }
+
+    const [controller] = useState(() => new ProductFormController(onEventCallback))
     const router = useRouter();
     const form = useForm({
         resolver: zodResolver(formScheme),
@@ -77,7 +97,6 @@ function ProductDetailForm(
     const stockAmount = form.watch("stock");
 
     function onSubmit(data: z.infer<typeof formScheme>) {
-        console.log("hi")
         console.log(data)
     }
 
@@ -89,6 +108,10 @@ function ProductDetailForm(
     function removeImei(index: number) {
         remove(index)
     }
+
+    useEffect(() => {
+        controller.initializeForm()
+    }, [])
 
     return (
         <div className="flex flex-col">
@@ -164,9 +187,11 @@ function ProductDetailForm(
                                             <SelectValue placeholder="Pilih merek" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="1">Merek 1</SelectItem>
-                                            <SelectItem value="2">Merek 2</SelectItem>
-                                            <SelectItem value="3">Merek 3</SelectItem>
+                                            {
+                                                brands.map((brand) => (
+                                                    <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
+                                                ))
+                                            }
                                         </SelectContent>
                                     </Select>
                                     {fieldState.invalid && (
@@ -190,9 +215,11 @@ function ProductDetailForm(
                                             <SelectValue placeholder="Pilih kategori" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="1">Kategori 1</SelectItem>
-                                            <SelectItem value="2">Kategori 2</SelectItem>
-                                            <SelectItem value="3">Kategori 3</SelectItem>
+                                            {
+                                                categories.map((category) => (
+                                                    <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                                                ))
+                                            }
                                         </SelectContent>
                                     </Select>
                                     {fieldState.invalid && (
@@ -217,6 +244,10 @@ function ProductDetailForm(
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Ketik disini..."
                                             autoComplete="off"
+                                            onFocus={() => {
+                                                const unformatted = field.value.replace(/\./g, "");
+                                                field.onChange(unformatted);
+                                            }}
                                             onBlur={() => {
                                                 const formatted = formatNumber(field.value);
                                                 field.onChange(formatted);
@@ -247,6 +278,10 @@ function ProductDetailForm(
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Ketik disini..."
                                             autoComplete="off"
+                                            onFocus={() => {
+                                                const unformatted = field.value.replace(/\./g, "");
+                                                field.onChange(unformatted);
+                                            }}
                                             onBlur={() => {
                                                 const formatted = formatNumber(field.value);
                                                 field.onChange(formatted);
