@@ -369,7 +369,7 @@ function ProductDetailForm(
                             }
                         </Field>
                     }
-                    <Button type="submit" className="w-fit self-end">Buat Produk</Button>
+                    <Button type="submit" className="w-fit self-end">{isEdit ? "Edit" : "Buat"} Produk</Button>
                 </FieldGroup>
             </form>
         </div>

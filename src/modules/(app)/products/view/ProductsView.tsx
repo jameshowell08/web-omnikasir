@@ -105,7 +105,8 @@ function ProductsView() {
                 </div>
             </section>
 
-            <table className="table-auto w-full overflow-x-auto border-separate border-spacing-y-1 mt-3">
+            <section className="min-h-96">
+                <table className="table-auto w-full overflow-x-auto border-separate border-spacing-y-1 mt-3">
                 <thead>
                     <tr className="bg-black text-white text-sm font-bold text-left">
                         <th className="py-2 pl-3 rounded-l-lg">SKU</th>
@@ -129,6 +130,7 @@ function ProductsView() {
                     ))}
                 </tbody>
             </table>
+            </section>
 
             <footer className="mt-12 flex flex-row items-center justify-between text-sm">
                 <span
