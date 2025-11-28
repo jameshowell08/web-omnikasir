@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db } from "../../../../modules/shared/util/db" // Adjust path
+import { db } from "../../../../modules/shared/util/db"
 import { z } from "zod"
 
-// Shared Zod Schema (Same as your POST)
 const InventoryItemSchema = z.object({
   sku: z.string().min(1),
   quantity: z.number().int().positive().default(1),
@@ -12,10 +11,11 @@ const InventoryItemSchema = z.object({
 
 const UpdateInventorySchema = z.object({
   supplier: z.string().min(1).optional(),
-  modifiedById: z.string().uuid(), // ID of user editing
+  modifiedById: z.string().uuid(),
   status: z.enum(["DRAFT", "COMPLETED", "CANCELLED"]),
   items: z.array(InventoryItemSchema).optional(),
 })
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -25,18 +25,15 @@ export async function GET(
       where: { id: params.id },
       include: {
         productInventoryDetails: {
-          orderBy: { sku: "asc" }, // Sort for easier reading in UI
+          orderBy: { sku: "asc" },
           include: {
             product: {
               select: {
                 productName: true,
                 brand: true,
-                // Include current stock if you want to show it in UI
                 quantity: true,
               },
             },
-            // Note: If you used the schema with 'imeiCode' string on the detail,
-            // you don't strictly need to include 'imei' relation unless you want status
             imei: true,
           },
         },
@@ -63,6 +60,7 @@ export async function GET(
     )
   }
 }
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -70,7 +68,6 @@ export async function PUT(
   try {
     const body = await request.json()
 
-    // 1. Validate Input
     const validation = UpdateInventorySchema.safeParse(body)
     if (!validation.success) {
       return NextResponse.json(
@@ -81,9 +78,7 @@ export async function PUT(
 
     const { supplier, modifiedById, status: newStatus, items } = validation.data
 
-    // 2. Start Transaction
     const result = await db.$transaction(async (tx) => {
-      // A. Fetch Current State (Locking not strictly needed but good for logic)
       const existingHeader = await tx.productInventoryHeader.findUnique({
         where: { id: params.id },
         include: { productInventoryDetails: true },
@@ -91,18 +86,14 @@ export async function PUT(
 
       if (!existingHeader) throw new Error("Inventory ID not found")
 
-      // B. Guard: Prevent editing if already COMPLETED
-      // (Unless you have specific logic to allow editing completed stock, which is dangerous)
       if (existingHeader.status === "COMPLETED" && newStatus !== "CANCELLED") {
         throw new Error("Cannot edit an inventory that is already COMPLETED.")
       }
 
-      // C. Recalculate Total Amount from new items
       const totalAmount = items
         ? items.reduce((sum, item) => sum + item.quantity * item.price, 0)
         : existingHeader.totalAmount
 
-      // D. Update Header
       const updatedHeader = await tx.productInventoryHeader.update({
         where: { id: params.id },
         data: {
@@ -113,15 +104,11 @@ export async function PUT(
         },
       })
 
-      // E. HANDLE DETAILS: "Wipe and Replace" Strategy
-      // Only do this if 'items' were actually sent in the body
       if (items) {
-        // 1. Delete ALL existing details for this header
         await tx.productInventoryDetail.deleteMany({
           where: { headerId: params.id },
         })
 
-        // 2. Create ALL new details
         await tx.productInventoryDetail.createMany({
           data: items.map((item) => ({
             headerId: params.id,
@@ -133,8 +120,6 @@ export async function PUT(
         })
       }
 
-      // F. STATUS TRANSITION LOGIC
-      // Check if we are moving from DRAFT -> COMPLETED
       if (existingHeader.status === "DRAFT" && newStatus === "COMPLETED") {
         const itemsToProcess = items || existingHeader.productInventoryDetails
 
@@ -142,16 +127,13 @@ export async function PUT(
           throw new Error("Cannot complete inventory with no items")
         }
 
-        // --- OPTIMIZED STOCK UPDATE (Same as POST) ---
         const skuUpdates = new Map<string, number>()
 
         for (const item of itemsToProcess) {
-          // Accumulate Quantities
-          const qty = "quantity" in item ? item.quantity : 0 // Type guard
+          const qty = "quantity" in item ? item.quantity : 0
           const currentQty = skuUpdates.get(item.sku) || 0
           skuUpdates.set(item.sku, currentQty + qty)
 
-          // Register IMEIs
           if (item.imeiCode) {
             await tx.imei
               .create({
@@ -167,7 +149,6 @@ export async function PUT(
           }
         }
 
-        // Execute Product Quantity Updates
         for (const [sku, totalQty] of skuUpdates.entries()) {
           await tx.product.update({
             where: { sku: sku },
@@ -188,6 +169,7 @@ export async function PUT(
     )
   }
 }
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -214,13 +196,10 @@ export async function DELETE(
       )
     }
 
-    // Use Transaction for clean deletion
     await db.$transaction([
-      // 1. Delete Details
       db.productInventoryDetail.deleteMany({
         where: { headerId: params.id },
       }),
-      // 2. Delete Header
       db.productInventoryHeader.delete({
         where: { id: params.id },
       }),

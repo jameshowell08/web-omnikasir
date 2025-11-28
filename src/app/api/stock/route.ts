@@ -1,14 +1,8 @@
 import { NextResponse } from "next/server"
-import { db } from "../../../modules/shared/util/db" // Adjust your path
+import { db } from "../../../modules/shared/util/db"
 import { z } from "zod"
 import { Prisma } from "@prisma/client"
 
-// ==========================================
-// 1. VALIDATION SCHEMAS (Shared)
-// ==========================================
-
-// Schema for a single item row from frontend
-// Remember: Send 1 Object per 1 Physical Item (if tracking IMEI)
 const InventoryItemSchema = z.object({
   sku: z.string().min(1),
   quantity: z.number().int().positive().default(1),
@@ -23,26 +17,20 @@ const CreateInventorySchema = z.object({
   items: z.array(InventoryItemSchema).optional(),
 })
 
-// ==========================================
-// 2. GET METHOD (Fetch List)
-// ==========================================
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url)
     const { searchParams } = url
 
-    // Filters
     const status = searchParams.get("status")
     const supplier = searchParams.get("supplier")
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
 
-    // Pagination
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "10")
     const skip = (page - 1) * limit
 
-    // Build Where Clause
     const whereClause: Prisma.ProductInventoryHeaderWhereInput = {
       ...(status && { status }),
       ...(supplier && {
@@ -57,7 +45,6 @@ export async function GET(req: Request) {
         }),
     }
 
-    // Execute Transaction (Count + Data)
     const [total, inventoryHeaders] = await db.$transaction([
       db.productInventoryHeader.count({ where: whereClause }),
       db.productInventoryHeader.findMany({
@@ -95,14 +82,9 @@ export async function GET(req: Request) {
   }
 }
 
-// ==========================================
-// 3. POST METHOD (Create & Stock Update)
-// ==========================================
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-
-    // Validate Input
     const validation = CreateInventorySchema.safeParse(body)
     if (!validation.success) {
       return NextResponse.json(
@@ -113,9 +95,6 @@ export async function POST(req: Request) {
 
     const { supplier, createdById, status, items } = validation.data
 
-    // ================================
-    // 1. CHECK SKU EXISTENCE
-    // ================================
     if (items && items.length > 0) {
       const requestSkus = items.map((i) => i.sku)
 
@@ -125,8 +104,6 @@ export async function POST(req: Request) {
       })
 
       const existingSkuSet = new Set(products.map((p) => p.sku))
-
-      // Find missing SKUs
       const missingSkus = requestSkus.filter((sku) => !existingSkuSet.has(sku))
 
       if (missingSkus.length > 0) {
@@ -140,18 +117,11 @@ export async function POST(req: Request) {
       }
     }
 
-    // ================================
-    // 2. CALCULATE TOTAL
-    // ================================
     const totalAmount = items
       ? items.reduce((sum, item) => sum + item.quantity * item.price, 0)
       : 0
 
-    // ================================
-    // 3. START TRANSACTION
-    // ================================
     const result = await db.$transaction(async (tx) => {
-      // A. Create Header + Details
       const header = await tx.productInventoryHeader.create({
         data: {
           supplier,
@@ -172,7 +142,6 @@ export async function POST(req: Request) {
         include: { productInventoryDetails: true },
       })
 
-      // B. Update Stock only if COMPLETED
       if (status === "COMPLETED" && items && items.length > 0) {
         const skuUpdates = new Map<string, number>()
 
@@ -180,7 +149,6 @@ export async function POST(req: Request) {
           const currentQty = skuUpdates.get(item.sku) || 0
           skuUpdates.set(item.sku, currentQty + item.quantity)
 
-          // IMEI handling
           if (item.imeiCode) {
             await tx.imei
               .create({
@@ -196,7 +164,6 @@ export async function POST(req: Request) {
           }
         }
 
-        // Update Product Stock for each SKU
         for (const [sku, qty] of skuUpdates.entries()) {
           await tx.product.update({
             where: { sku },
