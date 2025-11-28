@@ -101,6 +101,16 @@ function ProductDetailForm(
     }
 
     function addImei(imei: string) {
+        const imeisInputted = fields.map((field) => field.imei.toLowerCase())
+
+        if (imeisInputted.includes(imei.toLowerCase())) {
+            form.setError("imeis", {
+                type: "manual",
+                message: "IMEI sudah ada."
+            })
+            return
+        }
+
         append({ imei: imeiField })
         setImeiField("")
     }
@@ -360,7 +370,10 @@ function ProductDetailForm(
                                         autoComplete="off"
                                         aria-invalid={form.formState.errors.imeis?.message !== undefined}
                                         value={imeiField}
-                                        onChange={(e) => setImeiField(e.target.value)}
+                                        onChange={(e) => {
+                                            form.clearErrors("imeis")
+                                            setImeiField(e.target.value)
+                                        }}
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter") {
                                                 e.preventDefault()
