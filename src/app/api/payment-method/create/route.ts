@@ -1,0 +1,59 @@
+// app/api/payment-methods/route.ts
+import { NextResponse } from "next/server"
+import { db } from "../../../../modules/shared/util/db"
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+
+    const { paymentName } = body
+
+    if (!paymentName || typeof paymentName !== "string") {
+      return NextResponse.json(
+        { status: false, message: "paymentName is required" },
+        { status: 400 },
+      )
+    }
+
+    // Optional: cek duplicate name (case-insensitive)
+    const existing = await db.paymentMethod.findFirst({
+      where: {
+        paymentName: {
+          equals: paymentName,
+          mode: "insensitive",
+        },
+      },
+    })
+
+    if (existing) {
+      return NextResponse.json(
+        { status: false, message: "Payment method already exists" },
+        { status: 409 },
+      )
+    }
+
+    const created = await db.paymentMethod.create({
+      data: {
+        paymentName,
+      },
+    })
+
+    return NextResponse.json(
+      {
+        status: true,
+        message: "Payment method created",
+        data: {
+          paymentId: created.paymentId,
+          paymentName: created.paymentName,
+        },
+      },
+      { status: 201 },
+    )
+  } catch (error) {
+    console.error("Create Payment Method API Error:", error)
+    return NextResponse.json(
+      { status: false, message: "Failed to create payment method" },
+      { status: 500 },
+    )
+  }
+}
