@@ -106,6 +106,8 @@ model Imei {
 model ProductInventoryHeader {
   id            String      @id @default(uuid())
   supplier      String 
+  status        String      @default("DRAFT") // DRAFT, COMPLETED, CANCELLED
+  totalAmount   Decimal?    @db.Decimal(12, 2)
 
   createdById   String
   modifiedById  String?
@@ -119,6 +121,7 @@ model ProductInventoryHeader {
 }
 
 model ProductInventoryDetail {
+  id        String   @id @default(uuid())
   headerId  String
   sku       String
   quantity  Int
@@ -129,7 +132,7 @@ model ProductInventoryDetail {
   product       Product                @relation(fields: [sku], references: [sku])
   imei          Imei?                  @relation(fields: [imeiCode], references: [imei])
 
-  @@id([headerId, sku])
+ 
 }
 
 model PaymentMethod {

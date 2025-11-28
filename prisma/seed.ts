@@ -68,6 +68,7 @@ async function main() {
     create: {
       id: "invhdr-dummy-001",
       supplier: "Main Supplier",
+      status: "DRAFT",
       createdBy: { connect: { userId: insertedUser.userId } },
       createdDate: new Date(),
     },
