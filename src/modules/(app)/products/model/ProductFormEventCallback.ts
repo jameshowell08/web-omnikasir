@@ -23,3 +23,9 @@ export class UpdateCategories extends ProductFormEventCallback {
         public categories: Category[]
     ) { super() }
 }
+
+export class ShowErrorToast extends ProductFormEventCallback {
+    constructor(
+        public errorMessage: string
+    ) { super() }
+}

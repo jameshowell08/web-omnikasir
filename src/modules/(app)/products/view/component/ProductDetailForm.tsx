@@ -13,11 +13,12 @@ import { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 import { ProductFormController } from "../../controller/ProductFormController";
-import { ProductFormEventCallback, ShowHideLoadingOverlay, UpdateBrands, UpdateCategories } from "../../model/ProductFormEventCallback";
+import { ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateBrands, UpdateCategories } from "../../model/ProductFormEventCallback";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { Category } from "../../model/Category";
 import { Brand } from "../../model/Brand";
 import { ProductFormScheme } from "../../model/ProductFormScheme";
+import toast from "react-hot-toast";
 
 const formatNumber = (value: string | number) => {
     const stringValue = String(value);
@@ -45,6 +46,8 @@ function ProductDetailForm(
             setBrands(e.brands)
         } else if (e instanceof UpdateCategories) {
             setCategories(e.categories)
+        } else if (e instanceof ShowErrorToast) {
+            toast.error(e.errorMessage)
         }
     }
 
