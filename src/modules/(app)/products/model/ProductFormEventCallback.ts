@@ -18,6 +18,20 @@ export class UpdateCategories extends ProductFormEventCallback {
     ) { super() }
 }
 
+export class UpdateProductDetail extends ProductFormEventCallback {
+    constructor(
+        public sku: string,
+        public name: string,
+        public brand: string,
+        public category: string,
+        public sellPrice: number,
+        public buyPrice: number,
+        public stock: number,
+        public needImei: boolean,
+        public imeis: string[]
+    ) { super() }
+}
+
 export class ShowSuccessfulToast extends ProductFormEventCallback {
     constructor(
         public message: string

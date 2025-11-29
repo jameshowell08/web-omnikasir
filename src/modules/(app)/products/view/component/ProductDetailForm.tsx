@@ -15,22 +15,19 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { ProductFormController } from "../../controller/ProductFormController";
 import { Category } from "../../model/Category";
-import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories } from "../../model/ProductFormEventCallback";
+import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateProductDetail } from "../../model/ProductFormEventCallback";
 import { ProductFormScheme } from "../../model/ProductFormScheme";
-
-const formatNumber = (value: string | number) => {
-    const stringValue = String(value);
-    const numericValue = stringValue.replace(/\D/g, "");
-    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-};
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 function ProductDetailForm(
     {
         title,
-        isEdit = false
+        isEdit = false,
+        sku = null
     }: {
         title: string,
-        isEdit?: boolean
+        isEdit?: boolean,
+        sku?: string | null
     }
 ) {
     const showLoadingOverlay = useContext(LoadingOverlayContext)
@@ -47,6 +44,16 @@ function ProductDetailForm(
             router.push(e.path)
         } else if (e instanceof ShowSuccessfulToast) {
             toast.success(e.message)
+        } else if (e instanceof UpdateProductDetail) {
+            form.setValue("sku", e.sku)
+            form.setValue("name", e.name)
+            form.setValue("brand", e.brand)
+            form.setValue("category", e.category)
+            form.setValue("sellPrice", e.sellPrice.toString())
+            form.setValue("buyPrice", e.buyPrice.toString())
+            form.setValue("stock", e.stock.toString())
+            form.setValue("needImei", e.needImei)
+            form.setValue("imeis", e.imeis.map((imei) => ({ value: imei })))
         }
     }
 
@@ -55,7 +62,7 @@ function ProductDetailForm(
     const form = useForm({
         resolver: zodResolver(ProductFormScheme),
         defaultValues: {
-            sku: "",
+            sku: sku ?? "",
             name: "",
             brand: "",
             category: "",
@@ -96,7 +103,7 @@ function ProductDetailForm(
     }
 
     useEffect(() => {
-        controller.initializeForm()
+        controller.initializeForm(sku)
     }, [])
 
     return (
@@ -130,6 +137,7 @@ function ProductDetailForm(
                                     aria-invalid={fieldState.invalid}
                                     placeholder="Ketik disini..."
                                     autoComplete="off"
+                                    disabled={isEdit}
                                 />
                                 {fieldState.invalid && (
                                     <FieldError errors={[fieldState.error]} />
@@ -227,7 +235,7 @@ function ProductDetailForm(
                                                 field.onChange(unformatted);
                                             }}
                                             onBlur={() => {
-                                                const formatted = formatNumber(field.value);
+                                                const formatted = BaseUtil.formatNumber(field.value);
                                                 field.onChange(formatted);
                                                 field.onBlur();
                                             }}
@@ -261,7 +269,7 @@ function ProductDetailForm(
                                                 field.onChange(unformatted);
                                             }}
                                             onBlur={() => {
-                                                const formatted = formatNumber(field.value);
+                                                const formatted = BaseUtil.formatNumber(field.value);
                                                 field.onChange(formatted);
                                                 field.onBlur();
                                             }}
@@ -292,7 +300,7 @@ function ProductDetailForm(
                                         placeholder="Ketik disini..."
                                         autoComplete="off"
                                         onBlur={() => {
-                                            const formatted = formatNumber(field.value);
+                                            const formatted = BaseUtil.formatNumber(field.value);
                                             field.onChange(formatted);
                                             field.onBlur();
                                         }}
@@ -315,6 +323,7 @@ function ProductDetailForm(
                                             name={field.name}
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
+                                            disabled={isEdit}
                                         />
                                         <FieldLabel className="gap-0">Perlu IMEI</FieldLabel>
                                         {fieldState.invalid && (
@@ -348,6 +357,7 @@ function ProductDetailForm(
                                                 addImei(imeiField)
                                             }
                                         }}
+                                        disabled={isEdit}
                                     />
                                     <div className="flex flex-row justify-between mt-2">
                                         {
@@ -366,6 +376,7 @@ function ProductDetailForm(
                                     onClick={() => {
                                         addImei(imeiField)
                                     }}
+                                    disabled={isEdit}
                                 >Tambah</Button>
                             </div>
                             {
@@ -374,10 +385,14 @@ function ProductDetailForm(
                                         fields.map((field, index) => (
                                             <Badge key={field.id} variant="outline" className="flex items-center gap-2">
                                                 {field.value}
-                                                <IconX
-                                                    onClick={() => removeImei(index)}
-                                                    className="cursor-pointer !pointer-events-auto"
-                                                />
+                                                {
+                                                    !isEdit && (
+                                                        <IconX
+                                                            onClick={() => removeImei(index)}
+                                                            className="cursor-pointer !pointer-events-auto"
+                                                        />
+                                                    )
+                                                }
                                             </Badge>
                                         ))
                                     }

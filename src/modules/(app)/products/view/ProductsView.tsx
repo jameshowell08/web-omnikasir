@@ -119,7 +119,7 @@ function ProductsView() {
                     </thead>
                     <tbody>
                         {displayedProducts.map((value: Product) => (
-                            <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
+                            <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL + "/" + value.sku) }}>
                                 <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
                                 <td className="py-2">{value.name}</td>
                                 <td className="py-2">{value.brand}</td>
