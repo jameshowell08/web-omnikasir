@@ -1,4 +1,4 @@
-import { Constants } from "@/src/modules/shared/model/constants"
+import { Constants } from "@/src/modules/shared/model/Constants"
 import { LoginEventCallback, NavigateToOverviewPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 
 export class LoginController {

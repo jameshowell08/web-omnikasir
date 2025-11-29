@@ -4,7 +4,7 @@ import { IconArrowNarrowLeft, IconArrowNarrowRight, IconFilter, IconPlus, IconSe
 import ItemButton from "./component/ItemButton";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Constants } from "@/src/modules/shared/model/constants";
+import { Constants } from "@/src/modules/shared/model/Constants";
 import { ProductsController } from "../controller/ProductsController";
 import { Product } from "../model/Product";
 import clsx from "clsx";
@@ -107,29 +107,29 @@ function ProductsView() {
 
             <section className="min-h-96">
                 <table className="table-auto w-full overflow-x-auto border-separate border-spacing-y-1 mt-3">
-                <thead>
-                    <tr className="bg-black text-white text-sm font-bold text-left">
-                        <th className="py-2 pl-3 rounded-l-lg">SKU</th>
-                        <th className="py-2">Nama Produk</th>
-                        <th className="py-2">Brand</th>
-                        <th className="py-2">Kategori</th>
-                        <th className="py-2">Stok</th>
-                        <th className="py-2 pr-3 rounded-r-lg">Harga</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {displayedProducts.map((value: Product) => (
-                        <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
-                            <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
-                            <td className="py-2">{value.name}</td>
-                            <td className="py-2">{value.brand}</td>
-                            <td className="py-2">{value.category}</td>
-                            <td className="py-2">{value.stock}</td>
-                            <td className="py-2 pr-3 rounded-r-lg">{value.formatRupiah()}</td>
+                    <thead>
+                        <tr className="bg-black text-white text-sm font-bold text-left">
+                            <th className="py-2 pl-3 rounded-l-lg">SKU</th>
+                            <th className="py-2">Nama Produk</th>
+                            <th className="py-2">Brand</th>
+                            <th className="py-2">Kategori</th>
+                            <th className="py-2">Stok</th>
+                            <th className="py-2 pr-3 rounded-r-lg">Harga</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {displayedProducts.map((value: Product) => (
+                            <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL) }}>
+                                <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
+                                <td className="py-2">{value.name}</td>
+                                <td className="py-2">{value.brand}</td>
+                                <td className="py-2">{value.category}</td>
+                                <td className="py-2">{value.stock}</td>
+                                <td className="py-2 pr-3 rounded-r-lg">{value.formatRupiah()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </section>
 
             <footer className="mt-12 flex flex-row items-center justify-between text-sm">

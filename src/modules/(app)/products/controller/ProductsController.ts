@@ -1,4 +1,4 @@
-import { Constants } from "@/src/modules/shared/model/constants";
+import { Constants } from "@/src/modules/shared/model/Constants";
 import { Product } from "../model/Product";
 import { ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
 import { ProductApiResponse } from "../model/ProductApiResponse";

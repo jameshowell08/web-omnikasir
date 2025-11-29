@@ -1,5 +1,5 @@
 'use client'
-import { Constants } from "@/src/modules/shared/model/constants";
+import { Constants } from "@/src/modules/shared/model/Constants";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";

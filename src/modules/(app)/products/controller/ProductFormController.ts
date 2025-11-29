@@ -1,7 +1,9 @@
+import z from "zod";
 import { Brand } from "../model/Brand";
 import { Category } from "../model/Category";
 import { ProductFormEventCallback, UpdateBrands, UpdateCategories } from "../model/ProductFormEventCallback";
 import { ShowHideLoadingOverlay } from "../model/ProductsEventCallback";
+import { ProductFormScheme } from "../model/ProductFormScheme";
 
 export class ProductFormController {
     
@@ -39,10 +41,16 @@ export class ProductFormController {
         ]) )
     }
 
-    initializeForm() {
+    public initializeForm() {
         this.eventCallback(new ShowHideLoadingOverlay(true))
         this.getBrand()
         this.getCategories()
+        this.eventCallback(new ShowHideLoadingOverlay(false))
+    }
+
+    public submitForm(data: z.infer<typeof ProductFormScheme>) {
+        this.eventCallback(new ShowHideLoadingOverlay(true))
+        console.log(data)
         this.eventCallback(new ShowHideLoadingOverlay(false))
     }
 

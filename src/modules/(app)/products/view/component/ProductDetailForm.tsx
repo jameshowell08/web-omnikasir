@@ -11,35 +11,13 @@ import { IconArrowBackUp, IconTrash, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
+import z from "zod";
 import { ProductFormController } from "../../controller/ProductFormController";
 import { ProductFormEventCallback, ShowHideLoadingOverlay, UpdateBrands, UpdateCategories } from "../../model/ProductFormEventCallback";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { Category } from "../../model/Category";
 import { Brand } from "../../model/Brand";
-
-const IMEI = z.object({
-    imei: z.string()
-})
-
-const formScheme = z.object({
-    sku: z.string().min(1, "SKU tidak boleh kosong."),
-    name: z.string().min(1, "Nama produk tidak boleh kosong."),
-    brand: z.string().min(1, "Merek produk tidak boleh kosong."),
-    category: z.string().min(1, "Kategori produk tidak boleh kosong."),
-    sellPrice: z.string()
-        .transform((val) => Number(val.replace(/\./g, "")))
-        .pipe(z.number().min(1, "Harga jual tidak boleh kosong.")),
-    buyPrice: z.string()
-        .transform((val) => Number(val.replace(/\./g, ""))),
-    stock: z.string()
-        .transform((val) => Number(val.replace(/\./g, ""))),
-    needImei: z.boolean(),
-    imeis: z.array(IMEI),
-}).refine((data) => (!data.needImei || data.imeis.length === data.stock), {
-    message: "Jumlah IMEI harus sama dengan jumlah stok.",
-    path: ["imeis"],
-})
+import { ProductFormScheme } from "../../model/ProductFormScheme";
 
 const formatNumber = (value: string | number) => {
     const stringValue = String(value);
@@ -73,7 +51,7 @@ function ProductDetailForm(
     const [controller] = useState(() => new ProductFormController(onEventCallback))
     const router = useRouter();
     const form = useForm({
-        resolver: zodResolver(formScheme),
+        resolver: zodResolver(ProductFormScheme),
         defaultValues: {
             sku: "",
             name: "",
@@ -95,10 +73,6 @@ function ProductDetailForm(
     const [imeiField, setImeiField] = useState("");
     const needImei = form.watch("needImei");
     const stockAmount = form.watch("stock");
-
-    function onSubmit(data: z.infer<typeof formScheme>) {
-        console.log(data)
-    }
 
     function addImei(imei: string) {
         const imeisInputted = fields.map((field) => field.imei.toLowerCase())
@@ -140,14 +114,14 @@ function ProductDetailForm(
                 }
             </div>
 
-            <form id="product-form" onSubmit={form.handleSubmit(onSubmit)} className="px-14">
+            <form id="product-form" onSubmit={form.handleSubmit(controller.submitForm)} className="px-14">
                 <FieldGroup className="gap-6">
                     <Controller
                         name="sku"
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="gap-2">
-                                <FieldLabel className="gap-0 font-bold">SKU<span className="text-red-500">*</span></FieldLabel>
+                                <FieldLabel className="gap-0 font-bold" htmlFor="product-form-sku">SKU<span className="text-red-500">*</span></FieldLabel>
                                 <Input
                                     {...field}
                                     id="product-form-sku"
@@ -167,7 +141,7 @@ function ProductDetailForm(
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="gap-2">
-                                <FieldLabel className="gap-0 font-bold">Nama<span className="text-red-500">*</span></FieldLabel>
+                                <FieldLabel className="gap-0 font-bold" htmlFor="product-form-name">Nama<span className="text-red-500">*</span></FieldLabel>
                                 <Input
                                     {...field}
                                     id="product-form-name"
@@ -188,7 +162,7 @@ function ProductDetailForm(
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-2">
-                                    <FieldLabel className="gap-0 font-bold">Merek<span className="text-red-500">*</span></FieldLabel>
+                                    <FieldLabel className="gap-0 font-bold" htmlFor="product-form-brand">Merek<span className="text-red-500">*</span></FieldLabel>
                                     <Select
                                         {...field}
                                         onValueChange={field.onChange}
@@ -216,7 +190,7 @@ function ProductDetailForm(
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-2">
-                                    <FieldLabel className="gap-0 font-bold">Kategori<span className="text-red-500">*</span></FieldLabel>
+                                    <FieldLabel className="gap-0 font-bold" htmlFor="product-form-category">Kategori<span className="text-red-500">*</span></FieldLabel>
                                     <Select
                                         {...field}
                                         onValueChange={field.onChange}
@@ -246,7 +220,7 @@ function ProductDetailForm(
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-2">
-                                    <FieldLabel className="gap-0 font-bold">Harga Jual<span className="text-red-500">*</span></FieldLabel>
+                                    <FieldLabel className="gap-0 font-bold" htmlFor="product-form-sell-price">Harga Jual<span className="text-red-500">*</span></FieldLabel>
                                     <InputGroup>
                                         <InputGroupInput
                                             {...field}
@@ -280,7 +254,7 @@ function ProductDetailForm(
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-2">
-                                    <FieldLabel className="gap-0 font-bold">Harga Beli</FieldLabel>
+                                    <FieldLabel className="gap-0 font-bold" htmlFor="product-form-buy-price">Harga Beli</FieldLabel>
                                     <InputGroup>
                                         <InputGroupInput
                                             {...field}
@@ -316,7 +290,7 @@ function ProductDetailForm(
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-2">
-                                    <FieldLabel className="gap-0 font-bold">Stok<span className="text-red-500">*</span></FieldLabel>
+                                    <FieldLabel className="gap-0 font-bold" htmlFor="product-form-stock">Stok<span className="text-red-500">*</span></FieldLabel>
                                     <Input
                                         {...field}
                                         id="product-form-stock"
@@ -361,7 +335,7 @@ function ProductDetailForm(
                     {
                         needImei &&
                         <Field data-invalid={form.formState.errors.imeis?.message !== undefined} >
-                            <FieldLabel className="font-bold gap-0">IMEI<span className="text-red-500">*</span></FieldLabel>
+                            <FieldLabel className="font-bold gap-0" htmlFor="product-form-imeis">IMEI<span className="text-red-500">*</span></FieldLabel>
                             <div className="flex flex-row gap-2">
                                 <div className="flex flex-col w-full">
                                     <Input
