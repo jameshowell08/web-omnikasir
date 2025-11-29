@@ -1,33 +1,15 @@
-import z from "zod";
-import { Brand } from "../model/Brand";
-import { Category } from "../model/Category";
-import { ProductFormEventCallback, ShowErrorToast, UpdateBrands, UpdateCategories } from "../model/ProductFormEventCallback";
-import { ShowHideLoadingOverlay } from "../model/ProductsEventCallback";
-import { ProductFormScheme } from "../model/ProductFormScheme";
 import { Constants } from "@/src/modules/shared/model/Constants";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import z from "zod";
+import { Category } from "../model/Category";
+import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowSuccessfulToast, UpdateCategories } from "../model/ProductFormEventCallback";
+import { ProductFormScheme } from "../model/ProductFormScheme";
+import { ShowHideLoadingOverlay } from "../model/ProductsEventCallback";
 
 export class ProductFormController {
 
     constructor(
         private eventCallback: (e: ProductFormEventCallback) => void
     ) { }
-
-    private async getBrand() {
-        await BaseUtil.delay(1000)
-        this.eventCallback(new UpdateBrands([
-            new Brand("brand-1", "Samsung"),
-            new Brand("brand-2", "Apple"),
-            new Brand("brand-3", "Xiaomi"),
-            new Brand("brand-4", "Oppo"),
-            new Brand("brand-5", "Vivo"),
-            new Brand("brand-6", "Realme"),
-            new Brand("brand-7", "OnePlus"),
-            new Brand("brand-8", "Google"),
-            new Brand("brand-9", "Sony"),
-            new Brand("brand-10", "LG"),
-        ]))
-    }
 
     private async getCategories() {
         const res = await fetch(Constants.GET_CATEGORY_API)
@@ -41,15 +23,38 @@ export class ProductFormController {
 
     public async initializeForm() {
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        await this.getBrand()
         await this.getCategories()
         this.eventCallback(new ShowHideLoadingOverlay(false))
     }
 
-    public submitForm(data: z.infer<typeof ProductFormScheme>) {
+    public async submitForm(data: z.infer<typeof ProductFormScheme>) {
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        console.log(data)
+        const res = await fetch(Constants.CREATE_PRODUCT_API, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                sku: data.sku,
+                productName: data.name,
+                brand: data.brand,
+                categoryId: data.category,
+                createdById: "US000", // TODO: Need to be handled by BE (shouldn't be in FE)
+                quantity: data.stock,
+                sellingPrice: data.sellPrice,
+                buyingPrice: data.buyPrice,
+                imeis: data.imeis.map((imei) => imei.value),
+            }),
+        })
         this.eventCallback(new ShowHideLoadingOverlay(false))
+        
+        if (res.ok) {
+            this.eventCallback(new ShowSuccessfulToast("Produk berhasil dibuat!"))
+            this.eventCallback(new NavigateTo(Constants.PRODUCTS_URL))
+        } else {
+            const resVal = await res.json()
+            this.eventCallback(new ShowErrorToast(resVal.message))
+        }
     }
 
 }

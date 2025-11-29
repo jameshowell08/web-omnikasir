@@ -6,19 +6,17 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowBackUp, IconTrash, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import z from "zod";
-import { ProductFormController } from "../../controller/ProductFormController";
-import { ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateBrands, UpdateCategories } from "../../model/ProductFormEventCallback";
-import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
-import { Category } from "../../model/Category";
-import { Brand } from "../../model/Brand";
-import { ProductFormScheme } from "../../model/ProductFormScheme";
 import toast from "react-hot-toast";
+import { ProductFormController } from "../../controller/ProductFormController";
+import { Category } from "../../model/Category";
+import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories } from "../../model/ProductFormEventCallback";
+import { ProductFormScheme } from "../../model/ProductFormScheme";
 
 const formatNumber = (value: string | number) => {
     const stringValue = String(value);
@@ -37,17 +35,18 @@ function ProductDetailForm(
 ) {
     const showLoadingOverlay = useContext(LoadingOverlayContext)
     const [categories, setCategories] = useState<Category[]>([])
-    const [brands, setBrands] = useState<Brand[]>([])
 
     function onEventCallback(e: ProductFormEventCallback) {
         if (e instanceof ShowHideLoadingOverlay) {
             showLoadingOverlay(e.show)
-        } else if (e instanceof UpdateBrands) {
-            setBrands(e.brands)
         } else if (e instanceof UpdateCategories) {
             setCategories(e.categories)
         } else if (e instanceof ShowErrorToast) {
             toast.error(e.errorMessage)
+        } else if (e instanceof NavigateTo) {
+            router.push(e.path)
+        } else if (e instanceof ShowSuccessfulToast) {
+            toast.success(e.message)
         }
     }
 
@@ -78,7 +77,7 @@ function ProductDetailForm(
     const stockAmount = form.watch("stock");
 
     function addImei(imei: string) {
-        const imeisInputted = fields.map((field) => field.imei.toLowerCase())
+        const imeisInputted = fields.map((field) => field.value.toLowerCase())
 
         if (imeisInputted.includes(imei.toLowerCase())) {
             form.setError("imeis", {
@@ -88,7 +87,7 @@ function ProductDetailForm(
             return
         }
 
-        append({ imei: imeiField })
+        append({ value: imeiField })
         setImeiField("")
     }
 
@@ -117,7 +116,7 @@ function ProductDetailForm(
                 }
             </div>
 
-            <form id="product-form" onSubmit={form.handleSubmit(controller.submitForm)} className="px-14">
+            <form id="product-form" onSubmit={form.handleSubmit((data) => controller.submitForm(data))} className="px-14">
                 <FieldGroup className="gap-6">
                     <Controller
                         name="sku"
@@ -166,21 +165,13 @@ function ProductDetailForm(
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid} className="gap-2">
                                     <FieldLabel className="gap-0 font-bold" htmlFor="product-form-brand">Merek<span className="text-red-500">*</span></FieldLabel>
-                                    <Select
+                                    <Input
                                         {...field}
-                                        onValueChange={field.onChange}
-                                    >
-                                        <SelectTrigger id="product-form-brand" aria-invalid={fieldState.invalid}>
-                                            <SelectValue placeholder="Pilih merek" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {
-                                                brands.map((brand) => (
-                                                    <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
-                                                ))
-                                            }
-                                        </SelectContent>
-                                    </Select>
+                                        id="product-form-brand"
+                                        aria-invalid={fieldState.invalid}
+                                        placeholder="Ketik disini..."
+                                        autoComplete="off"
+                                    />
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]} />
                                     )}
@@ -382,7 +373,7 @@ function ProductDetailForm(
                                     {
                                         fields.map((field, index) => (
                                             <Badge key={field.id} variant="outline" className="flex items-center gap-2">
-                                                {field.imei}
+                                                {field.value}
                                                 <IconX
                                                     onClick={() => removeImei(index)}
                                                     className="cursor-pointer !pointer-events-auto"

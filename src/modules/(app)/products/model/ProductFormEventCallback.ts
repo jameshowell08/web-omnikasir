@@ -12,20 +12,26 @@ export class ShowHideLoadingOverlay extends ProductFormEventCallback {
     ) { super() }
 }
 
-export class UpdateBrands extends ProductFormEventCallback {
-    constructor(
-        public brands: Brand[]
-    ) { super() }
-}
-
 export class UpdateCategories extends ProductFormEventCallback {
     constructor(
         public categories: Category[]
     ) { super() }
 }
 
+export class ShowSuccessfulToast extends ProductFormEventCallback {
+    constructor(
+        public message: string
+    ) { super() }
+}
+
 export class ShowErrorToast extends ProductFormEventCallback {
     constructor(
         public errorMessage: string
+    ) { super() }
+}
+
+export class NavigateTo extends ProductFormEventCallback {
+    constructor(
+        public path: string
     ) { super() }
 }

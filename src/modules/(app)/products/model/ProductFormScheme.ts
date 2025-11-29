@@ -1,7 +1,7 @@
 import z from "zod"
 
 const IMEI = z.object({
-    imei: z.string()
+    value: z.string()
 })
 
 export const ProductFormScheme = z.object({
