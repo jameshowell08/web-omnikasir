@@ -30,7 +30,7 @@ export class ProductFormController {
             sku,
             "Product 1",
             "Brand 1",
-            "Category 1",
+            "cat-dummy-001",
             10000,
             5000,
             2,
