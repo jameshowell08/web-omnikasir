@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowNarrowLeft, IconArrowNarrowRight, IconFilter, IconPlus, IconSearch } from "@tabler/icons-react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { KeyboardEvent, useContext, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import z from "zod";
@@ -33,6 +33,28 @@ function ProductsView() {
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [searchField, setSearchField] = useState<string>("")
+
+    const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+    
+    function performSearch(searchTerm: string) {
+        controller.getProducts(
+            selectedAmountOfItem,
+            currentPage,
+            searchTerm == "" ? null : searchTerm,
+            appliedFilters.category,
+            appliedFilters.minPrice,
+            appliedFilters.maxPrice,
+            appliedFilters.minStock,
+            appliedFilters.maxStock
+        )
+    }
+
+    function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+        if (e.key === "Enter") {
+            if (debounceTimer.current) clearTimeout(debounceTimer.current)
+            performSearch(searchField)
+        }
+    }
 
     const filterForm = useForm({
         resolver: zodResolver(ProductFilterFormScheme),
@@ -90,6 +112,16 @@ function ProductsView() {
         controller.initialize()
     }, [])
 
+    useEffect(() => {
+        if (debounceTimer.current) clearTimeout(debounceTimer.current)
+        debounceTimer.current = setTimeout(() => {
+            performSearch(searchField)
+        }, 500)
+        return () => {
+            if (debounceTimer.current) clearTimeout(debounceTimer.current)
+        }
+    }, [searchField])
+
     return (
         <>
             <header className="flex flex-row justify-between items-center">
@@ -107,12 +139,14 @@ function ProductsView() {
                     open={isFilterDialogOpen}
                     onOpenChange={(open) => {
                         if (!open) {
+                            showFilterDialog(false)
                             filterForm.resetField("category")
                             filterForm.resetField("minPrice")
                             filterForm.resetField("maxPrice")
                             filterForm.resetField("minStock")
                             filterForm.resetField("maxStock")
                         } else {
+                            showFilterDialog(true)
                             filterForm.setValue("category", appliedFilters.category)
                             filterForm.setValue("minPrice", appliedFilters.minPrice ? BaseUtil.formatNumber(appliedFilters.minPrice) : null)
                             filterForm.setValue("maxPrice", appliedFilters.maxPrice ? BaseUtil.formatNumber(appliedFilters.maxPrice) : null)
@@ -127,20 +161,7 @@ function ProductsView() {
                                 value={searchField}
                                 placeholder="Cari produk..."
                                 onChange={(e) => setSearchField(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        controller.getProducts(
-                                            selectedAmountOfItem,
-                                            currentPage,
-                                            searchField == "" ? null : searchField,
-                                            appliedFilters.category,
-                                            appliedFilters.minPrice,
-                                            appliedFilters.maxPrice,
-                                            appliedFilters.minStock,
-                                            appliedFilters.maxStock
-                                        )
-                                    }
-                                }}
+                                onKeyDown={handleKeyDown}
                             />
                             <InputGroupAddon>
                                 <IconSearch />
