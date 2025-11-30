@@ -1,7 +1,10 @@
 import { Constants } from "@/src/modules/shared/model/Constants";
 import { Product } from "../model/Product";
-import { ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
+import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
 import { ProductApiResponse } from "../model/ProductApiResponse";
+import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
+import z from "zod";
+import { Category } from "../model/Category";
 
 export class ProductsController {
 
@@ -9,17 +12,50 @@ export class ProductsController {
         private eventCallback: (e: ProductsEventCallback) => void
     ) { }
 
-    public async getAllProducts(pageSize: number, pageNumber: number) {
+    private async getCategories() {
+        const res = await fetch(Constants.GET_CATEGORY_API)
+        const data = await res.json()
+        if (res.ok) {
+            this.eventCallback(new UpdateCategories(data.data.map((c: any) => new Category(c.categoryId, c.categoryName))))
+        } else {
+            this.eventCallback(new ShowErrorToast(data.message))
+        }
+    }
+
+    public async initialize() {
         this.eventCallback(new ShowHideLoadingOverlay(true))
+        this.getCategories()
+        this.eventCallback(new ShowHideLoadingOverlay(false))
+    }
 
-        const params = new URLSearchParams({
-            page: pageNumber.toString(),
-            limit: pageSize.toString()
-        });
-
+    public async getProducts(
+        pageSize: number,
+        pageNumber: number,
+        search: string | null,
+        categoryId: string | null,
+        minPrice: number | null,
+        maxPrice: number | null,
+        minStock: number | null,
+        maxStock: number | null
+    ) {
+        this.eventCallback(new ShowHideLoadingOverlay(true))
         let responseContent = null
+
         try {
-            const res = (await fetch(`${Constants.GET_PRODUCTS_API}?${params.toString()}`))
+            const searchParams = new URLSearchParams(
+                {
+                    page: pageNumber.toString(),
+                    limit: pageSize.toString(),
+                }
+            )
+            if (search) searchParams.set("search", search)
+            if (categoryId) searchParams.set("categoryId", categoryId)
+            if (minPrice) searchParams.set("minPrice", minPrice.toString())
+            if (maxPrice) searchParams.set("maxPrice", maxPrice.toString())
+            if (minStock) searchParams.set("minStock", minStock.toString())
+            if (maxStock) searchParams.set("maxStock", maxStock.toString())
+
+            const res = await fetch(`${Constants.GET_PRODUCTS_API}${searchParams ? "?" + searchParams.toString() : ""}`)
             if (res.ok) {
                 responseContent = await res.json() as ProductApiResponse
             } else {
@@ -40,4 +76,7 @@ export class ProductsController {
         this.eventCallback(new ShowHideLoadingOverlay(false))
     }
 
+    public onApplyFilters(data: z.infer<typeof ProductFilterFormScheme>) {
+        this.eventCallback(new ApplyFilters(data))
+    }
 }
