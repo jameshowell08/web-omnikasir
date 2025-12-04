@@ -127,7 +127,7 @@ function ProductsView() {
             <header className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold">Produk</h1>
                 <span
-                    className="flex flex-row gap-1 items-center px-2 py-1 rounded-lg hover:bg-black/10 select-none"
+                    className="flex flex-row gap-1 items-center px-2 py-1 rounded-lg hover:bg-black/10 select-none cursor-pointer"
                     onClick={() => { router.push(Constants.ADD_PRODUCT_URL) }}>
                     <IconPlus />
                     <span className="text-xs font-bold">Tambah Produk</span>
@@ -228,6 +228,10 @@ function ProductsView() {
                                                             id="filter-form-min-price"
                                                             placeholder="Harga minimum"
                                                             aria-invalid={fieldState.invalid}
+                                                            onFocus={(val) => {
+                                                                const unformatted = BaseUtil.unformatNumber(val.target.value);
+                                                                field.onChange(unformatted);
+                                                            }}
                                                             onBlur={(val) => {
                                                                 const formatted = BaseUtil.formatNumber(val.target.value);
                                                                 field.onChange(formatted);
@@ -263,6 +267,10 @@ function ProductsView() {
                                                             id="filter-form-max-price"
                                                             placeholder="Harga maksimum"
                                                             aria-invalid={fieldState.invalid}
+                                                            onFocus={(val) => {
+                                                                const unformatted = BaseUtil.unformatNumber(val.target.value);
+                                                                field.onChange(unformatted);
+                                                            }}
                                                             onBlur={(val) => {
                                                                 const formatted = BaseUtil.formatNumber(val.target.value);
                                                                 field.onChange(formatted);
@@ -301,6 +309,10 @@ function ProductsView() {
                                                             id="filter-form-min-stock"
                                                             placeholder="Stok minimum"
                                                             aria-invalid={fieldState.invalid}
+                                                            onFocus={(val) => {
+                                                                const unformatted = BaseUtil.unformatNumber(val.target.value);
+                                                                field.onChange(unformatted);
+                                                            }}
                                                             onBlur={(val) => {
                                                                 const formatted = BaseUtil.formatNumber(val.target.value);
                                                                 field.onChange(formatted);
@@ -331,6 +343,10 @@ function ProductsView() {
                                                             id="filter-form-max-stock"
                                                             placeholder="Stok maksimum"
                                                             aria-invalid={fieldState.invalid}
+                                                            onFocus={(val) => {
+                                                                const unformatted = BaseUtil.unformatNumber(val.target.value);
+                                                                field.onChange(unformatted);
+                                                            }}
                                                             onBlur={(val) => {
                                                                 const formatted = BaseUtil.formatNumber(val.target.value);
                                                                 field.onChange(formatted);

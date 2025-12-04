@@ -230,12 +230,12 @@ function ProductDetailForm(
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Ketik disini..."
                                             autoComplete="off"
-                                            onFocus={() => {
-                                                const unformatted = field.value.replace(/\./g, "");
+                                            onFocus={(val) => {
+                                                const unformatted = BaseUtil.unformatNumber(val.target.value);
                                                 field.onChange(unformatted);
                                             }}
-                                            onBlur={() => {
-                                                const formatted = BaseUtil.formatNumber(field.value);
+                                            onBlur={(val) => {
+                                                const formatted = BaseUtil.formatNumber(val.target.value);
                                                 field.onChange(formatted);
                                                 field.onBlur();
                                             }}
@@ -264,12 +264,11 @@ function ProductDetailForm(
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Ketik disini..."
                                             autoComplete="off"
-                                            onFocus={() => {
-                                                const unformatted = field.value.replace(/\./g, "");
-                                                field.onChange(unformatted);
+                                            onFocus={(val) => {
+                                                field.onChange(BaseUtil.unformatNumber(val.target.value));
                                             }}
-                                            onBlur={() => {
-                                                const formatted = BaseUtil.formatNumber(field.value);
+                                            onBlur={(val) => {
+                                                const formatted = BaseUtil.formatNumber(val.target.value);
                                                 field.onChange(formatted);
                                                 field.onBlur();
                                             }}

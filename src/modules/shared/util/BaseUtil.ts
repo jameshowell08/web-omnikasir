@@ -18,4 +18,8 @@ export class BaseUtil {
         const numericValue = stringValue.replace(/\D/g, "");
         return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
+
+    public static unformatNumber(value: string) {
+        return value.replace(/\./g, "");
+    }
 }
