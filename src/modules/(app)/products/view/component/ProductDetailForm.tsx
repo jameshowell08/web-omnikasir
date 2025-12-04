@@ -388,7 +388,7 @@ function ProductDetailForm(
                                                     !isEdit && (
                                                         <IconX
                                                             onClick={() => removeImei(index)}
-                                                            className="cursor-pointer !pointer-events-auto"
+                                                            className="!pointer-events-auto"
                                                         />
                                                     )
                                                 }
