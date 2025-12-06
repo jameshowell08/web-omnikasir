@@ -76,18 +76,17 @@ async function main() {
   console.log(`Inserted inventory header: ${insertedInventoryHeader.id}`)
 
   // ProductInventoryDetail
-  const insertedInventoryDetail = await prisma.productInventoryDetail.upsert({
-    where: { headerId_sku: { headerId: insertedInventoryHeader.id, sku: insertedProduct.sku } },
-    update: {},
-    create: {
+  const insertedInventoryDetail = await prisma.productInventoryDetail.create({
+    data: {
       headerId: insertedInventoryHeader.id,
       sku: insertedProduct.sku,
       quantity: 50,
-      price: 299.99,
-      // imeiCode: "IMEI0001", // Only include if client expects it
+      price: "299.99",
     },
   })
-  console.log(`Inserted inventory detail: ${insertedInventoryDetail.headerId}, ${insertedInventoryDetail.sku}`)
+  console.log(
+    `Inserted inventory detail: ${insertedInventoryDetail.headerId}, ${insertedInventoryDetail.sku}`
+  )
 
   // Imei
   const insertedImei1 = await prisma.imei.upsert({
@@ -151,13 +150,17 @@ async function main() {
     create: {
       transactionHeaderId: "trx-dummy-001",
       transactionDate: new Date(),
-      paymentMethod: { connect: { paymentId: insertedPaymentMethod.paymentId } },
+      paymentMethod: {
+        connect: { paymentId: insertedPaymentMethod.paymentId },
+      },
       user: { connect: { userId: insertedUser.userId } },
       transactionMethod: "Cash",
       customer: { connect: { customerId: insertedCustomer.customerId } },
     },
   })
-  console.log(`Inserted transactionHeader: ${insertedTransactionHeader.transactionHeaderId}`)
+  console.log(
+    `Inserted transactionHeader: ${insertedTransactionHeader.transactionHeaderId}`
+  )
 
   // TransactionDetail
   const insertedTransactionDetail = await prisma.transactionDetail.upsert({
@@ -172,7 +175,9 @@ async function main() {
       // imeiCode: "IMEI0001", // Only include if client expects it
     },
   })
-  console.log(`Inserted transactionDetail: ${insertedTransactionDetail.transactionDetailId}`)
+  console.log(
+    `Inserted transactionDetail: ${insertedTransactionDetail.transactionDetailId}`
+  )
 }
 
 main()

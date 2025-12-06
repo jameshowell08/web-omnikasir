@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../modules/shared/util/db"
 import { z } from "zod"
 import { Prisma } from "@prisma/client"
+import { verifyJwt } from "@/src/modules/shared/util/auth"
+import { cookies } from "next/headers"
 
 const InventoryItemSchema = z.object({
   sku: z.string().min(1),
@@ -12,12 +14,11 @@ const InventoryItemSchema = z.object({
 
 const CreateInventorySchema = z.object({
   supplier: z.string().min(1),
-  createdById: z.string().min(1),
   status: z.enum(["DRAFT", "COMPLETED", "CANCELLED"]).default("DRAFT"),
   items: z.array(InventoryItemSchema).optional(),
 })
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url)
     const { searchParams } = url
@@ -82,8 +83,32 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    // Get userId from header (set by middleware)
+
+    // Get token from cookies and verify
+    const cookieStore = cookies()
+    const token = (await cookieStore).get("token")?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: no token" },
+        { status: 401 }
+      )
+    }
+
+    const user = await verifyJwt(token)
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: invalid token" },
+        { status: 401 }
+      )
+    }
+
+    const userId = user.user_id as string
+    console.log("User ID from token:", userId)
+
     const body = await req.json()
     const validation = CreateInventorySchema.safeParse(body)
     if (!validation.success) {
@@ -93,7 +118,7 @@ export async function POST(req: Request) {
       )
     }
 
-    const { supplier, createdById, status, items } = validation.data
+    const { supplier, status, items } = validation.data
 
     if (items && items.length > 0) {
       const requestSkus = items.map((i) => i.sku)
@@ -125,7 +150,7 @@ export async function POST(req: Request) {
       const header = await tx.productInventoryHeader.create({
         data: {
           supplier,
-          createdById,
+          createdById: userId, // Use userId from header
           status,
           totalAmount,
           productInventoryDetails: items

@@ -6,18 +6,23 @@ export async function POST(req: Request) {
     const body = await req.json()
 
     const {
-      sku, // optional, Prisma will generate uuid if not provided
+      sku,
       productName,
       brand,
-      categoryId, // required
-      createdById, // required
+      categoryId,
+      createdById,
       quantity = 0,
       sellingPrice,
       buyingPrice,
-      imeis, // optional array of strings
+      imeis,
     } = body
 
-    // Basic validation
+    if (!sku) {
+      return NextResponse.json(
+        { status: false, message: "sku is required" },
+        { status: 400 }
+      )
+    }
     if (!productName) {
       return NextResponse.json(
         { status: false, message: "productName is required" },
@@ -60,7 +65,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Check referenced records exist
     const category = await db.productCategory.findUnique({
       where: { categoryId },
     })
@@ -79,17 +83,15 @@ export async function POST(req: Request) {
       )
     }
 
-    // Prepare imeis create if provided (unique imei strings)
     const imeiCreates = Array.isArray(imeis)
       ? imeis
           .filter((v) => typeof v === "string" && v.trim().length > 0)
           .map((imei) => ({ imei: imei.trim() }))
       : []
 
-    // Create product
     const createdProduct = await db.product.create({
       data: {
-        ...(sku ? { sku } : {}),
+        sku,
         productName,
         brand,
         category: { connect: { categoryId } },
