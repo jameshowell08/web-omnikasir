@@ -1,14 +1,16 @@
 'use client';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Constants } from "@/src/modules/shared/model/Constants";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconArrowNarrowLeft, IconArrowNarrowRight, IconFilter, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconArrowNarrowLeft, IconArrowNarrowRight, IconDots, IconEdit, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { KeyboardEvent, useContext, useEffect, useRef, useState } from "react";
@@ -126,12 +128,10 @@ function ProductsView() {
         <>
             <header className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold">Produk</h1>
-                <span
-                    className="flex flex-row gap-1 items-center px-2 py-1 rounded-lg hover:bg-black/10 select-none"
-                    onClick={() => { router.push(Constants.ADD_PRODUCT_URL) }}>
+                <Button onClick={() => { router.push(Constants.ADD_PRODUCT_URL) }} variant="ghost" size="sm">
                     <IconPlus />
                     <span className="text-xs font-bold">Tambah Produk</span>
-                </span>
+                </Button>
             </header>
 
             <section className="mt-4 flex flex-row justify-between items-center">
@@ -385,59 +385,82 @@ function ProductsView() {
                 </Dialog>
 
                 <div className="flex flex-row gap-2 items-center">
-                    <span className="text-xs">Produk per halaman</span>
-                    <ItemButton
-                        text="10 item"
-                        isSelected={selectedAmountOfItem == 10}
-                        onClick={() => {
-                            setCurrentPage(1)
-                            setSelectedAmountOfItem(10)
-                        }} />
-                    <ItemButton
-                        text="20 item"
-                        isSelected={selectedAmountOfItem == 20}
-                        onClick={() => {
-                            setCurrentPage(1)
-                            setSelectedAmountOfItem(20)
-                        }} />
-                    <ItemButton
-                        text="50 item"
-                        isSelected={selectedAmountOfItem == 50}
-                        onClick={() => {
-                            setCurrentPage(1)
-                            setSelectedAmountOfItem(50)
-                        }} />
+                    <span className="text-sm">Produk per halaman</span>
+                    <Button variant={selectedAmountOfItem == 10 ? "default" : "outline"} size="sm" onClick={() => {
+                        setCurrentPage(1)
+                        setSelectedAmountOfItem(10)
+                    }}>
+                        10 item
+                    </Button>
+                    <Button variant={selectedAmountOfItem == 20 ? "default" : "outline"} size="sm" onClick={() => {
+                        setCurrentPage(1)
+                        setSelectedAmountOfItem(20)
+                    }}>
+                        20 item
+                    </Button>
+                    <Button variant={selectedAmountOfItem == 50 ? "default" : "outline"} size="sm" onClick={() => {
+                        setCurrentPage(1)
+                        setSelectedAmountOfItem(50)
+                    }}>
+                        50 item
+                    </Button>
                 </div>
             </section >
 
-            <section className="min-h-96">
-                <table className="table-auto w-full overflow-x-auto border-separate border-spacing-y-1 mt-3">
-                    <thead>
-                        <tr className="bg-black text-white text-sm font-bold text-left">
-                            <th className="py-2 pl-3 rounded-l-lg">SKU</th>
-                            <th className="py-2">Nama Produk</th>
-                            <th className="py-2">Brand</th>
-                            <th className="py-2">Kategori</th>
-                            <th className="py-2">Stok</th>
-                            <th className="py-2 pr-3 rounded-r-lg">Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {displayedProducts.map((value: Product) => (
-                            <tr key={value.sku} className="text-sm hover:bg-black/10 select-none" onClick={() => { router.push(Constants.EDIT_PRODUCT_URL + "/" + value.sku) }}>
-                                <td className="py-2 pl-3 rounded-l-lg">{value.sku}</td>
-                                <td className="py-2">{value.name}</td>
-                                <td className="py-2">{value.brand}</td>
-                                <td className="py-2">{value.category}</td>
-                                <td className="py-2">{value.stock}</td>
-                                <td className="py-2 pr-3 rounded-r-lg">{value.formatRupiah()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </section>
+            <div className="border rounded-lg mt-4 overflow-hidden">
+                <Table>
+                <TableHeader className="bg-black">
+                    <TableRow>
+                        <TableHead className="font-bold text-white">SKU</TableHead>
+                        <TableHead className="font-bold text-white">Nama Produk</TableHead>
+                        <TableHead className="font-bold text-white">Brand</TableHead>
+                        <TableHead className="font-bold text-white">Kategori</TableHead>
+                        <TableHead className="font-bold text-white">Stok</TableHead>
+                        <TableHead className="font-bold text-white">Harga</TableHead>
+                        <TableHead />
+                    </TableRow>
+                </TableHeader>
 
-            <footer className="mt-12 flex flex-row items-center justify-between text-sm">
+                <TableBody>
+                    {displayedProducts.map((value: Product) => (
+                        <TableRow key={value.sku}>
+                            <TableCell>{value.sku}</TableCell>
+                            <TableCell>{value.name}</TableCell>
+                            <TableCell>{value.brand}</TableCell>
+                            <TableCell>{value.category}</TableCell>
+                            <TableCell>{value.stock}</TableCell>
+                            <TableCell>{value.formatRupiah()}</TableCell>
+                            <TableCell>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon">
+                                            <IconDots />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuItem onClick={() => {
+                                            showLoadingOverlay(true)
+                                            router.push(Constants.EDIT_PRODUCT_URL + value.sku)
+                                            showLoadingOverlay(false)
+                                        }}>
+                                            <IconEdit />
+                                            Ubah
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem variant="destructive">
+                                            <IconTrash />
+                                            Hapus
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            </div>
+
+            <footer className="mt-6 flex flex-row items-center justify-between text-sm">
                 <span
                     className={clsx(
                         "flex flex-row items-center gap-1 px-2 py-1 w-fit select-none font-bold",
