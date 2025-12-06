@@ -88,35 +88,35 @@ model Imei {
 }
 
 model ProductInventoryHeader {
-  id            String      @id @default(uuid())
-  supplier      String 
-  status        String      @default("DRAFT") // DRAFT, COMPLETED, CANCELLED
-  totalAmount   Decimal?    @db.Decimal(12, 2)
+  id          String   @id @default(uuid())
+  supplier    String
+  status      String   @default("DRAFT") // DRAFT, COMPLETED, CANCELLED
+  totalAmount Decimal? @db.Decimal(12, 2)
 
-  createdById   String
-  modifiedById  String?
-  createdDate   DateTime    @default(now())
-  modifiedDate  DateTime    @updatedAt
+  createdById  String
+  modifiedById String?
+  createdDate  DateTime @default(now())
+  modifiedDate DateTime @updatedAt
 
-  createdBy   Users   @relation("InventoryHeaderCreatedBy", fields: [createdById], references: [userId])
-  modifiedBy  Users?  @relation("InventoryHeaderModifiedBy", fields: [modifiedById], references: [userId])
+  createdBy  Users  @relation("InventoryHeaderCreatedBy", fields: [createdById], references: [userId])
+  modifiedBy Users? @relation("InventoryHeaderModifiedBy", fields: [modifiedById], references: [userId])
 
   productInventoryDetails ProductInventoryDetail[]
- 
 }
 
 model ProductInventoryDetail {
-  id        String   @id @default(uuid())
-  headerId  String
-  sku       String
-  quantity  Int
-  price     Decimal  @db.Decimal(12, 2)
-  imeiCode  String?
+  id       String  @id @default(uuid())
+  headerId String
+  sku      String
+  quantity Int
+  price    Decimal @db.Decimal(12, 2)
+  imeiCode String?
 
   productHeader ProductInventoryHeader @relation(fields: [headerId], references: [id])
   imei          Imei?                  @relation(fields: [imeiCode], references: [imei])
 
- 
+  Product    Product? @relation(fields: [productSku], references: [sku])
+  productSku String?
 }
 
 model PaymentMethod {
