@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyJwt } from "./modules/shared/util/auth"
-import { Constants } from "./modules/shared/model/constants"
+import { Constants } from "./modules/shared/model/Constants"
 
 export async function middleware(req: NextRequest) {
   const publicPaths = [Constants.LOGIN_URL, "/api/auth"]

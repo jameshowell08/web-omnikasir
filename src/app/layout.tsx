@@ -3,7 +3,6 @@ import { DM_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import LoadingOverlay from "../modules/shared/view/LoadingOverlay";
 import "./globals.css";
-import DialogHost from "../modules/shared/view/DialogHost";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -26,13 +25,11 @@ export default function RootLayout({
         className={`${dmSans.variable} font-sans antialiased`}
       >
         <LoadingOverlay>
-          <DialogHost>
-            <Toaster
-              position="bottom-center"
-              reverseOrder={false}
-            />
-            {children}
-          </DialogHost>
+          <Toaster
+            position="bottom-center"
+            reverseOrder={false}
+          />
+          {children}
         </LoadingOverlay>
       </body>
     </html>

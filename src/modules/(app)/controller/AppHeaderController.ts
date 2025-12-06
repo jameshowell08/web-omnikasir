@@ -1,5 +1,5 @@
 
-import { Constants } from "../../shared/model/constants";
+import { Constants } from "../../shared/model/Constants";
 import { AppHeaderEventCallback, NavigateToUrl } from "../model/AppHeaderEventCallback";
 
 export class AppHeaderController {
