@@ -1,16 +1,42 @@
 import { NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
+import { verifyJwt } from "@/src/modules/shared/util/auth"
+import { cookies } from "next/headers"
 
 export async function PUT(req: Request) {
   try {
+    const cookieStore = cookies()
+    const token = (await cookieStore).get("token")?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { status: false, message: "Unauthorized: no token" },
+        { status: 401 }
+      )
+    }
+
+    const user = await verifyJwt(token)
+    if (!user) {
+      return NextResponse.json(
+        { status: false, message: "Unauthorized: invalid token" },
+        { status: 401 }
+      )
+    }
+
+    const modifiedById = user.user_id as string
+
     const body = await req.json()
 
     const {
-      sku, // primary key
+      sku,
       productName,
+      brand,
       categoryId,
       quantity,
       sellingPrice,
+      buyingPrice,
+      isNeedImei,
+      imeis,
     } = body
 
     // Basic required fields check
@@ -31,6 +57,24 @@ export async function PUT(req: Request) {
         { status: false, message: "All required fields must be filled" },
         { status: 400 }
       )
+    }
+
+    const imeiCreates = Array.isArray(imeis)
+      ? imeis
+          .filter((v) => typeof v === "string" && v.trim().length > 0)
+          .map((imei) => ({ imei: imei.trim() }))
+      : []
+
+    if (isNeedImei && imeiCreates.length > 0) {
+      if (imeiCreates.length !== Number(quantity)) {
+        return NextResponse.json(
+          {
+            status: false,
+            message: `For IMEI-tracked products, quantity (${quantity}) must equal number of IMEIs (${imeiCreates.length})`,
+          },
+          { status: 400 }
+        )
+      }
     }
 
     // Coerce/validate types
@@ -99,15 +143,18 @@ export async function PUT(req: Request) {
       where: { sku: skuStr },
       data: {
         productName,
+        brand,
         categoryId: categoryIdStr,
         quantity: quantityNum,
-        // Prisma Decimal column accepts string/number; use string to be explicit
         sellingPrice: String(sellingPriceNum),
-        // don't set modifiedDate — field doesn't exist on Product in schema
-        modifiedById: "system", // adjust based on your auth later
+        ...(buyingPrice !== undefined
+          ? { buyingPrice: String(Number(buyingPrice).toFixed(2)) }
+          : {}),
+        modifiedById,
       },
       include: {
         category: true,
+        imeis: true,
       },
     })
 
@@ -122,6 +169,9 @@ export async function PUT(req: Request) {
         categoryName: updatedProduct.category?.categoryName ?? null,
         quantity: updatedProduct.quantity,
         sellingPrice: updatedProduct.sellingPrice,
+        buyingPrice: updatedProduct.buyingPrice ?? null,
+        isNeedImei: isNeedImei || false,
+        imeis: updatedProduct.imeis?.map((i: any) => i.imei) ?? [],
         createdById: updatedProduct.createdById ?? null,
         modifiedById: updatedProduct.modifiedById ?? null,
       },

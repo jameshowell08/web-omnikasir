@@ -1,8 +1,30 @@
 import { NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
+import { verifyJwt } from "@/src/modules/shared/util/auth"
+import { cookies } from "next/headers"
 
 export async function POST(req: Request) {
   try {
+    const cookieStore = cookies()
+    const token = (await cookieStore).get("token")?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { status: false, message: "Unauthorized: no token" },
+        { status: 401 }
+      )
+    }
+
+    const user = await verifyJwt(token)
+    if (!user) {
+      return NextResponse.json(
+        { status: false, message: "Unauthorized: invalid token" },
+        { status: 401 }
+      )
+    }
+
+    const createdById = user.user_id as string
+
     const body = await req.json()
 
     const {
@@ -10,10 +32,10 @@ export async function POST(req: Request) {
       productName,
       brand,
       categoryId,
-      createdById,
       quantity = 0,
       sellingPrice,
       buyingPrice,
+      isNeedImei,
       imeis,
     } = body
 
@@ -32,12 +54,6 @@ export async function POST(req: Request) {
     if (!categoryId) {
       return NextResponse.json(
         { status: false, message: "categoryId is required" },
-        { status: 400 }
-      )
-    }
-    if (!createdById) {
-      return NextResponse.json(
-        { status: false, message: "createdById is required" },
         { status: 400 }
       )
     }
@@ -65,6 +81,24 @@ export async function POST(req: Request) {
       )
     }
 
+    const imeiCreates = Array.isArray(imeis)
+      ? imeis
+          .filter((v) => typeof v === "string" && v.trim().length > 0)
+          .map((imei) => ({ imei: imei.trim() }))
+      : []
+
+    if (isNeedImei && imeiCreates.length > 0) {
+      if (imeiCreates.length !== Number(quantity)) {
+        return NextResponse.json(
+          {
+            status: false,
+            message: `For IMEI-tracked products, quantity (${quantity}) must equal number of IMEIs (${imeiCreates.length})`,
+          },
+          { status: 400 }
+        )
+      }
+    }
+
     const category = await db.productCategory.findUnique({
       where: { categoryId },
     })
@@ -74,20 +108,6 @@ export async function POST(req: Request) {
         { status: 404 }
       )
     }
-
-    const user = await db.users.findUnique({ where: { userId: createdById } })
-    if (!user) {
-      return NextResponse.json(
-        { status: false, message: "User (createdById) not found" },
-        { status: 404 }
-      )
-    }
-
-    const imeiCreates = Array.isArray(imeis)
-      ? imeis
-          .filter((v) => typeof v === "string" && v.trim().length > 0)
-          .map((imei) => ({ imei: imei.trim() }))
-      : []
 
     const createdProduct = await db.product.create({
       data: {
@@ -122,7 +142,8 @@ export async function POST(req: Request) {
         quantity: createdProduct.quantity,
         sellingPrice: createdProduct.sellingPrice,
         buyingPrice: createdProduct.buyingPrice ?? null,
-        imeis: createdProduct.imeis?.map((i) => i.imei) ?? [],
+        isNeedImei: isNeedImei || false,
+        imeis: createdProduct.imeis?.map((i: any) => i.imei) ?? [],
       },
     })
   } catch (error) {

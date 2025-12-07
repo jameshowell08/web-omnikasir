@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
 import { z } from "zod"
+import { verifyJwt } from "@/src/modules/shared/util/auth"
+import { cookies } from "next/headers"
 
 const InventoryItemSchema = z.object({
   sku: z.string().min(1),
@@ -11,18 +13,19 @@ const InventoryItemSchema = z.object({
 
 const UpdateInventorySchema = z.object({
   supplier: z.string().min(1).optional(),
-  modifiedById: z.string().uuid(),
   status: z.enum(["DRAFT", "COMPLETED", "CANCELLED"]),
   items: z.array(InventoryItemSchema).optional(),
 })
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const inventoryHeader = await db.productInventoryHeader.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         productInventoryDetails: {
           orderBy: { sku: "asc" },
@@ -38,6 +41,7 @@ export async function GET(
           },
         },
         createdBy: { select: { username: true } },
+        modifiedBy: { select: { username: true } },
       },
     })
 
@@ -63,11 +67,32 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await request.json()
+    const { id } = await params
 
+    const cookieStore = cookies()
+    const token = (await cookieStore).get("token")?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: no token" },
+        { status: 401 }
+      )
+    }
+
+    const user = await verifyJwt(token)
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: invalid token" },
+        { status: 401 }
+      )
+    }
+
+    const modifiedById = user.user_id as string
+
+    const body = await request.json()
     const validation = UpdateInventorySchema.safeParse(body)
     if (!validation.success) {
       return NextResponse.json(
@@ -76,11 +101,11 @@ export async function PUT(
       )
     }
 
-    const { supplier, modifiedById, status: newStatus, items } = validation.data
+    const { supplier, status: newStatus, items } = validation.data
 
     const result = await db.$transaction(async (tx) => {
       const existingHeader = await tx.productInventoryHeader.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: { productInventoryDetails: true },
       })
 
@@ -95,9 +120,9 @@ export async function PUT(
         : existingHeader.totalAmount
 
       const updatedHeader = await tx.productInventoryHeader.update({
-        where: { id: params.id },
+        where: { id },
         data: {
-          supplier,
+          ...(supplier && { supplier }),
           modifiedById,
           status: newStatus,
           totalAmount,
@@ -106,12 +131,12 @@ export async function PUT(
 
       if (items) {
         await tx.productInventoryDetail.deleteMany({
-          where: { headerId: params.id },
+          where: { headerId: id },
         })
 
         await tx.productInventoryDetail.createMany({
           data: items.map((item) => ({
-            headerId: params.id,
+            headerId: id,
             sku: item.sku,
             quantity: item.quantity,
             price: item.price,
@@ -151,7 +176,7 @@ export async function PUT(
 
         for (const [sku, totalQty] of skuUpdates.entries()) {
           await tx.product.update({
-            where: { sku: sku },
+            where: { sku },
             data: { quantity: { increment: totalQty } },
           })
         }
@@ -172,11 +197,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const header = await db.productInventoryHeader.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!header) {
@@ -198,10 +225,10 @@ export async function DELETE(
 
     await db.$transaction([
       db.productInventoryDetail.deleteMany({
-        where: { headerId: params.id },
+        where: { headerId: id },
       }),
       db.productInventoryHeader.delete({
-        where: { id: params.id },
+        where: { id },
       }),
     ])
 
