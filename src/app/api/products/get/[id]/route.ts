@@ -54,6 +54,7 @@ export async function GET(
         quantity: product.quantity,
         sellingPrice: sellingPriceNumber,
         buyingPrice: buyingPriceNumber,
+        isNeedImei: product.isNeedImei,
         imeis: product.imeis?.map((i) => i.imei) || [],
       },
     })

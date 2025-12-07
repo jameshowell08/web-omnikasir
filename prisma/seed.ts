@@ -57,6 +57,7 @@ async function main() {
       quantity: 100,
       sellingPrice: 399.99,
       buyingPrice: 299.99,
+      isNeedImei: false,
     },
   })
   console.log(`Inserted product: ${insertedProduct.productName}`)

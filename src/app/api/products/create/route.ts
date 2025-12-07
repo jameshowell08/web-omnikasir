@@ -121,6 +121,7 @@ export async function POST(req: Request) {
         ...(buyingPrice !== undefined
           ? { buyingPrice: String(Number(buyingPrice).toFixed(2)) }
           : {}),
+        isNeedImei: isNeedImei,
         ...(imeiCreates.length ? { imeis: { create: imeiCreates } } : {}),
       },
       include: {

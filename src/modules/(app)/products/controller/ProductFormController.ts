@@ -34,7 +34,7 @@ export class ProductFormController {
                 productData.sellingPrice,
                 productData.buyingPrice,
                 productData.quantity,
-                productData.needImei,
+                productData.isNeedImei,
                 productData.imeis
             ))
         } else {

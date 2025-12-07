@@ -338,46 +338,47 @@ function ProductDetailForm(
                         needImei &&
                         <Field data-invalid={form.formState.errors.imeis?.message !== undefined} >
                             <FieldLabel className="font-bold gap-0" htmlFor="product-form-imeis">IMEI<span className="text-red-500">*</span></FieldLabel>
-                            <div className="flex flex-row gap-2">
-                                <div className="flex flex-col w-full">
-                                    <Input
-                                        id="product-form-imeis"
-                                        placeholder="Ketik disini..."
-                                        autoComplete="off"
-                                        aria-invalid={form.formState.errors.imeis?.message !== undefined}
-                                        value={imeiField}
-                                        onChange={(e) => {
-                                            form.clearErrors("imeis")
-                                            setImeiField(e.target.value)
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                e.preventDefault()
-                                                addImei(imeiField)
+                            {
+                                !isEdit &&
+                                <div className="flex flex-row gap-2">
+                                    <div className="flex flex-col w-full">
+                                        <Input
+                                            id="product-form-imeis"
+                                            placeholder="Ketik disini..."
+                                            autoComplete="off"
+                                            aria-invalid={form.formState.errors.imeis?.message !== undefined}
+                                            value={imeiField}
+                                            onChange={(e) => {
+                                                form.clearErrors("imeis")
+                                                setImeiField(e.target.value)
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault()
+                                                    addImei(imeiField)
+                                                }
+                                            }}
+                                        />
+                                        <div className="flex flex-row justify-between mt-2">
+                                            {
+                                                form.formState.errors.imeis && (
+                                                    <FieldError errors={[form.formState.errors.imeis]} />
+                                                )
                                             }
-                                        }}
-                                        disabled={isEdit}
-                                    />
-                                    <div className="flex flex-row justify-between mt-2">
-                                        {
-                                            form.formState.errors.imeis && (
-                                                <FieldError errors={[form.formState.errors.imeis]} />
-                                            )
-                                        }
-                                        {
-                                            stockAmount !== "" &&
-                                            <p className="text-xs text-end flex-1">{form.getValues("imeis").length}/{stockAmount}</p>
-                                        }
+                                            {
+                                                stockAmount !== "" &&
+                                                <p className="text-xs text-end flex-1">{form.getValues("imeis").length}/{stockAmount}</p>
+                                            }
+                                        </div>
                                     </div>
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            addImei(imeiField)
+                                        }}
+                                    >Tambah</Button>
                                 </div>
-                                <Button
-                                    type="button"
-                                    onClick={() => {
-                                        addImei(imeiField)
-                                    }}
-                                    disabled={isEdit}
-                                >Tambah</Button>
-                            </div>
+                            }
                             {
                                 <div className="flex flex-row flex-wrap gap-2">
                                     {
