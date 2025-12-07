@@ -1,14 +1,15 @@
 'use client';
-import { useState } from "react";
-import ProductCategoryController from "../controller/ProductCategoryController";
-import ProductCategoryEventCallback from "../model/ProductCategoryCallback";
 import { Button } from "@/components/ui/button";
-import { IconArrowLeft, IconArrowRight, IconChevronLeft, IconChevronRight, IconDots, IconEdit, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { useContext, useEffect, useState } from "react";
+import ProductCategoryController from "../controller/ProductCategoryController";
+import ProductCategory from "../model/ProductCategory";
+import { ProductCategoryEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryCallback";
+import toast from "react-hot-toast";
 
 function ProductCategoryHeader() {
     return (
@@ -22,56 +23,22 @@ function ProductCategoryHeader() {
     )
 }
 
-function ItemAmountButton(props: { label: string, selected: boolean }) {
-    return (
-        <Button size="sm" variant={props.selected ? "default" : "outline"} className="text-xs">
-            {props.label}
-        </Button>
-    )
-}
-
 function FilterSection() {
     return (
         <section className="mt-5 flex flex-row justify-between items-center">
-            <div className="flex flex-row items-center gap-2">
-                <InputGroup className="w-96">
-                    <InputGroupInput
-                        placeholder="Cari ID / Nama..."
-                    />
-                    <InputGroupAddon>
-                        <IconSearch />
-                    </InputGroupAddon>
-                </InputGroup>
-            </div>
-            <div className="text-xs flex flex-row items-center gap-2">
-                Produk per halaman
-                <ItemAmountButton label="10 items" selected={true} />
-                <ItemAmountButton label="20 items" selected={false} />
-                <ItemAmountButton label="50 items" selected={false} />
-            </div>
+            <InputGroup className="w-96">
+                <InputGroupInput
+                    placeholder="Cari ID / Nama..."
+                />
+                <InputGroupAddon>
+                    <IconSearch />
+                </InputGroupAddon>
+            </InputGroup>
         </section>
     )
 }
 
-function TablePagination() {
-    return (
-        <div className="flex flex-row justify-between items-center mt-5">
-            <Button size="sm" variant="ghost">
-                <IconArrowLeft />
-                Sebelumnya
-            </Button>
-
-            <span className="text-sm">Halaman 1 dari 1</span>
-
-            <Button size="sm" variant="ghost">
-                Selanjutnya
-                <IconArrowRight />
-            </Button>
-        </div>
-    )
-}
-
-function ProductCategoryTable() {
+function ProductCategoryTable(props: { categories: ProductCategory[], deleteCategory: (sku: string) => void }) {
     return (
         <div className="border rounded-lg overflow-hidden mt-5">
             <Table>
@@ -85,31 +52,35 @@ function ProductCategoryTable() {
                 </TableHeader>
 
                 <TableBody>
-                    <TableRow>
-                        <TableCell>1</TableCell>
-                        <TableCell>Nama Kategori</TableCell>
-                        <TableCell wrap>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente culpa libero alias cum aliquid aliquam! Recusandae, deserunt laboriosam asperiores quis eos cumque nam quas molestias obcaecati aut maxime fugiat tempore!</TableCell>
-                        <TableCell>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button size="icon" variant="ghost">
-                                        <IconDots />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem>
-                                        <IconEdit />
-                                        Ubah
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem variant="destructive">
-                                        <IconTrash />
-                                        Hapus
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
+                    {
+                        props.categories.map((category) => (
+                            <TableRow key={category.categoryId}>
+                                <TableCell>{category.categoryId}</TableCell>
+                                <TableCell>{category.categoryName}</TableCell>
+                                <TableCell>{category.description}</TableCell>
+                                <TableCell>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button size="icon" variant="ghost">
+                                                <IconDots />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem>
+                                                <IconEdit />
+                                                Ubah
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem variant="destructive" onClick={() => props.deleteCategory(category.categoryId)}>
+                                                <IconTrash />
+                                                Hapus
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    }
                 </TableBody>
             </Table>
         </div>
@@ -118,17 +89,32 @@ function ProductCategoryTable() {
 
 function ProductCategoryView() {
     function eventCallback(e: ProductCategoryEventCallback) {
-
+        if (e instanceof UpdateProductCategoryEventCallback) {
+            setDisplayedCategories(e.categories)
+        } else if (e instanceof ShowHideLoadingOverlay) {
+            showLoadingOverlay(e.show)
+        } else if (e instanceof ShowToast) {
+            if (e.type === "success") {
+                toast.success(e.message)
+            } else {
+                toast.error(e.message)
+            }
+        }
     }
 
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
     const [controller] = useState(() => new ProductCategoryController(eventCallback))
+    const [displayedCategories, setDisplayedCategories] = useState<ProductCategory[]>([])
+
+    useEffect(() => {
+        controller.getCategories()
+    }, [])
 
     return (
         <div className="flex flex-col w-full">
             <ProductCategoryHeader />
             <FilterSection />
-            <ProductCategoryTable />
-            <TablePagination />
+            <ProductCategoryTable categories={displayedCategories} deleteCategory={(sku) => { controller.deleteCategory(sku) }} />
         </div>
     )
 }
