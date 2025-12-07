@@ -52,10 +52,11 @@ export class ProductFormController {
         this.eventCallback(new ShowHideLoadingOverlay(false))
     }
 
-    public async submitForm(data: z.infer<typeof ProductFormScheme>) {
+    public async submitForm(isEdit: boolean, data: z.infer<typeof ProductFormScheme>) {
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        const res = await fetch(Constants.CREATE_PRODUCT_API, {
-            method: "POST",
+        const url = isEdit ? Constants.UPDATE_PRODUCT_API : Constants.CREATE_PRODUCT_API
+        const res = await fetch(url, {
+            method: isEdit ? "PUT" : "POST",
             headers: {
                 "Content-Type": "application/json",
             },

@@ -49,9 +49,9 @@ function ProductDetailForm(
             form.setValue("name", e.name)
             form.setValue("brand", e.brand)
             form.setValue("category", e.category)
-            form.setValue("sellPrice", e.sellPrice.toString())
-            form.setValue("buyPrice", e.buyPrice.toString())
-            form.setValue("stock", e.stock.toString())
+            form.setValue("sellPrice", BaseUtil.formatNumber(e.sellPrice))
+            form.setValue("buyPrice", BaseUtil.formatNumber(e.buyPrice))
+            form.setValue("stock", BaseUtil.formatNumber(e.stock))
             form.setValue("needImei", e.needImei)
             form.setValue("imeis", e.imeis.map((imei) => ({ value: imei })))
         }
@@ -123,7 +123,7 @@ function ProductDetailForm(
                 }
             </div>
 
-            <form id="product-form" onSubmit={form.handleSubmit((data) => controller.submitForm(data))} className="px-14">
+            <form id="product-form" onSubmit={form.handleSubmit((data) => controller.submitForm(isEdit, data))} className="px-14">
                 <FieldGroup className="gap-6">
                     <Controller
                         name="sku"
@@ -298,6 +298,7 @@ function ProductDetailForm(
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Ketik disini..."
                                         autoComplete="off"
+                                        disabled={isEdit}
                                         onBlur={() => {
                                             const formatted = BaseUtil.formatNumber(field.value);
                                             field.onChange(formatted);
