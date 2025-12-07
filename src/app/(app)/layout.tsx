@@ -158,7 +158,7 @@ function AppLayout({
                     ))}
                 </nav>
 
-                <div className={`max-w-full transition-all ease-in-out duration-200 flex justify-center flex-1 ${isNavbarVisible && 'ml-[18rem]'}`}>
+                <div className={`max-w-full transition-all ease-in-out duration-200 flex justify-center flex-1 min-w-0 ${isNavbarVisible && 'ml-[18rem]'}`}>
                     <div className="flex flex-col p-6 max-w-7xl w-full overflow-x-auto">
                         {children}
                     </div>
