@@ -72,9 +72,11 @@ model Product {
   sellingPrice            Decimal                  @db.Decimal(12, 2)
   isNeedImei              Boolean                  
   imeis                   Imei[]
+
   category                ProductCategory          @relation(fields: [categoryId], references: [categoryId])
   createdBy               Users                    @relation("ProductCreatedBy", fields: [createdById], references: [userId])
   modifiedBy              Users?                   @relation("ProductModifiedBy", fields: [modifiedById], references: [userId])
+  
   productInventoryDetails ProductInventoryDetail[]
   transactionDetails      TransactionDetail[]
 }

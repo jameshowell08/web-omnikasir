@@ -2,7 +2,6 @@
 import Image from "next/image"
 import { createContext, useState } from "react"
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const LoadingOverlayContext = createContext<(showLoadingOverlay: boolean) => void>((_: boolean) => {})
 
 export default function LoadingOverlay({children}: {children: React.ReactNode}) {
@@ -19,7 +18,6 @@ export default function LoadingOverlay({children}: {children: React.ReactNode}) 
                   alt="Loading indicator"
                   width={48}
                   height={48}
-                  unoptimized
                 />
               </div>
             </div>

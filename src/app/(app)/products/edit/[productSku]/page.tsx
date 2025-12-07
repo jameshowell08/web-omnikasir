@@ -1,7 +1,8 @@
 import EditProductView from "@/src/modules/(app)/products/edit/view/EditProductView";
 
-function EditProductPage({params}: {params: {productSku: string}}) {
-    return (<EditProductView sku={params.productSku} />)
+async function EditProductPage({params}: {params: Promise<{productSku: string}>}) {
+    const { productSku } = await params
+    return (<EditProductView sku={productSku} />)
 }
 
 export default EditProductPage;

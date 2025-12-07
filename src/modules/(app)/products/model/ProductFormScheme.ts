@@ -15,6 +15,7 @@ export const ProductFormScheme = z.object({
     buyPrice: z.string()
         .transform((val) => Number(val.replace(/\./g, ""))),
     stock: z.string()
+        .min(1, "Stok tidak boleh kosong.")
         .transform((val) => Number(val.replace(/\./g, ""))),
     needImei: z.boolean(),
     imeis: z.array(IMEI),
