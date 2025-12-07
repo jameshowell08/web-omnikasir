@@ -1,6 +1,6 @@
 import { Constants } from "@/src/modules/shared/model/Constants";
 import { Product } from "../model/Product";
-import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
+import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
 import { ProductApiResponse } from "../model/ProductApiResponse";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import z from "zod";
@@ -78,5 +78,34 @@ export class ProductsController {
 
     public onApplyFilters(data: z.infer<typeof ProductFilterFormScheme>) {
         this.eventCallback(new ApplyFilters(data))
+    }
+
+    public async deleteProduct(
+        sku: string,
+        pageSize: number,
+        pageNumber: number,
+        search: string | null,
+        categoryId: string | null,
+        minPrice: number | null,
+        maxPrice: number | null,
+        minStock: number | null,
+        maxStock: number | null
+    ) {
+        this.eventCallback(new ShowHideLoadingOverlay(true))
+        const res = await fetch(Constants.DELETE_PRODUCT_API + sku, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+
+        if (res.ok) {
+            this.eventCallback(new ShowSuccessfulToast("Produk berhasil dihapus!"))
+            await this.getProducts(pageSize, pageNumber, search, categoryId, minPrice, maxPrice, minStock, maxStock)
+        } else {
+            const resVal = await res.json()
+            this.eventCallback(new ShowErrorToast(resVal.message))
+        }
+        this.eventCallback(new ShowHideLoadingOverlay(false))
     }
 }

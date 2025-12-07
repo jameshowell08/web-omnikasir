@@ -24,6 +24,12 @@ export class ShowHideLoadingOverlay extends ProductsEventCallback {
     ) { super() }
 }
 
+export class ShowSuccessfulToast extends ProductsEventCallback {
+    constructor(
+        public message: string
+    ) { super() }
+}
+
 export class ShowErrorToast extends ProductsEventCallback {
     constructor(
         public errorMessage: string

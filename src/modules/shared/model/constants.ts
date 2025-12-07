@@ -12,5 +12,6 @@ export class Constants {
     static readonly GET_CATEGORY_API = "/api/category/get"
     static readonly CREATE_PRODUCT_API = "/api/products/create"
     static readonly UPDATE_PRODUCT_API = "/api/products/update"
+    static readonly DELETE_PRODUCT_API = "/api/products/delete/"
     static readonly GET_PRODUCT_DETAIL_API = "/api/products/get/"
 }

@@ -21,7 +21,7 @@ import { ProductsController } from "../controller/ProductsController";
 import { Category } from "../model/Category";
 import { Product } from "../model/Product";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
-import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
+import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
 import ItemButton from "./component/ItemButton";
 
 
@@ -37,7 +37,7 @@ function ProductsView() {
     const [searchField, setSearchField] = useState<string>("")
 
     const debounceTimer = useRef<NodeJS.Timeout | null>(null)
-    
+
     function performSearch(searchTerm: string) {
         controller.getProducts(
             selectedAmountOfItem,
@@ -88,6 +88,8 @@ function ProductsView() {
             showLoadingOverlay(e.showLoadingOverlay)
         } else if (e instanceof ShowErrorToast) {
             toast.error(e.errorMessage)
+        } else if (e instanceof ShowSuccessfulToast) {
+            toast.success(e.message)
         } else if (e instanceof UpdateCategories) {
             setCategories(e.newCategories)
         } else if (e instanceof ApplyFilters) {
@@ -409,55 +411,68 @@ function ProductsView() {
 
             <div className="border rounded-lg mt-4 overflow-hidden">
                 <Table>
-                <TableHeader className="bg-black">
-                    <TableRow>
-                        <TableHead className="font-bold text-white">SKU</TableHead>
-                        <TableHead className="font-bold text-white">Nama Produk</TableHead>
-                        <TableHead className="font-bold text-white">Brand</TableHead>
-                        <TableHead className="font-bold text-white">Kategori</TableHead>
-                        <TableHead className="font-bold text-white">Stok</TableHead>
-                        <TableHead className="font-bold text-white">Harga</TableHead>
-                        <TableHead />
-                    </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                    {displayedProducts.map((value: Product) => (
-                        <TableRow key={value.sku}>
-                            <TableCell>{value.sku}</TableCell>
-                            <TableCell>{value.name}</TableCell>
-                            <TableCell>{value.brand}</TableCell>
-                            <TableCell>{value.category}</TableCell>
-                            <TableCell>{value.stock}</TableCell>
-                            <TableCell>{value.formatRupiah()}</TableCell>
-                            <TableCell>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                            <IconDots />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuItem onClick={() => {
-                                            showLoadingOverlay(true)
-                                            router.push(Constants.EDIT_PRODUCT_URL + value.sku)
-                                            showLoadingOverlay(false)
-                                        }}>
-                                            <IconEdit />
-                                            Ubah
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem variant="destructive">
-                                            <IconTrash />
-                                            Hapus
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
+                    <TableHeader className="bg-black">
+                        <TableRow>
+                            <TableHead className="font-bold text-white">SKU</TableHead>
+                            <TableHead className="font-bold text-white">Nama Produk</TableHead>
+                            <TableHead className="font-bold text-white">Brand</TableHead>
+                            <TableHead className="font-bold text-white">Kategori</TableHead>
+                            <TableHead className="font-bold text-white">Stok</TableHead>
+                            <TableHead className="font-bold text-white">Harga</TableHead>
+                            <TableHead />
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+
+                    <TableBody>
+                        {displayedProducts.map((value: Product) => (
+                            <TableRow key={value.sku}>
+                                <TableCell>{value.sku}</TableCell>
+                                <TableCell>{value.name}</TableCell>
+                                <TableCell>{value.brand}</TableCell>
+                                <TableCell>{value.category}</TableCell>
+                                <TableCell>{value.stock}</TableCell>
+                                <TableCell>{value.formatRupiah()}</TableCell>
+                                <TableCell>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <IconDots />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem onClick={() => {
+                                                showLoadingOverlay(true)
+                                                router.push(Constants.EDIT_PRODUCT_URL + value.sku)
+                                                showLoadingOverlay(false)
+                                            }}>
+                                                <IconEdit />
+                                                Ubah
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                variant="destructive"
+                                                onClick={() => {
+                                                    controller.deleteProduct(
+                                                        value.sku,
+                                                        selectedAmountOfItem,
+                                                        currentPage,
+                                                        searchField == "" ? null : searchField,
+                                                        appliedFilters.category,
+                                                        appliedFilters.minPrice,
+                                                        appliedFilters.maxPrice,
+                                                        appliedFilters.minStock,
+                                                        appliedFilters.maxStock)
+                                                }}>
+                                                <IconTrash />
+                                                Hapus
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
 
             <footer className="mt-6 flex flex-row items-center justify-between text-sm">

@@ -117,9 +117,15 @@ function ProductDetailForm(
 
                 {
                     isEdit &&
-                    <div className="p-2 w-fit rounded-lg hover:bg-black/10" onClick={() => { /* TODO: Delete Product */ }}>
+                    <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => { 
+                            controller.deleteProduct(sku)
+                        }}
+                    >
                         <IconTrash />
-                    </div>
+                    </Button>
                 }
             </div>
 

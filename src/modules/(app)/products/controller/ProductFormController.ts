@@ -83,4 +83,27 @@ export class ProductFormController {
         }
     }
 
+    public async deleteProduct(sku: string | null) {
+        if (!sku) {
+            this.eventCallback(new ShowErrorToast("Product cannot be deleted."))
+            return
+        }
+        this.eventCallback(new ShowHideLoadingOverlay(true))
+        const res = await fetch(Constants.DELETE_PRODUCT_API + sku, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        this.eventCallback(new ShowHideLoadingOverlay(false))
+
+        if (res.ok) {
+            this.eventCallback(new ShowSuccessfulToast("Produk berhasil dihapus!"))
+            this.eventCallback(new NavigateTo(Constants.PRODUCTS_URL))
+        } else {
+            const resVal = await res.json()
+            this.eventCallback(new ShowErrorToast(resVal.message))
+        }
+    }
+
 }
