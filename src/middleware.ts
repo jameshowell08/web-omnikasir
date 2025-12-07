@@ -9,7 +9,16 @@ export async function middleware(req: NextRequest) {
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path))
 
   const token = req.cookies.get("token")?.value
-  const user = token ? await verifyJwt(token) : null
+  let user = null
+
+  if (token) {
+    try {
+      user = await verifyJwt(token)
+    } catch (error) {
+      console.error("Middleware JWT verification error:", error)
+      user = null
+    }
+  }
 
   // Handle API routes separately
   if (pathname.startsWith("/api")) {
