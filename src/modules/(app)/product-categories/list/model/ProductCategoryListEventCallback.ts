@@ -26,3 +26,7 @@ export class ShowToast extends ProductCategoryListEventCallback {
         public type: "success" | "error"
     ) { super() }
 }
+
+export class RefreshProductCategoryList extends ProductCategoryListEventCallback {
+    constructor() { super() }
+}

@@ -5,10 +5,10 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import ProductCategoryListController from "../controller/ProductCategoryListController";
 import ProductCategory from "../model/ProductCategory";
-import { ProductCategoryListEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
+import { ProductCategoryListEventCallback, RefreshProductCategoryList, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
 import toast from "react-hot-toast";
 
 function ProductCategoryHeader() {
@@ -23,12 +23,14 @@ function ProductCategoryHeader() {
     )
 }
 
-function FilterSection() {
+function FilterSection(props: { searchQuery: string, setSearchQuery: (query: string) => void }) {
     return (
         <section className="mt-5 flex flex-row justify-between items-center">
             <InputGroup className="w-96">
                 <InputGroupInput
                     placeholder="Cari ID / Nama..."
+                    value={props.searchQuery}
+                    onChange={(e) => props.setSearchQuery(e.target.value)}
                 />
                 <InputGroupAddon>
                     <IconSearch />
@@ -99,21 +101,39 @@ function ProductCategoryListView() {
             } else {
                 toast.error(e.message)
             }
+        } else if (e instanceof RefreshProductCategoryList) {
+            controller.getCategories(searchQuery)
         }
     }
 
     const showLoadingOverlay = useContext(LoadingOverlayContext)
     const [controller] = useState(() => new ProductCategoryListController(eventCallback))
     const [displayedCategories, setDisplayedCategories] = useState<ProductCategory[]>([])
+    const [searchQuery, setSearchQuery] = useState("")
+    const timerId = useRef<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
         controller.getCategories()
     }, [])
 
+    useEffect(() => {
+        if (timerId.current) {
+            clearTimeout(timerId.current)
+        }
+        timerId.current = setTimeout(() => {
+            controller.getCategories(searchQuery)
+        }, 500)
+        return () => {
+            if (timerId.current) {
+                clearTimeout(timerId.current)
+            }
+        }
+    }, [searchQuery])
+
     return (
         <div className="flex flex-col w-full">
             <ProductCategoryHeader />
-            <FilterSection />
+            <FilterSection searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
             <ProductCategoryTable categories={displayedCategories} deleteCategory={(sku) => { controller.deleteCategory(sku) }} />
         </div>
     )

@@ -1,14 +1,14 @@
 import { Constants } from "@/src/modules/shared/model/Constants";
-import { ProductCategoryListEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
+import { ProductCategoryListEventCallback, RefreshProductCategoryList, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
 
 class ProductCategoryListController {
     constructor(
         private eventCallback: (e: ProductCategoryListEventCallback) => void
     ) { }
 
-    public async getCategories() {
+    public async getCategories(searchQuery?: string) {
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        const res = await fetch(Constants.GET_CATEGORY_API)
+        const res = await fetch(Constants.GET_CATEGORY_API + (searchQuery ? `?search=${searchQuery}` : ""))
         const data = await res.json()
         if (res.ok) {
             this.eventCallback(new UpdateProductCategoryEventCallback(data.data))
@@ -25,7 +25,7 @@ class ProductCategoryListController {
         })
         const data = await res.json()
         if (res.ok) {
-            this.getCategories()
+            this.eventCallback(new RefreshProductCategoryList())
         } else {
             this.eventCallback(new ShowToast(data.message, "error"))
         }
