@@ -1,26 +1,26 @@
 import { Callback } from "@/src/modules/shared/model/Callback";
 import ProductCategory from "./ProductCategory";
 
-export class ProductCategoryEventCallback extends Callback {
+export class ProductCategoryListEventCallback extends Callback {
     constructor() {
         super("product-category")
     }
 
 }
 
-export class UpdateProductCategoryEventCallback extends ProductCategoryEventCallback {
+export class UpdateProductCategoryEventCallback extends ProductCategoryListEventCallback {
     constructor(
         public categories: ProductCategory[]
     ) { super() }
 }
 
-export class ShowHideLoadingOverlay extends ProductCategoryEventCallback {
+export class ShowHideLoadingOverlay extends ProductCategoryListEventCallback {
     constructor(
         public show: boolean
     ) { super() }
 }
 
-export class ShowToast extends ProductCategoryEventCallback {
+export class ShowToast extends ProductCategoryListEventCallback {
     constructor(
         public message: string,
         public type: "success" | "error"

@@ -6,9 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useContext, useEffect, useState } from "react";
-import ProductCategoryController from "../controller/ProductCategoryController";
+import ProductCategoryListController from "../controller/ProductCategoryListController";
 import ProductCategory from "../model/ProductCategory";
-import { ProductCategoryEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryCallback";
+import { ProductCategoryListEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
 import toast from "react-hot-toast";
 
 function ProductCategoryHeader() {
@@ -87,8 +87,8 @@ function ProductCategoryTable(props: { categories: ProductCategory[], deleteCate
     )
 }
 
-function ProductCategoryView() {
-    function eventCallback(e: ProductCategoryEventCallback) {
+function ProductCategoryListView() {
+    function eventCallback(e: ProductCategoryListEventCallback) {
         if (e instanceof UpdateProductCategoryEventCallback) {
             setDisplayedCategories(e.categories)
         } else if (e instanceof ShowHideLoadingOverlay) {
@@ -103,7 +103,7 @@ function ProductCategoryView() {
     }
 
     const showLoadingOverlay = useContext(LoadingOverlayContext)
-    const [controller] = useState(() => new ProductCategoryController(eventCallback))
+    const [controller] = useState(() => new ProductCategoryListController(eventCallback))
     const [displayedCategories, setDisplayedCategories] = useState<ProductCategory[]>([])
 
     useEffect(() => {
@@ -119,4 +119,4 @@ function ProductCategoryView() {
     )
 }
 
-export default ProductCategoryView;
+export default ProductCategoryListView;

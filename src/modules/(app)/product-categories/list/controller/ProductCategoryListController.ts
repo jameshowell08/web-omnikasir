@@ -1,10 +1,9 @@
 import { Constants } from "@/src/modules/shared/model/Constants";
-import ProductCategory from "../model/ProductCategory";
-import { ProductCategoryEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryCallback";
+import { ProductCategoryListEventCallback, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
 
-class ProductCategoryController {
+class ProductCategoryListController {
     constructor(
-        private eventCallback: (e: ProductCategoryEventCallback) => void
+        private eventCallback: (e: ProductCategoryListEventCallback) => void
     ) { }
 
     public async getCategories() {
@@ -34,4 +33,4 @@ class ProductCategoryController {
     }
 }
 
-export default ProductCategoryController;
+export default ProductCategoryListController;
