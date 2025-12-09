@@ -17,3 +17,15 @@ export class NavigateTo extends AddEditProductCategoryCallback {
         super();
     }
 }
+
+export class UpdateCategoryData extends AddEditProductCategoryCallback {
+    constructor(public categoryName: string, public categoryDescription: string) {
+        super();
+    }
+}
+
+export class ShowHideLoadingOverlay extends AddEditProductCategoryCallback {
+    constructor(public show: boolean) {
+        super();
+    }
+}

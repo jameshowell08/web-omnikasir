@@ -72,9 +72,11 @@ function ProductCategoryTable(props: { categories: ProductCategory[], deleteCate
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent>
-                                            <DropdownMenuItem>
-                                                <IconEdit />
-                                                Ubah
+                                            <DropdownMenuItem asChild>
+                                                <Link href={`/product-categories/edit/${category.categoryId}`}>
+                                                    <IconEdit />
+                                                    Ubah
+                                                </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem variant="destructive" onClick={() => props.deleteCategory(category.categoryId)}>

@@ -4,16 +4,17 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconArrowBackUp } from "@tabler/icons-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import AddEditProductCategoryFormScheme from "../model/AddEditProductCategoryFormScheme";
 import z from "zod";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AddEditProductCategoryController from "../controller/AddEditProductCategoryController";
-import { AddEditProductCategoryCallback, NavigateTo, ShowErrorToast } from "../model/AddEditProductCategoryCallback";
+import { AddEditProductCategoryCallback, NavigateTo, ShowErrorToast, UpdateCategoryData } from "../model/AddEditProductCategoryCallback";
 import toast from "react-hot-toast";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
 function BackButton() {
     const router = useRouter();
@@ -25,31 +26,23 @@ function BackButton() {
     )
 }
 
-function AddEditProductCategoryHeader() {
+function AddEditProductCategoryHeader({isEdit}: {isEdit: boolean}) {
     return (
         <header className="flex items-center gap-3">
             <BackButton />
-            <h1 className="text-xl font-bold">Tambah Kategori</h1>
+            <h1 className="text-xl font-bold">{isEdit ? "Ubah" : "Tambah"} Kategori</h1>
         </header>
     )
 }
 
-function AddEditProductCategoryForm(props: { onSubmit: (data: z.infer<typeof AddEditProductCategoryFormScheme>) => void }) {
-
-    const form = useForm({
-        resolver: zodResolver(AddEditProductCategoryFormScheme),
-        defaultValues: {
-            categoryName: "",
-            categoryDescription: "",
-        },
-    });
+function AddEditProductCategoryForm(props: { isEdit: boolean,  form: UseFormReturn<z.infer<typeof AddEditProductCategoryFormScheme>>, onSubmit: (data: z.infer<typeof AddEditProductCategoryFormScheme>) => void }) {
 
     return (
-        <form className="p-5 flex flex-col gap-5" onSubmit={form.handleSubmit(props.onSubmit)}>
+        <form className="p-5 flex flex-col gap-5" onSubmit={props.form.handleSubmit(props.onSubmit)}>
             <FieldGroup>
                 <Controller
                     name="categoryName"
-                    control={form.control}
+                    control={props.form.control}
                     render={({ field, fieldState }) => (
                         <Field>
                             <FieldLabel className="flex items-center font-bold gap-0">Nama Kategori<span className="text-red-500">*</span></FieldLabel>
@@ -66,7 +59,7 @@ function AddEditProductCategoryForm(props: { onSubmit: (data: z.infer<typeof Add
                 />
                 <Controller
                     name="categoryDescription"
-                    control={form.control}
+                    control={props.form.control}
                     render={({ field, fieldState }) => (
                         <Field>
                             <FieldLabel className="flex items-center font-bold gap-0">Deskripsi</FieldLabel>
@@ -83,28 +76,45 @@ function AddEditProductCategoryForm(props: { onSubmit: (data: z.infer<typeof Add
                     )}
                 />
             </FieldGroup>
-            <Button type="submit" className="self-end">Tambah Kategori</Button>
+            <Button type="submit" className="self-end">{props.isEdit ? "Ubah" : "Tambah"} Kategori</Button>
         </form>
     )
 }
 
-function AddEditProductCategoryView() {
+function AddEditProductCategoryView({ isEdit, sku = "" }: { isEdit: boolean, sku?: string }) {
     const router = useRouter();
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
 
     function eventCallback(e: AddEditProductCategoryCallback) {
         if (e instanceof ShowErrorToast) {
             toast.error(e.message)
         } else if (e instanceof NavigateTo) {
             router.replace(e.url)
+        } else if (e instanceof UpdateCategoryData) {
+            form.setValue("categoryName", e.categoryName)
+            form.setValue("categoryDescription", e.categoryDescription)
         }
     }
 
     const [controller] = useState(() => new AddEditProductCategoryController(eventCallback));
+    const form = useForm({
+        resolver: zodResolver(AddEditProductCategoryFormScheme),
+        defaultValues: {
+            categoryName: "",
+            categoryDescription: "",
+        },
+    });
+
+    useEffect(() => {
+        if (isEdit) {
+            controller.getCategoryData(sku)
+        }
+    }, [])
 
     return (
         <div>
-            <AddEditProductCategoryHeader />
-            <AddEditProductCategoryForm onSubmit={(data) => controller.createCategory(data)} />
+            <AddEditProductCategoryHeader isEdit={isEdit} />
+            <AddEditProductCategoryForm isEdit={isEdit} form={form} onSubmit={(data) => isEdit ? controller.updateCategory(data, sku) : controller.createCategory(data)} />
         </div>
     )
 }
