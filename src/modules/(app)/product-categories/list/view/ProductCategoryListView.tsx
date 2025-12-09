@@ -63,7 +63,7 @@ function ProductCategoryTable(props: { categories: ProductCategory[], deleteCate
                             <TableRow key={category.categoryId}>
                                 <TableCell>{category.categoryId}</TableCell>
                                 <TableCell>{category.categoryName}</TableCell>
-                                <TableCell>{category.description}</TableCell>
+                                <TableCell wrap>{category.description}</TableCell>
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
