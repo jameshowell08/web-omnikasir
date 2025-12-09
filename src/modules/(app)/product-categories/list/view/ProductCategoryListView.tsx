@@ -10,14 +10,18 @@ import ProductCategoryListController from "../controller/ProductCategoryListCont
 import ProductCategory from "../model/ProductCategory";
 import { ProductCategoryListEventCallback, RefreshProductCategoryList, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import { Constants } from "@/src/modules/shared/model/Constants";
 
 function ProductCategoryHeader() {
     return (
         <header className="flex justify-between items-center">
             <h1 className="font-bold text-2xl">Kategori Produk</h1>
-            <Button size="sm" variant="ghost">
-                <IconPlus />
-                <span className="text-xs font-bold">Tambah Kategori</span>
+            <Button size="sm" variant="ghost" asChild>
+                <Link href={Constants.ADD_CATEGORY_URL}>
+                    <IconPlus />
+                    <span className="text-xs font-bold">Tambah Kategori</span>
+                </Link>
             </Button>
         </header>
     )
