@@ -75,17 +75,25 @@ function PaymentMethodFilter({
     )
 }
 
-function TablePagination() {
+function TablePagination({
+    page,
+    setPage,
+    maxPage
+}: {
+    page: number,
+    setPage: (page: number) => void,
+    maxPage: number
+}) {
     return (
         <div className="mt-4 flex flex-row justify-between items-center">
-            <Button variant="ghost">
+            <Button variant="ghost" onClick={() => setPage(page - 1)} disabled={page === 1}>
                 <IconArrowLeft />
                 <span className="text-xs font-bold">Sebelumnya</span>
             </Button>
 
-            <span className="text-sm">Halaman 1 dari 10</span>
+            <span className="text-sm">Halaman {page} dari {maxPage}</span>
 
-            <Button variant="ghost">
+            <Button variant="ghost" onClick={() => setPage(page + 1)} disabled={page === maxPage}>
                 <span className="text-xs font-bold">Selanjutnya</span>
                 <IconArrowRight />
             </Button>
@@ -136,13 +144,15 @@ function PaymentMethodTable() {
 function GetPaymentMethodView() {
     const [limit, setLimit] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
+    const [page, setPage] = useState(1);
+    const [maxPage] = useState(10);
 
     return (
         <div>
             <GetPaymentMethodHeader />
             <PaymentMethodFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} selectedAmount={limit} setSelectedAmount={setLimit} />
             <PaymentMethodTable />
-            <TablePagination />
+            <TablePagination page={page} setPage={setPage} maxPage={maxPage} />
         </div>
     )
 }
