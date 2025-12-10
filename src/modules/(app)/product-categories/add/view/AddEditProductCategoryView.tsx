@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useContext, useEffect, useState } from "react";
 import AddEditProductCategoryController from "../controller/AddEditProductCategoryController";
-import { AddEditProductCategoryCallback, NavigateTo, ShowErrorToast, UpdateCategoryData } from "../model/AddEditProductCategoryCallback";
+import { AddEditProductCategoryCallback, NavigateTo, ShowErrorToast, ShowHideLoadingOverlay, UpdateCategoryData } from "../model/AddEditProductCategoryCallback";
 import toast from "react-hot-toast";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
@@ -93,6 +93,8 @@ function AddEditProductCategoryView({ isEdit, sku = "" }: { isEdit: boolean, sku
         } else if (e instanceof UpdateCategoryData) {
             form.setValue("categoryName", e.categoryName)
             form.setValue("categoryDescription", e.categoryDescription)
+        } else if (e instanceof ShowHideLoadingOverlay) {
+            showLoadingOverlay(e.show)
         }
     }
 
