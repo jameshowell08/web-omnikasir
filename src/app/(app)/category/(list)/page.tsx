@@ -1,4 +1,4 @@
-import ProductCategoryListView from "@/src/modules/(app)/product-categories/list/view/ProductCategoryListView";
+import ProductCategoryListView from "@/src/modules/(app)/category/list/view/ProductCategoryListView";
 
 function ProductCategoryListPage() {
     return <ProductCategoryListView />

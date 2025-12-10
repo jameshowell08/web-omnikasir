@@ -442,7 +442,7 @@ function ProductsView() {
                                         <DropdownMenuContent>
                                             <DropdownMenuItem onClick={() => {
                                                 showLoadingOverlay(true)
-                                                router.push(Constants.EDIT_PRODUCT_URL + value.sku)
+                                                router.push(BaseUtil.formatString(Constants.EDIT_PRODUCT_URL, value.sku))
                                                 showLoadingOverlay(false)
                                             }}>
                                                 <IconEdit />

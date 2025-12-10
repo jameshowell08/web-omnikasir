@@ -5,6 +5,7 @@ import { ProductApiResponse } from "../model/ProductApiResponse";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import z from "zod";
 import { Category } from "../model/Category";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 export class ProductsController {
 
@@ -92,7 +93,7 @@ export class ProductsController {
         maxStock: number | null
     ) {
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        const res = await fetch(Constants.DELETE_PRODUCT_API + sku, {
+        const res = await fetch(BaseUtil.formatString(Constants.DELETE_PRODUCT_API, sku), {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",

@@ -22,4 +22,10 @@ export class BaseUtil {
     public static unformatNumber(value: string) {
         return value.replace(/\./g, "");
     }
+
+    public static formatString(str: string, ...values: any[]) {
+        return str.replace(/{(\d+)}/g, (match, index) =>
+            typeof values[index] !== 'undefined' ? values[index] : match
+        );
+    }
 }

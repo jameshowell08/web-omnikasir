@@ -12,6 +12,7 @@ import { ProductCategoryListEventCallback, RefreshProductCategoryList, ShowHideL
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { Constants } from "@/src/modules/shared/model/Constants";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 function ProductCategoryHeader() {
     return (
@@ -73,7 +74,7 @@ function ProductCategoryTable(props: { categories: ProductCategory[], deleteCate
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent>
                                             <DropdownMenuItem asChild>
-                                                <Link href={`/product-categories/edit/${category.categoryId}`}>
+                                                <Link href={BaseUtil.formatString(Constants.EDIT_CATEGORY_URL, category.categoryId)}>
                                                     <IconEdit />
                                                     Ubah
                                                 </Link>

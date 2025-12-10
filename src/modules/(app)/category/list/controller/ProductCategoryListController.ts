@@ -1,5 +1,6 @@
 import { Constants } from "@/src/modules/shared/model/Constants";
 import { ProductCategoryListEventCallback, RefreshProductCategoryList, ShowHideLoadingOverlay, ShowToast, UpdateProductCategoryEventCallback } from "../model/ProductCategoryListEventCallback";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 class ProductCategoryListController {
     constructor(
@@ -20,7 +21,7 @@ class ProductCategoryListController {
 
     public async deleteCategory(sku: string) {
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        const res = await fetch(Constants.DELETE_CATEGORY_API.replace("[sku]", sku), {
+        const res = await fetch(BaseUtil.formatString(Constants.DELETE_CATEGORY_API, sku), {
             method: "DELETE"
         })
         const data = await res.json()

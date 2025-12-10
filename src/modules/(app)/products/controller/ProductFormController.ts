@@ -3,6 +3,7 @@ import z from "zod";
 import { Category } from "../model/Category";
 import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateProductDetail } from "../model/ProductFormEventCallback";
 import { ProductFormScheme } from "../model/ProductFormScheme";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 export class ProductFormController {
 
@@ -89,7 +90,7 @@ export class ProductFormController {
             return
         }
         this.eventCallback(new ShowHideLoadingOverlay(true))
-        const res = await fetch(Constants.DELETE_PRODUCT_API + sku, {
+        const res = await fetch(BaseUtil.formatString(Constants.DELETE_PRODUCT_API, sku), {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
