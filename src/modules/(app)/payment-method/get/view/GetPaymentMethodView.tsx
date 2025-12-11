@@ -1,16 +1,15 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IconArrowLeft, IconArrowRight, IconDots, IconDotsCircleHorizontal, IconDotsVertical, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import PaymentMethod from "../model/PaymentMethod";
-import GetPaymentMethodController from "../controller/GetPaymentMethodController";
 import toast from "react-hot-toast";
+import GetPaymentMethodController from "../controller/GetPaymentMethodController";
+import PaymentMethod from "../model/PaymentMethod";
 
 function GetPaymentMethodHeader() {
     return (
