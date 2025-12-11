@@ -5,17 +5,18 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconLoader, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import GetPaymentMethodController from "../controller/GetPaymentMethodController";
 import PaymentMethod from "../model/PaymentMethod";
+import { Spinner } from "@/components/ui/spinner";
 
 function GetPaymentMethodHeader() {
     return (
         <header className="flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Metode Pembayaran</h1>
-            <Button variant="ghost" size="sm" onClick={() => { }}>
+            <Button variant="ghost" size="sm" onClick={() => { /* TODO: Navigate to add page */}}>
                 <IconPlus />
                 <span className="text-xs font-bold">Tambah Metode Pembayaran</span>
             </Button>
@@ -48,12 +49,14 @@ function PaymentMethodFilter({
     searchQuery,
     setSearchQuery,
     selectedAmount,
-    setSelectedAmount
+    setSelectedAmount,
+    isSearching
 }: {
     searchQuery: string,
     setSearchQuery: (query: string) => void,
     selectedAmount: number,
-    setSelectedAmount: (amount: number) => void
+    setSelectedAmount: (amount: number) => void,
+    isSearching: boolean
 }) {
     return (
         <div className="mt-3 flex flex-row justify-between items-center">
@@ -66,6 +69,12 @@ function PaymentMethodFilter({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     value={searchQuery}
                 />
+                {
+                    isSearching &&
+                    <InputGroupAddon align="inline-end">
+                        <Spinner />
+                    </InputGroupAddon>
+                }
             </InputGroup>
 
             <div className="flex flex-row gap-2 items-center">
@@ -126,12 +135,12 @@ function PaymentMethodTable({ displayedPaymentMethods }: { displayedPaymentMetho
                                         <Button variant="ghost"><IconDots /></Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        <DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => { /* TODO: Navigate to edit page */}}>
                                             <IconEdit />
                                             Edit
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem variant="destructive">
+                                        <DropdownMenuItem variant="destructive" onClick={() => { /* TODO: Handle delete */}}>
                                             <IconTrash />
                                             Hapus
                                         </DropdownMenuItem>
@@ -159,6 +168,7 @@ function GetPaymentMethodView() {
     const [limit, setLimit] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+    const [isSearching, setIsSearching] = useState(false);
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(0);
     const [displayedPaymentMethods, setDisplayedPaymentMethods] = useState<PaymentMethod[] | null>(null);
@@ -176,6 +186,7 @@ function GetPaymentMethodView() {
 
     const onChangeSearchQuery = (query: string) => {
         setSearchQuery(query)
+        setIsSearching(true)
 
         if (searchDebounce.current) {
             clearTimeout(searchDebounce.current)
@@ -188,12 +199,13 @@ function GetPaymentMethodView() {
 
     useEffect(() => {
         getPaymentMethods(page, limit, debouncedSearchQuery)
+        setIsSearching(false)
     }, [page, limit, debouncedSearchQuery])
 
     return (
         <div>
             <GetPaymentMethodHeader />
-            <PaymentMethodFilter searchQuery={searchQuery} setSearchQuery={onChangeSearchQuery} selectedAmount={limit} setSelectedAmount={setLimit} />
+            <PaymentMethodFilter searchQuery={searchQuery} setSearchQuery={onChangeSearchQuery} selectedAmount={limit} setSelectedAmount={setLimit} isSearching={isSearching} />
             {
                 displayedPaymentMethods ? (
                     <PaymentMethodTable displayedPaymentMethods={displayedPaymentMethods} />

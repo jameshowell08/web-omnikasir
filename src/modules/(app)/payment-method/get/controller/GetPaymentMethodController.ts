@@ -3,7 +3,7 @@ import PaymentMethod from "../model/PaymentMethod";
 
 class GetPaymentMethodController {
     public static async getPaymentMethods(page: number, limit: number, searchQuery: string): Promise<[Response, PaymentMethod[], string, number]> {
-        const res = await fetch(`${Routes.PAYMENT_METHOD_API.GET}?page=${page}&limit=${limit}${searchQuery ? `&search=${searchQuery}` : ""}`);
+        const res = await fetch(`${Routes.PAYMENT_METHOD_API.GET}?page=${page}&limit=${limit}&search=${searchQuery}`);
         const data = await res.json();
 
         let paymentMethods: PaymentMethod[] = [];
