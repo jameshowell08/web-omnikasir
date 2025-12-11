@@ -1,7 +1,8 @@
 const Routes = {
     PAYMENT_METHOD: {
         GET: "/payment-method",
-        ADD: "/payment-method/add"
+        ADD: "/payment-method/add",
+        EDIT: (id: string) => `/payment-method/edit/${id}`,
     },
     PAYMENT_METHOD_API: {
         CREATE: "/api/payment-method/create",

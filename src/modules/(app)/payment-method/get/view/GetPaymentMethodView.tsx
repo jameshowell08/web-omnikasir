@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconLoader, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import Routes from "@/src/modules/shared/model/Routes";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import Link from "next/link";
 import { useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import GetPaymentMethodController from "../controller/GetPaymentMethodController";
 import PaymentMethod from "../model/PaymentMethod";
-import { Spinner } from "@/components/ui/spinner";
-import Link from "next/link";
-import Routes from "@/src/modules/shared/model/Routes";
-import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
 function GetPaymentMethodHeader() {
     return (
@@ -140,9 +140,11 @@ function PaymentMethodTable({ displayedPaymentMethods, onDeleteItem }: { display
                                         <Button variant="ghost"><IconDots /></Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        <DropdownMenuItem onClick={() => { /* TODO: Navigate to edit page */}}>
-                                            <IconEdit />
-                                            Edit
+                                        <DropdownMenuItem asChild>
+                                            <Link href={Routes.PAYMENT_METHOD.EDIT(pm.id)}>
+                                                <IconEdit />
+                                                Edit
+                                            </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem variant="destructive" onClick={() => { onDeleteItem(pm.id)}}>
