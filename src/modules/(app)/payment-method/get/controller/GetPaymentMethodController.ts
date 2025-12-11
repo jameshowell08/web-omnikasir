@@ -24,6 +24,21 @@ class GetPaymentMethodController {
 
         return [res, paymentMethods, errorMessage, totalPages];
     }
+
+    public static async deletePaymentMethod(id: string): Promise<[Response, string]> {
+        const res = await fetch(Routes.PAYMENT_METHOD_API.DELETE(id), {
+            method: "DELETE",
+        })
+
+        let errorMsg = "";
+
+        if (!res.ok) {
+            const data = await res.json();
+            errorMsg = data.message
+        }
+
+        return [res, errorMsg]
+    }
 }
 
 export default GetPaymentMethodController;

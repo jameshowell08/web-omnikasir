@@ -6,13 +6,14 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconLoader, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import GetPaymentMethodController from "../controller/GetPaymentMethodController";
 import PaymentMethod from "../model/PaymentMethod";
 import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import Routes from "@/src/modules/shared/model/Routes";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
 function GetPaymentMethodHeader() {
     return (
@@ -117,7 +118,7 @@ function TablePagination({
     )
 }
 
-function PaymentMethodTable({ displayedPaymentMethods }: { displayedPaymentMethods: PaymentMethod[] }) {
+function PaymentMethodTable({ displayedPaymentMethods, onDeleteItem }: { displayedPaymentMethods: PaymentMethod[], onDeleteItem: (id: string) => void }) {
     return (
         <div className="mt-4 border rounded-lg overflow-hidden">
             <Table>
@@ -144,7 +145,7 @@ function PaymentMethodTable({ displayedPaymentMethods }: { displayedPaymentMetho
                                             Edit
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem variant="destructive" onClick={() => { /* TODO: Handle delete */}}>
+                                        <DropdownMenuItem variant="destructive" onClick={() => { onDeleteItem(pm.id)}}>
                                             <IconTrash />
                                             Hapus
                                         </DropdownMenuItem>
@@ -169,6 +170,7 @@ function PaymentMethodTablePlaceholder() {
 }
 
 function GetPaymentMethodView() {
+    const showLoadingOverlay = useContext(LoadingOverlayContext);
     const [limit, setLimit] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -202,6 +204,18 @@ function GetPaymentMethodView() {
         }, 500)
     }
 
+    const handleDeletePaymentMethod = async (id: string) => {
+        showLoadingOverlay(true)
+        const [res, errorMsg] = await GetPaymentMethodController.deletePaymentMethod(id)
+        if (res.ok) {
+            toast.success("Metode pembayaran berhasil dihapus")
+            await getPaymentMethods(page, limit, debouncedSearchQuery)
+        } else {
+            toast.error(errorMsg)
+        }
+        showLoadingOverlay(false)
+    }
+
     useEffect(() => {
         getPaymentMethods(page, limit, debouncedSearchQuery)
     }, [page, limit, debouncedSearchQuery])
@@ -212,7 +226,7 @@ function GetPaymentMethodView() {
             <PaymentMethodFilter searchQuery={searchQuery} setSearchQuery={onChangeSearchQuery} selectedAmount={limit} setSelectedAmount={setLimit} isSearching={isSearching} />
             {
                 displayedPaymentMethods ? (
-                    <PaymentMethodTable displayedPaymentMethods={displayedPaymentMethods} />
+                    <PaymentMethodTable displayedPaymentMethods={displayedPaymentMethods} onDeleteItem={handleDeletePaymentMethod} />
                 ) : (
                     <PaymentMethodTablePlaceholder />
                 )
