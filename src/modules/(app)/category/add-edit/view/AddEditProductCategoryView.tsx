@@ -15,16 +15,7 @@ import AddEditProductCategoryController from "../controller/AddEditProductCatego
 import { AddEditProductCategoryCallback, NavigateTo, ShowErrorToast, ShowHideLoadingOverlay, UpdateCategoryData } from "../model/AddEditProductCategoryCallback";
 import toast from "react-hot-toast";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
-
-function BackButton() {
-    const router = useRouter();
-
-    return (
-        <div className="p-2 cursor-pointer hover:bg-accent w-fit rounded-lg">
-            <IconArrowBackUp size={20} onClick={() => router.back()} />
-        </div>
-    )
-}
+import BackButton from "@/src/modules/shared/view/BackButton";
 
 function AddEditProductCategoryHeader({isEdit}: {isEdit: boolean}) {
     return (

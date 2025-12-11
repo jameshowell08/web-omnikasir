@@ -1,4 +1,4 @@
-import AddEditProductCategoryView from "@/src/modules/(app)/category/add/view/AddEditProductCategoryView";
+import AddEditProductCategoryView from "@/src/modules/(app)/category/add-edit/view/AddEditProductCategoryView";
 
 function AddProductCategoryPage() {
     return <AddEditProductCategoryView isEdit={false} />

@@ -3,6 +3,7 @@
 import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderController";
 import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
 import { Constants } from "@/src/modules/shared/model/Constants";
+import Routes from "@/src/modules/shared/model/Routes";
 import { IconBuildingStore, IconChartBar, IconChevronRight, IconClock, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceiptDollar, IconSettings, IconStackPush, IconTags, IconUserCircle } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -101,7 +102,7 @@ function AppLayout({
                 {
                     menuItemName: "Metode Pembayaran",
                     menuItemIcon: IconCreditCardPay,
-                    menuItemPath: "/payment-method"
+                    menuItemPath: Routes.PAYMENT_METHOD.GET
                 }
             ]
         }

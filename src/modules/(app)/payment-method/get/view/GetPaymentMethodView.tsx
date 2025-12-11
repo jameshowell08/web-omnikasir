@@ -11,14 +11,18 @@ import toast from "react-hot-toast";
 import GetPaymentMethodController from "../controller/GetPaymentMethodController";
 import PaymentMethod from "../model/PaymentMethod";
 import { Spinner } from "@/components/ui/spinner";
+import Link from "next/link";
+import Routes from "@/src/modules/shared/model/Routes";
 
 function GetPaymentMethodHeader() {
     return (
         <header className="flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Metode Pembayaran</h1>
-            <Button variant="ghost" size="sm" onClick={() => { /* TODO: Navigate to add page */}}>
-                <IconPlus />
-                <span className="text-xs font-bold">Tambah Metode Pembayaran</span>
+            <Button variant="ghost" size="sm" asChild>
+                <Link href={Routes.PAYMENT_METHOD.ADD}>
+                    <IconPlus />
+                    <span className="text-xs font-bold">Tambah Metode Pembayaran</span>
+                </Link>
             </Button>
         </header>
     )
