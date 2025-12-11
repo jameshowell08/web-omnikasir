@@ -159,6 +159,7 @@ function PaymentMethodTablePlaceholder() {
 function GetPaymentMethodView() {
     const [limit, setLimit] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(0);
     const [displayedPaymentMethods, setDisplayedPaymentMethods] = useState<PaymentMethod[] | null>(null);
@@ -176,20 +177,19 @@ function GetPaymentMethodView() {
 
     const onChangeSearchQuery = (query: string) => {
         setSearchQuery(query)
-        setPage(1)
 
         if (searchDebounce.current) {
             clearTimeout(searchDebounce.current)
         }
-
         searchDebounce.current = setTimeout(() => {
-            getPaymentMethods(1, limit, query)
+            setPage(1)
+            setDebouncedSearchQuery(query)
         }, 500)
     }
 
     useEffect(() => {
-        getPaymentMethods(page, limit, searchQuery)
-    }, [page, limit])
+        getPaymentMethods(page, limit, debouncedSearchQuery)
+    }, [page, limit, debouncedSearchQuery])
 
     return (
         <div>
