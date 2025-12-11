@@ -182,6 +182,7 @@ function GetPaymentMethodView() {
         } else {
             toast.error(errorMsg)
         }
+        setIsSearching(false)
     }
 
     const onChangeSearchQuery = (query: string) => {
@@ -199,7 +200,6 @@ function GetPaymentMethodView() {
 
     useEffect(() => {
         getPaymentMethods(page, limit, debouncedSearchQuery)
-        setIsSearching(false)
     }, [page, limit, debouncedSearchQuery])
 
     return (
