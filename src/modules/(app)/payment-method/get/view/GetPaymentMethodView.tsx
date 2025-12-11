@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Select } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IconArrowLeft, IconArrowRight, IconDots, IconDotsCircleHorizontal, IconDotsVertical, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import PaymentMethod from "../model/PaymentMethod";
+import GetPaymentMethodController from "../controller/GetPaymentMethodController";
+import toast from "react-hot-toast";
 
 function GetPaymentMethodHeader() {
     return (
@@ -101,7 +105,7 @@ function TablePagination({
     )
 }
 
-function PaymentMethodTable() {
+function PaymentMethodTable({ displayedPaymentMethods }: { displayedPaymentMethods: PaymentMethod[] }) {
     return (
         <div className="mt-4 border rounded-lg overflow-hidden">
             <Table>
@@ -113,30 +117,41 @@ function PaymentMethodTable() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <TableRow>
-                        <TableCell>ME-001</TableCell>
-                        <TableCell className="w-full">Transfer Bank</TableCell>
-                        <TableCell>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost"><IconDots /></Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem>
-                                        <IconEdit />
-                                        Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem variant="destructive">
-                                        <IconTrash />
-                                        Hapus
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
+                    {displayedPaymentMethods.map((pm) => (
+                        <TableRow key={pm.id}>
+                            <TableCell>{pm.id}</TableCell>
+                            <TableCell className="w-full">{pm.name}</TableCell>
+                            <TableCell>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost"><IconDots /></Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuItem>
+                                            <IconEdit />
+                                            Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem variant="destructive">
+                                            <IconTrash />
+                                            Hapus
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
+        </div>
+    )
+}
+
+function PaymentMethodTablePlaceholder() {
+    return (
+        <div className="flex flex-col gap-2">
+            <Skeleton className="mt-4 h-10" />
+            <Skeleton className="h-[400px]" />
         </div>
     )
 }
@@ -145,14 +160,52 @@ function GetPaymentMethodView() {
     const [limit, setLimit] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
-    const [maxPage] = useState(10);
+    const [maxPage, setMaxPage] = useState(0);
+    const [displayedPaymentMethods, setDisplayedPaymentMethods] = useState<PaymentMethod[] | null>(null);
+    const searchDebounce = useRef<NodeJS.Timeout | null>(null);
+
+    const getPaymentMethods = async (page: number, limit: number, searchQuery: string) => {
+        const [res, data, errorMsg, totalPages] = await GetPaymentMethodController.getPaymentMethods(page, limit, searchQuery)
+        if (res.ok) {
+            setDisplayedPaymentMethods(data)
+            setMaxPage(totalPages)
+        } else {
+            toast.error(errorMsg)
+        }
+    }
+
+    const onChangeSearchQuery = (query: string) => {
+        setSearchQuery(query)
+        setPage(1)
+
+        if (searchDebounce.current) {
+            clearTimeout(searchDebounce.current)
+        }
+
+        searchDebounce.current = setTimeout(() => {
+            getPaymentMethods(1, limit, query)
+        }, 500)
+    }
+
+    useEffect(() => {
+        getPaymentMethods(page, limit, searchQuery)
+    }, [page, limit])
 
     return (
         <div>
             <GetPaymentMethodHeader />
-            <PaymentMethodFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} selectedAmount={limit} setSelectedAmount={setLimit} />
-            <PaymentMethodTable />
-            <TablePagination page={page} setPage={setPage} maxPage={maxPage} />
+            <PaymentMethodFilter searchQuery={searchQuery} setSearchQuery={onChangeSearchQuery} selectedAmount={limit} setSelectedAmount={setLimit} />
+            {
+                displayedPaymentMethods ? (
+                    <PaymentMethodTable displayedPaymentMethods={displayedPaymentMethods} />
+                ) : (
+                    <PaymentMethodTablePlaceholder />
+                )
+            }
+            {
+                maxPage >= 1 &&
+                <TablePagination page={page} setPage={setPage} maxPage={maxPage} />
+            }
         </div>
     )
 }

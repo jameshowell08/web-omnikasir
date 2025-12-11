@@ -1,10 +1,10 @@
 const Routes = {
     PAYMENT_METHOD_API: {
-        CREATE: "/api/category/create",
-        UPDATE: (id: string) => `/api/category/${id}/update`,
-        DELETE: (id: string) => `/api/category/${id}/delete`,
-        GET: "/api/category/get",
-        GET_BY_ID: (id: string) => `/api/category/${id}/get`,
+        CREATE: "/api/payment-method/create",
+        UPDATE: (id: string) => `/api/payment-method/${id}/update`,
+        DELETE: (id: string) => `/api/payment-method/${id}/delete`,
+        GET: "/api/payment-method/get",
+        GET_BY_ID: (id: string) => `/api/payment-method/${id}/get`,
     }
 }
 
