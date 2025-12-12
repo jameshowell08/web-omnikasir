@@ -3,7 +3,6 @@ import z from "zod";
 import { Category } from "../model/Category";
 import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateProductDetail } from "../model/ProductFormEventCallback";
 import { ProductFormScheme } from "../model/ProductFormScheme";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 export class ProductFormController {
 
@@ -77,29 +76,6 @@ export class ProductFormController {
 
         if (res.ok) {
             this.eventCallback(new ShowSuccessfulToast("Produk berhasil dibuat!"))
-            this.eventCallback(new NavigateTo(Constants.PRODUCTS_URL))
-        } else {
-            const resVal = await res.json()
-            this.eventCallback(new ShowErrorToast(resVal.message))
-        }
-    }
-
-    public async deleteProduct(sku: string | null) {
-        if (!sku) {
-            this.eventCallback(new ShowErrorToast("Product cannot be deleted."))
-            return
-        }
-        this.eventCallback(new ShowHideLoadingOverlay(true))
-        const res = await fetch(BaseUtil.formatString(Constants.DELETE_PRODUCT_API, sku), {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-        this.eventCallback(new ShowHideLoadingOverlay(false))
-
-        if (res.ok) {
-            this.eventCallback(new ShowSuccessfulToast("Produk berhasil dihapus!"))
             this.eventCallback(new NavigateTo(Constants.PRODUCTS_URL))
         } else {
             const resVal = await res.json()

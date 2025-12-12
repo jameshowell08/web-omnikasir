@@ -114,19 +114,6 @@ function ProductDetailForm(
                 </div>
 
                 <h1 className="text-2xl font-bold my-6 flex-1 mx-4">{title}</h1>
-
-                {
-                    isEdit &&
-                    <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => { 
-                            controller.deleteProduct(sku)
-                        }}
-                    >
-                        <IconTrash />
-                    </Button>
-                }
             </div>
 
             <form id="product-form" onSubmit={form.handleSubmit((data) => controller.submitForm(isEdit, data))} className="px-14">
