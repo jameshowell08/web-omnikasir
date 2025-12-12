@@ -387,7 +387,7 @@ function ProductsView() {
                 </Dialog>
 
                 <div className="flex flex-row gap-2 items-center">
-                    <span className="text-sm">Produk per halaman</span>
+                    <span className="text-sm">Item per halaman</span>
                     <Button variant={selectedAmountOfItem == 10 ? "default" : "outline"} size="sm" onClick={() => {
                         setCurrentPage(1)
                         setSelectedAmountOfItem(10)

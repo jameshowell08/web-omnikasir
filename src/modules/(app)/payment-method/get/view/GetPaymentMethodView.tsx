@@ -83,7 +83,7 @@ function PaymentMethodFilter({
             </InputGroup>
 
             <div className="flex flex-row gap-2 items-center">
-                <span className="text-sm">Produk per halaman</span>
+                <span className="text-sm">Item per halaman</span>
                 <ItemAmountButton amount={10} isSelected={selectedAmount === 10} onClick={() => setSelectedAmount(10)} />
                 <ItemAmountButton amount={20} isSelected={selectedAmount === 20} onClick={() => setSelectedAmount(20)} />
                 <ItemAmountButton amount={50} isSelected={selectedAmount === 50} onClick={() => setSelectedAmount(50)} />

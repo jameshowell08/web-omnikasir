@@ -26,7 +26,7 @@ function AppLayout({
         {
             menuName: "Dashboard",
             menuIcon: IconLayoutDashboard,
-            expanded: false,
+            expanded: true,
             menuItems: [
                 {
                     menuItemName: "Overview",
@@ -38,7 +38,7 @@ function AppLayout({
         {
             menuName: "Inventori",
             menuIcon: IconPackages,
-            expanded: false,
+            expanded: true,
             menuItems: [
                 {
                     menuItemName: "Produk",
@@ -60,7 +60,7 @@ function AppLayout({
         {
             menuName: "Pengaturan",
             menuIcon: IconSettings,
-            expanded: false,
+            expanded: true,
             menuItems: [
                 {
                     menuItemName: "Profil Toko",
