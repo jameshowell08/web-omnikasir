@@ -5,6 +5,10 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import TablePagination from "@/src/modules/shared/view/TablePagination";
 import { IconDots, IconEdit, IconEye, IconEyeBitcoin, IconEyeFilled, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import PurchaseData from "../model/PurchaseData";
+import { useEffect, useState } from "react";
+import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import GetPurchaseController from "../controller/GetPurchaseController";
 
 function GetPurchaseHeader() {
     return (
@@ -70,7 +74,7 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function PurchaseTable() {
+function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
     return (
         <div className="mt-4 border rounded-lg overflow-hidden">
             <Table>
@@ -86,37 +90,39 @@ function PurchaseTable() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <TableRow>
-                        <TableCell>23/12/2025</TableCell>
-                        <TableCell>98767890987678</TableCell>
-                        <TableCell>Drafted</TableCell>
-                        <TableCell>Samsung S23 Ultra 256 GB</TableCell>
-                        <TableCell>6</TableCell>
-                        <TableCell>Rp135,000</TableCell>
-                        <TableCell>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon">
-                                        <IconDots />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem>
-                                        <IconEye />
-                                        Lihat
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <IconEdit />
-                                        Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem variant="destructive">
-                                        <IconTrash />
-                                        Hapus
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
+                    {purchases.map((purchase) => (
+                        <TableRow key={purchase.id}>
+                            <TableCell>{purchase.date}</TableCell>
+                            <TableCell>{purchase.id}</TableCell>
+                            <TableCell>{purchase.status}</TableCell>
+                            <TableCell>{purchase.product}</TableCell>
+                            <TableCell>{purchase.quantity}</TableCell>
+                            <TableCell>{purchase.total}</TableCell>
+                            <TableCell>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon">
+                                            <IconDots />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuItem>
+                                            <IconEye />
+                                            Lihat
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <IconEdit />
+                                            Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem variant="destructive">
+                                            <IconTrash />
+                                            Hapus
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
         </div>
@@ -124,11 +130,24 @@ function PurchaseTable() {
 }
 
 function GetPurchaseView() {
+    const [displayedPurchases, setDisplayedPurchases] = useState<PurchaseData[] | null>(null);
+
+    const fetchPurchasesData = async () => {
+        const fetchedPurchases = await GetPurchaseController.getPurchase();
+        setDisplayedPurchases(fetchedPurchases);
+    }
+
+    useEffect(() => {
+        fetchPurchasesData();
+    }, []);
+
     return (
         <div>
             <GetPurchaseHeader />
             <TableFilter />
-            <PurchaseTable />
+            {
+                displayedPurchases ? <PurchaseTable purchases={displayedPurchases} /> : <TablePlaceholder />
+            }
             <TablePagination currentPage={1} maxPage={10} onNextPage={() => { }} onPreviousPage={() => { }} />
         </div>
     )

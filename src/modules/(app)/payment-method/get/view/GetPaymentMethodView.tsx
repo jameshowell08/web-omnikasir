@@ -14,6 +14,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import GetPaymentMethodController from "../controller/GetPaymentMethodController";
 import PaymentMethod from "../model/PaymentMethod";
+import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 
 function GetPaymentMethodHeader() {
     return (
@@ -162,15 +163,6 @@ function PaymentMethodTable({ displayedPaymentMethods, onDeleteItem }: { display
     )
 }
 
-function PaymentMethodTablePlaceholder() {
-    return (
-        <div className="flex flex-col gap-2">
-            <Skeleton className="mt-4 h-10" />
-            <Skeleton className="h-[400px]" />
-        </div>
-    )
-}
-
 function GetPaymentMethodView() {
     const showLoadingOverlay = useContext(LoadingOverlayContext);
     const [limit, setLimit] = useState(10);
@@ -230,7 +222,7 @@ function GetPaymentMethodView() {
                 displayedPaymentMethods ? (
                     <PaymentMethodTable displayedPaymentMethods={displayedPaymentMethods} onDeleteItem={handleDeletePaymentMethod} />
                 ) : (
-                    <PaymentMethodTablePlaceholder />
+                    <TablePlaceholder />
                 )
             }
             {

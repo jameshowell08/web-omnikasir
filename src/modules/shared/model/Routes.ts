@@ -17,6 +17,10 @@ const Routes = {
         DELETE: (id: string) => `/api/payment-method/${id}/delete`,
         GET: "/api/payment-method/get",
         GET_BY_ID: (id: string) => `/api/payment-method/${id}/get`,
+    },
+
+    STOCK_API: {
+        GET: "/api/stock"
     }
 }
 
