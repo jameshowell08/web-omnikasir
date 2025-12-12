@@ -4,6 +4,13 @@ const Routes = {
         ADD: "/payment-method/add",
         EDIT: (id: string) => `/payment-method/edit/${id}`,
     },
+
+    PURCHASE: {
+        GET: "/purchase",
+        ADD: "/purchase/add",
+        EDIT: (id: string) => `/purchase/edit/${id}`,
+    },
+
     PAYMENT_METHOD_API: {
         CREATE: "/api/payment-method/create",
         UPDATE: (id: string) => `/api/payment-method/${id}/update`,

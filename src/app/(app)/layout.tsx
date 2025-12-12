@@ -32,33 +32,6 @@ function AppLayout({
                     menuItemName: "Overview",
                     menuItemIcon: IconHome,
                     menuItemPath: "/overview"
-                },
-                {
-                    menuItemName: "Laporan",
-                    menuItemIcon: IconChartBar,
-                    menuItemPath: "/reports"
-                }
-            ]
-        },
-        {
-            menuName: "Transaksi",
-            menuIcon: IconReceiptDollar,
-            expanded: false,
-            menuItems: [
-                {
-                    menuItemName: "Penjualan",
-                    menuItemIcon: IconHome,
-                    menuItemPath: "/sales"
-                },
-                {
-                    menuItemName: "Retur Penjualan",
-                    menuItemIcon: IconChartBar,
-                    menuItemPath: "/sales-return"
-                },
-                {
-                    menuItemName: "Shift Kasir",
-                    menuItemIcon: IconClock,
-                    menuItemPath: "/cashier-shift"
                 }
             ]
         },
@@ -78,9 +51,9 @@ function AppLayout({
                     menuItemPath: Constants.CATEGORIES_URL
                 },
                 {
-                    menuItemName: "Stok",
+                    menuItemName: "Pembelian",
                     menuItemIcon: IconStackPush,
-                    menuItemPath: "/product-stock"
+                    menuItemPath: Routes.PURCHASE.GET
                 }
             ]
         },
@@ -89,11 +62,6 @@ function AppLayout({
             menuIcon: IconSettings,
             expanded: false,
             menuItems: [
-                {
-                    menuItemName: "Profil",
-                    menuItemIcon: IconUserCircle,
-                    menuItemPath: "/profile"
-                },
                 {
                     menuItemName: "Profil Toko",
                     menuItemIcon: IconBuildingStore,
