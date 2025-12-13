@@ -30,7 +30,7 @@ export async function GET(
         productInventoryDetails: {
           orderBy: { sku: "asc" },
           include: {
-            product: {
+            Product: {
               select: {
                 productName: true,
                 brand: true,
@@ -115,9 +115,9 @@ export async function PUT(
         throw new Error("Cannot edit an inventory that is already COMPLETED.")
       }
 
-      const totalAmount = items
+      const totalPrice = items
         ? items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-        : existingHeader.totalAmount
+        : existingHeader.totalPrice
 
       const updatedHeader = await tx.productInventoryHeader.update({
         where: { id },
@@ -125,7 +125,7 @@ export async function PUT(
           ...(supplier && { supplier }),
           modifiedById,
           status: newStatus,
-          totalAmount,
+          totalPrice,
         },
       })
 

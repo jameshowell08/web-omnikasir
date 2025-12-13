@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url)
     const { searchParams } = url
 
+    const search = searchParams.get("search")
     const status = searchParams.get("status")
     const supplier = searchParams.get("supplier")
     const startDate = searchParams.get("startDate")
@@ -44,6 +45,12 @@ export async function GET(req: NextRequest) {
             lte: new Date(endDate),
           },
         }),
+      ...(search && {
+        OR: [
+          { id: { contains: search, mode: "insensitive" } },
+          { supplier: { contains: search, mode: "insensitive" } },
+        ],
+      }),
     }
 
     const [total, inventoryHeaders] = await db.$transaction([
