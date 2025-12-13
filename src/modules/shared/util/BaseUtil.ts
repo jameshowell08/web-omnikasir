@@ -28,4 +28,12 @@ export class BaseUtil {
             typeof values[index] !== 'undefined' ? values[index] : match
         );
     }
+
+    private static padDateStart(value: number) {
+        return value.toString().padStart(2, "0");
+    }
+
+    public static formatDate(date: Date) {
+        return `${this.padDateStart(date.getDate())}/${this.padDateStart(date.getMonth() + 1)}/${date.getFullYear()} ${this.padDateStart(date.getHours())}:${this.padDateStart(date.getMinutes())}:${this.padDateStart(date.getSeconds())}`;
+    }
 }

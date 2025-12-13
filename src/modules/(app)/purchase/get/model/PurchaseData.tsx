@@ -1,6 +1,6 @@
 class PurchaseData {
     constructor(
-        public date: string,
+        public date: Date,
         public id: string,
         public status: string,
         public product: string,

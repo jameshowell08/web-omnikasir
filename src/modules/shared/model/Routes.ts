@@ -20,7 +20,8 @@ const Routes = {
     },
 
     STOCK_API: {
-        GET: "/api/stock"
+        DEFAULT: "/api/stock",
+        BY_ID: (id: string) => `/api/stock/${id}`,
     }
 }
 

@@ -9,6 +9,8 @@ import PurchaseData from "../model/PurchaseData";
 import { useEffect, useState } from "react";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import GetPurchaseController from "../controller/GetPurchaseController";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import toast from "react-hot-toast";
 
 function GetPurchaseHeader() {
     return (
@@ -46,22 +48,22 @@ function ItemPerPage({ amount, isSelected, onSelect }: { amount: number, isSelec
     )
 }
 
-function ItemsPerPage() {
+function ItemsPerPage({ itemAmount, onItemAmountChange }: { itemAmount: number, onItemAmountChange: (amount: number) => void }) {
     return (
         <div className="flex flex-row items-center gap-2">
             <span className="text-xs">Item per halaman</span>
-            <ItemPerPage amount={10} isSelected={true} onSelect={() => { }} />
-            <ItemPerPage amount={20} isSelected={false} onSelect={() => { }} />
-            <ItemPerPage amount={50} isSelected={false} onSelect={() => { }} />
+            <ItemPerPage amount={10} isSelected={itemAmount === 10} onSelect={() => onItemAmountChange(10)} />
+            <ItemPerPage amount={20} isSelected={itemAmount === 20} onSelect={() => onItemAmountChange(20)} />
+            <ItemPerPage amount={50} isSelected={itemAmount === 50} onSelect={() => onItemAmountChange(50)} />
         </div>
     )
 }
 
-function TableFilter() {
+function TableFilter({ itemAmount, onItemAmountChange }: { itemAmount: number, onItemAmountChange: (amount: number) => void }) {
     return (
         <div className="mt-2 flex flex-row items-center justify-between">
             <SearchField />
-            <ItemsPerPage />
+            <ItemsPerPage itemAmount={itemAmount} onItemAmountChange={onItemAmountChange} />
         </div>
     )
 }
@@ -92,7 +94,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                 <TableBody>
                     {purchases.map((purchase) => (
                         <TableRow key={purchase.id}>
-                            <TableCell>{purchase.date}</TableCell>
+                            <TableCell>{BaseUtil.formatDate(purchase.date)}</TableCell>
                             <TableCell>{purchase.id}</TableCell>
                             <TableCell>{purchase.status}</TableCell>
                             <TableCell>{purchase.product}</TableCell>
@@ -131,24 +133,32 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
 
 function GetPurchaseView() {
     const [displayedPurchases, setDisplayedPurchases] = useState<PurchaseData[] | null>(null);
+    const [itemAmount, setItemAmount] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
 
     const fetchPurchasesData = async () => {
-        const fetchedPurchases = await GetPurchaseController.getPurchase();
-        setDisplayedPurchases(fetchedPurchases);
+        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage);
+        if (isSuccess) {
+            setDisplayedPurchases(fetchedPurchases);
+            setTotalPage(totalPage);
+        } else {
+            toast.error(errorMsg)
+        }
     }
 
     useEffect(() => {
         fetchPurchasesData();
-    }, []);
+    }, [itemAmount, currentPage]);
 
     return (
         <div>
             <GetPurchaseHeader />
-            <TableFilter />
+            <TableFilter itemAmount={itemAmount} onItemAmountChange={setItemAmount} />
             {
                 displayedPurchases ? <PurchaseTable purchases={displayedPurchases} /> : <TablePlaceholder />
             }
-            <TablePagination currentPage={1} maxPage={10} onNextPage={() => { }} onPreviousPage={() => { }} />
+            <TablePagination currentPage={currentPage} maxPage={totalPage} onNextPage={() => setCurrentPage(currentPage + 1)} onPreviousPage={() => setCurrentPage(currentPage - 1)} />
         </div>
     )
 }

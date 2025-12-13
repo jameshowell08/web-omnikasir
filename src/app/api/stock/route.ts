@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
         include: {
           productInventoryDetails: {
             include: {
-              product: { select: { productName: true, brand: true } },
+              Product: { select: { productName: true, brand: true } },
             },
           },
           createdBy: { select: { username: true } },
