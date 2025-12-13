@@ -2,8 +2,8 @@ import Routes from "@/src/modules/shared/model/Routes";
 import PurchaseData from "../model/PurchaseData";
 
 class GetPurchaseController {
-    public static async getPurchases(itemAmount: number, currentPage: number): Promise<[boolean, number, PurchaseData[], string]> {
-        const res = await fetch(Routes.STOCK_API.DEFAULT + `?limit=${itemAmount}&page=${currentPage}`, {
+    public static async getPurchases(itemAmount: number, currentPage: number, searchQuery: string): Promise<[boolean, number, PurchaseData[], string]> {
+        const res = await fetch(Routes.STOCK_API.DEFAULT + `?limit=${itemAmount}&page=${currentPage}&search=${searchQuery}`, {
             method: "GET"
         });
 

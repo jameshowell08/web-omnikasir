@@ -6,13 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import TablePagination from "@/src/modules/shared/view/TablePagination";
 import { IconDots, IconEdit, IconEye, IconEyeBitcoin, IconEyeFilled, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import PurchaseData from "../model/PurchaseData";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import GetPurchaseController from "../controller/GetPurchaseController";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import Routes from "@/src/modules/shared/model/Routes";
+import { Spinner } from "@/components/ui/spinner";
 
 function GetPurchaseHeader() {
     return (
@@ -26,14 +27,21 @@ function GetPurchaseHeader() {
     )
 }
 
-function SearchField() {
+function SearchField({ searchQuery, setSearchQuery, isSearchLoading }: { searchQuery: string, setSearchQuery: (query: string) => void, isSearchLoading: boolean }) {
     return (
         <div className="flex flex-row items-center gap-2">
             <InputGroup className="w-sm">
                 <InputGroupAddon>
                     <IconSearch />
                 </InputGroupAddon>
-                <InputGroupInput placeholder="Cari Pembelian" />
+                <InputGroupInput placeholder="Cari Pembelian" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                {
+                    isSearchLoading && (
+                        <InputGroupAddon align="inline-end">
+                            <Spinner />
+                        </InputGroupAddon>
+                    )
+                }
             </InputGroup>
             <Button size="icon">
                 <IconFilter />
@@ -61,10 +69,10 @@ function ItemsPerPage({ itemAmount, onItemAmountChange }: { itemAmount: number, 
     )
 }
 
-function TableFilter({ itemAmount, onItemAmountChange }: { itemAmount: number, onItemAmountChange: (amount: number) => void }) {
+function TableFilter({ itemAmount, onItemAmountChange, searchQuery, setSearchQuery, isSearchLoading }: { itemAmount: number, onItemAmountChange: (amount: number) => void, searchQuery: string, setSearchQuery: (query: string) => void, isSearchLoading: boolean }) {
     return (
         <div className="mt-2 flex flex-row items-center justify-between">
-            <SearchField />
+            <SearchField searchQuery={searchQuery} setSearchQuery={setSearchQuery} isSearchLoading={isSearchLoading} />
             <ItemsPerPage itemAmount={itemAmount} onItemAmountChange={onItemAmountChange} />
         </div>
     )
@@ -136,25 +144,43 @@ function GetPurchaseView() {
     const [itemAmount, setItemAmount] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPage, setTotalPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+    const debounce = useRef<NodeJS.Timeout | null>(null);
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
 
     const fetchPurchasesData = async () => {
-        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage);
+        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage, debouncedSearchQuery);
         if (isSuccess) {
             setDisplayedPurchases(fetchedPurchases);
             setTotalPage(totalPage);
         } else {
             toast.error(errorMsg)
         }
+        setIsSearchLoading(false);
+    }
+
+    const handleSearchChange = async (query: string) => {
+        setIsSearchLoading(false);
+        setSearchQuery(query);
+        if (debounce.current) {
+            clearTimeout(debounce.current);
+        }
+        debounce.current = setTimeout(() => {
+            setIsSearchLoading(true);
+            setDebouncedSearchQuery(query);
+            setCurrentPage(1);
+        }, 500);
     }
 
     useEffect(() => {
         fetchPurchasesData();
-    }, [itemAmount, currentPage]);
+    }, [itemAmount, currentPage, debouncedSearchQuery]);
 
     return (
         <div>
             <GetPurchaseHeader />
-            <TableFilter itemAmount={itemAmount} onItemAmountChange={setItemAmount} />
+            <TableFilter itemAmount={itemAmount} onItemAmountChange={setItemAmount} searchQuery={searchQuery} setSearchQuery={handleSearchChange} isSearchLoading={isSearchLoading} />
             {
                 displayedPurchases ? <PurchaseTable purchases={displayedPurchases} /> : <TablePlaceholder />
             }
