@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const totalAmount = items
+    const totalPrice = items
       ? items.reduce((sum, item) => sum + item.quantity * item.price, 0)
       : 0
 
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
           supplier,
           createdById: userId, // Use userId from header
           status,
-          totalAmount,
+          totalPrice,
           productInventoryDetails: items
             ? {
                 create: items.map((item) => ({

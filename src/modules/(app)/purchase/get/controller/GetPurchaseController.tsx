@@ -18,8 +18,6 @@ class GetPurchaseController {
                     new Date(purchase.createdDate),
                     purchase.id,
                     purchase.status,
-                    purchase.productInventoryDetails[0].Product.productName,
-                    purchase.totalQuantity,
                     purchase.totalPrice
                 )
             })

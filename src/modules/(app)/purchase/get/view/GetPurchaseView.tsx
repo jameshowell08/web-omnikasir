@@ -11,6 +11,8 @@ import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import GetPurchaseController from "../controller/GetPurchaseController";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import Routes from "@/src/modules/shared/model/Routes";
 
 function GetPurchaseHeader() {
     return (
@@ -85,8 +87,6 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                         <CustomTableHead>Tanggal</CustomTableHead>
                         <CustomTableHead>ID Pembelian</CustomTableHead>
                         <CustomTableHead>Status</CustomTableHead>
-                        <CustomTableHead>Produk</CustomTableHead>
-                        <CustomTableHead>Jumlah</CustomTableHead>
                         <CustomTableHead>Total Transaksi</CustomTableHead>
                         <TableHead />
                     </TableRow>
@@ -97,8 +97,6 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                             <TableCell>{BaseUtil.formatDate(purchase.date)}</TableCell>
                             <TableCell>{purchase.id}</TableCell>
                             <TableCell>{purchase.status}</TableCell>
-                            <TableCell>{purchase.product}</TableCell>
-                            <TableCell>{purchase.quantity}</TableCell>
                             <TableCell>{purchase.total}</TableCell>
                             <TableCell>
                                 <DropdownMenu>
@@ -108,9 +106,11 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        <DropdownMenuItem>
-                                            <IconEye />
-                                            Lihat
+                                        <DropdownMenuItem asChild>
+                                            <Link href={Routes.PURCHASE.GET_BY_ID(purchase.id)}>
+                                                <IconEye />
+                                                Lihat
+                                            </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <IconEdit />

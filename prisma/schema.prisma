@@ -94,7 +94,6 @@ model ProductInventoryHeader {
   id          String   @id @default(uuid())
   supplier    String
   status      String   @default("DRAFT") // DRAFT, COMPLETED, CANCELLED
-  totalQuantity Int
   totalPrice Decimal? @db.Decimal(12, 2)
 
   createdById  String

@@ -70,7 +70,6 @@ async function main() {
       id: "invhdr-dummy-001",
       supplier: "Main Supplier",
       status: "DRAFT",
-      totalQuantity: 50,
       totalPrice: 299.99,
       createdBy: { connect: { userId: insertedUser.userId } },
       createdDate: new Date(),
