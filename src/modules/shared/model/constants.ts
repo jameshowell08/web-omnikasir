@@ -1,0 +1,22 @@
+export class Constants {
+    static readonly OVERVIEW_URL = "/overview/"
+    static readonly PRODUCTS_URL = "/products/"
+    static readonly CATEGORIES_URL = "/category/"
+    static readonly ADD_PRODUCT_URL = "/products/add/"
+    static readonly EDIT_PRODUCT_URL = "/products/edit/{0}/"
+    static readonly ADD_CATEGORY_URL = "/category/add/"
+    static readonly EDIT_CATEGORY_URL = "/category/edit/{0}/"
+    static readonly STORE_PROFILE_URL = "/store-profile/"
+    static readonly LOGIN_URL = "/"
+
+    static readonly LOGIN_API_URL = "/api/auth/login"
+    static readonly LOGOUT_API_URL = "/api/auth/logout"
+    static readonly GET_PRODUCTS_API = "/api/products/get"
+    static readonly GET_CATEGORY_API = "/api/category/get"
+    static readonly CREATE_PRODUCT_API = "/api/products/create"
+    static readonly UPDATE_PRODUCT_API = "/api/products/update"
+    static readonly DELETE_PRODUCT_API = "/api/products/delete/{0}/"
+    static readonly GET_PRODUCT_DETAIL_API = "/api/products/get/"
+    static readonly DELETE_CATEGORY_API = "/api/category/{0}/delete/"
+    static readonly CREATE_CATEGORY_API = "/api/category/create"
+}

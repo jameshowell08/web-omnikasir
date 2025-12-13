@@ -1,93 +1,141 @@
 'use client'
 
-import "../globals.css";
-import { Constants } from "@/src/lib/constants";
-import { Url } from "next/dist/shared/lib/router/router";
+import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderController";
+import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
+import { Constants } from "@/src/modules/shared/model/Constants";
+import Routes from "@/src/modules/shared/model/Routes";
+import { IconBuildingStore, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconSettings, IconStackPush, IconTags } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
-interface NavTabProps {
-    name: string;
-    url: Url;
-}
-
-const navTabs: NavTabProps[] = [
-    {
-        name: "Transaksi",
-        url: Constants.TRANSACTION_URL
-    },
-    {
-        name: "Pengaturan",
-        url: Constants.SETTING_URL
-    }
-]
-
-export default function AppLayout({
+function AppLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
     const router = useRouter();
-
-    const logout = async () => {
-        const res = await fetch(Constants.LOGOUT_API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-
-        const data = await res.json()
-
-        if (res.ok) {
-            toast.success("Logout berhasil!")
-            router.push(Constants.LOGIN_URL)
-        } else {
-            toast.error(data.message)
+    function eventCallback(e: AppHeaderEventCallback) {
+        if (e instanceof NavigateToUrl) {
+            router.replace(e.url)
         }
     }
 
+    const [controller] = useState(() => new AppHeaderController(eventCallback))
+    const initialMenus = [
+        {
+            menuName: "Dashboard",
+            menuIcon: IconLayoutDashboard,
+            expanded: true,
+            menuItems: [
+                {
+                    menuItemName: "Overview",
+                    menuItemIcon: IconHome,
+                    menuItemPath: "/overview"
+                }
+            ]
+        },
+        {
+            menuName: "Inventori",
+            menuIcon: IconPackages,
+            expanded: true,
+            menuItems: [
+                {
+                    menuItemName: "Produk",
+                    menuItemIcon: IconPackage,
+                    menuItemPath: Constants.PRODUCTS_URL
+                },
+                {
+                    menuItemName: "Kategori Produk",
+                    menuItemIcon: IconTags,
+                    menuItemPath: Constants.CATEGORIES_URL
+                },
+                {
+                    menuItemName: "Pembelian",
+                    menuItemIcon: IconStackPush,
+                    menuItemPath: Routes.PURCHASE.GET
+                }
+            ]
+        },
+        {
+            menuName: "Pengaturan",
+            menuIcon: IconSettings,
+            expanded: true,
+            menuItems: [
+                {
+                    menuItemName: "Profil Toko",
+                    menuItemIcon: IconBuildingStore,
+                    menuItemPath: "/store-profile"
+                },
+                {
+                    menuItemName: "Metode Pembayaran",
+                    menuItemIcon: IconCreditCardPay,
+                    menuItemPath: Routes.PAYMENT_METHOD.GET
+                }
+            ]
+        }
+    ];
+
+    const [menus, setMenus] = useState(initialMenus);
+    const [isNavbarVisible, showNavbar] = useState(true);
+    const pathname = usePathname();
+
     return (
-        <div className="flex flex-row h-full w-screen">
-            <aside className="w-xs h-screen sticky bg-[#D9D9D9] flex flex-col">
-                <div className="flex flex-col items-center bg-[#C5C5C5] h-fit w-full p-8">
-                    <div className="w-52 aspect-square bg-[#8C8C8C] rounded-full flex items-center justify-center mb-5">
-                        <Image src="/assets/omnikasir.svg" alt="Profile Picture" className="absolute" />
-                    </div>
-                    <h1 className="font-bold">[ Username ]</h1>
-                    <h3 className="">[ Role ]</h3>
+        <div className="flex flex-col h-full min-h-screen overflow-x-clip">
+            <header className="px-5 py-3 flex items-center border-b z-10 sticky top-0 bg-white">
+                <span
+                    className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
+                    onClick={() => showNavbar(!isNavbarVisible)}
+                >
+                    menu
+                </span>
+                <h1 className="text-lg font-bold ml-4">Omnikasir</h1>
+                <div className="flex flex-col mr-3 flex-1">
+                    <p className="text-right text-2xs">Admin</p>
+                    <p className="text-right text-xs font-bold">John Doe</p>
                 </div>
-                <nav className="flex flex-col flex-1 mt-4 space-y-2">
-                    {
-                        navTabs.map((tab) => (
-                            <NavTabComponent key={tab.name.valueOf()} name={tab.name} url={tab.url} />
-                        ))
-                    }
+                <span
+                    className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
+                    onClick={() => controller.logout()}>
+                    logout
+                </span>
+            </header>
+
+            <section className="flex flex-row flex-1">
+                <nav className={`fixed h-full transition ease-in-out duration-200 p-6 w-2xs border-r ${!isNavbarVisible && '-translate-x-full'}`}>
+                    {menus.map((menu, index) => (
+                        <div key={menu.menuName} className="select-none">
+                            <div
+                                className={`flex flex-row items-center py-1 px-2 rounded-lg hover:bg-black/10 ${index > 0 && "mt-2"}`}
+                                onClick={() => {
+                                    setMenus(prevMenus => prevMenus.map((m, i) =>
+                                        i === index ? { ...m, expanded: !m.expanded } : m
+                                    ));
+                                }}
+                            >
+                                {<menu.menuIcon size={18} />}
+                                <p className="text-sm pl-2 flex-1">{menu.menuName}</p>
+                                <IconChevronRight size={18} className={`${menu.expanded && "rotate-90"}`} />
+                            </div>
+
+                            {menu.expanded && menu.menuItems.map((menuItem) => (
+                                <Link key={menuItem.menuItemName} className={`mt-1 ml-2 flex flex-row items-center py-1 px-2 rounded-lg hover:bg-black/10 ${pathname === menuItem.menuItemPath && "bg-black/20"}`} href={menuItem.menuItemPath}>
+                                    {<menuItem.menuItemIcon size={18} />}
+                                    <p className="text-sm pl-2 flex-1">{menuItem.menuItemName}</p>
+                                </Link>
+                            ))}
+                        </div>
+                    ))}
                 </nav>
-                <div className="flex justify-center m-4">
-                    <button className="select-none cursor-pointer rounded-2xl w-full px-8 py-4 bg-red-600 font-bold text-white" type="button" onClick={() => { logout() }}>
-                        Logout
-                    </button>
+
+                <div className={`max-w-full transition-all ease-in-out duration-200 flex justify-center flex-1 min-w-0 ${isNavbarVisible && 'ml-[18rem]'}`}>
+                    <div className="flex flex-col p-6 max-w-7xl w-full overflow-x-auto">
+                        {children}
+                    </div>
                 </div>
-            </aside>
-            {children}
+            </section>
         </div>
-    );
+    )
 }
 
-function NavTabComponent(props: NavTabProps) {
-    const pathName = usePathname();
-    const tabSelected = props.url === pathName;
-
-    return (
-        <Link href={props.url} className={`
-            px-8 py-2 cursor-pointer select-none
-            ${tabSelected ? "font-bold bg-black text-white rounded-r-full" : "text-black font-normal bg-transparent"}
-        `}>
-            {props.name}
-        </Link>
-    );
-}
+export default AppLayout
