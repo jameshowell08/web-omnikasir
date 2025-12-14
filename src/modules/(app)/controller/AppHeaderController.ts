@@ -9,7 +9,6 @@ export class AppHeaderController {
     ) { }
 
     public async logout() {
-        console.log("logging user out...")
         const res = await fetch(Constants.LOGOUT_API_URL, { method: "POST" })
 
         if (res.ok) {

@@ -116,7 +116,7 @@ function GetPurchaseDetailTable({ purchaseDetailItems, totalPrice }: { purchaseD
                         </TableRow>
                     ))}
                     <TableRow>
-                        <TableCell colSpan={6}>
+                        <TableCell colSpan={7}>
                             <span className="font-bold">Total</span>
                         </TableCell>
                         <TableCell>{BaseUtil.formatRupiah(totalPrice)}</TableCell>
@@ -134,9 +134,6 @@ function GetPurchaseDetailView({ id }: { id: string }) {
         const [isSuccess, purchaseDetail, errorMsg] = await GetPurchaseDetailController.getPurchaseDetail(id)
 
         if (isSuccess) {
-            purchaseDetail?.items.forEach((item) => {
-                console.log(item.imeis)
-            })
             setPurchaseDetail(purchaseDetail)
         } else {
             toast.error(errorMsg)
@@ -155,7 +152,7 @@ function GetPurchaseDetailView({ id }: { id: string }) {
                     purchaseDetail ? (
                         <GetPurchaseDetailBody id={id} dateCreated={purchaseDetail.createdDate} status={purchaseDetail.status} supplierName={purchaseDetail.supplierName} />
                     ) : (
-                        <Skeleton className="h-10" />
+                        <Skeleton className="mt-5 h-12" />
                     )
                 }
                 {

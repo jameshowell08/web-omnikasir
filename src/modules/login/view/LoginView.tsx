@@ -30,10 +30,7 @@ function LoginView() {
         }
     }
 
-    const [controller] = useState(() => {
-        console.log("LoginController created!")
-        return new LoginController(listener)
-    })
+    const [controller] = useState(() => new LoginController(listener))
 
     return (
         <div className="flex flex-row w-screen h-screen">
