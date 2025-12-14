@@ -23,9 +23,11 @@ function GetPurchaseHeader() {
     return (
         <div className="flex flex-row items-center justify-between">
             <h1 className="text-2xl font-bold">Pembelian</h1>
-            <Button variant="ghost" size="sm">
-                <IconPlus />
-                <span className="text-xs font-bold">Tambah Pembelian</span>
+            <Button variant="ghost" size="sm" asChild>
+                <Link href={Routes.PURCHASE.ADD}>
+                    <IconPlus />
+                    <span className="text-xs font-bold">Tambah Pembelian</span>
+                </Link>
             </Button>
         </div>
     )
