@@ -12,11 +12,21 @@ export class BaseUtil {
      * This function is used to format a number to a string with a thousand separator.
      * @param value The number to format.
      * @returns The formatted number as a string.
+     * @deprecated Use formatNumberV2 instead.
      */
     public static formatNumber(value: string | number) {
         const stringValue = String(value);
         const numericValue = stringValue.replace(/\D/g, "");
         return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    /**
+     * This function is used to format a number to a string with a thousand separator.
+     * @param value The number to format.
+     * @returns The formatted number as a string.
+     */
+    public static formatNumberV2(value: number): string {
+        return value.toLocaleString('id-ID');
     }
 
     public static unformatNumber(value: string) {

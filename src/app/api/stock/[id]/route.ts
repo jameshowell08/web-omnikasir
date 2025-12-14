@@ -34,10 +34,13 @@ export async function GET(
               select: {
                 productName: true,
                 brand: true,
-                quantity: true,
-              },
-            },
-            imei: true,
+                category: {
+                  select: {
+                    categoryName: true
+                  }
+                }
+              }
+            }
           },
         },
         createdBy: { select: { username: true } },
