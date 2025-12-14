@@ -71,7 +71,7 @@ function GetPurchaseDetailTable({ purchaseDetailItems, totalPrice }: { purchaseD
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {purchaseDetailItems.map((item, index) => (
+                    {purchaseDetailItems.map((item) => (
                         <TableRow key={item.sku}>
                             <TableCell>{item.sku}</TableCell>
                             <TableCell>{item.productName}</TableCell>
