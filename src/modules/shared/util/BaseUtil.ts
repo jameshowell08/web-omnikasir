@@ -23,6 +23,10 @@ export class BaseUtil {
         return value.replace(/\./g, "");
     }
 
+    public static formatRupiah(value: number) {
+        return "Rp" + value.toLocaleString('id-ID');
+    }
+
     public static formatString(str: string, ...values: any[]) {
         return str.replace(/{(\d+)}/g, (match, index) =>
             typeof values[index] !== 'undefined' ? values[index] : match

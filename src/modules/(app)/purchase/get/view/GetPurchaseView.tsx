@@ -1,19 +1,24 @@
 'use client';
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import TablePagination from "@/src/modules/shared/view/TablePagination";
-import { IconDots, IconEdit, IconEye, IconEyeBitcoin, IconEyeFilled, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import PurchaseData from "../model/PurchaseData";
-import { useEffect, useRef, useState } from "react";
-import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
-import GetPurchaseController from "../controller/GetPurchaseController";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
-import toast from "react-hot-toast";
-import Link from "next/link";
-import Routes from "@/src/modules/shared/model/Routes";
 import { Spinner } from "@/components/ui/spinner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Routes from "@/src/modules/shared/model/Routes";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import TablePagination from "@/src/modules/shared/view/TablePagination";
+import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import { IconDots, IconEdit, IconEye, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import GetPurchaseController from "../controller/GetPurchaseController";
+import PurchaseData from "../model/PurchaseData";
+import { FieldGroup } from "@/components/ui/field";
+import FilterDialogBody from "./FilterDialogBody";
+import PurchaseFilterFormScheme from "../model/PurchaseFilterFormScheme";
+import z from "zod";
 
 function GetPurchaseHeader() {
     return (
@@ -27,7 +32,21 @@ function GetPurchaseHeader() {
     )
 }
 
-function SearchField({ searchQuery, setSearchQuery, isSearchLoading }: { searchQuery: string, setSearchQuery: (query: string) => void, isSearchLoading: boolean }) {
+function SearchField({ 
+    searchQuery, 
+    setSearchQuery, 
+    isSearchLoading,
+    appliedFilters,
+    setAppliedFilters
+}: { 
+    searchQuery: string, 
+    setSearchQuery: (query: string) => void, 
+    isSearchLoading: boolean,
+    appliedFilters: z.infer<typeof PurchaseFilterFormScheme>,
+    setAppliedFilters: (filters: z.infer<typeof PurchaseFilterFormScheme>) => void
+}) {
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
     return (
         <div className="flex flex-row items-center gap-2">
             <InputGroup className="w-sm">
@@ -43,9 +62,20 @@ function SearchField({ searchQuery, setSearchQuery, isSearchLoading }: { searchQ
                     )
                 }
             </InputGroup>
-            <Button size="icon">
-                <IconFilter />
-            </Button>
+            <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <DialogTrigger asChild>
+                    <Button size="icon">
+                        <IconFilter />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Filter</DialogTitle>
+                    </DialogHeader>
+
+                    <FilterDialogBody dismissDialog={() => setIsFilterOpen(false)} appliedFilters={appliedFilters} handleSubmitFilter={(data) => { setAppliedFilters(data) }} />
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
@@ -69,10 +99,32 @@ function ItemsPerPage({ itemAmount, onItemAmountChange }: { itemAmount: number, 
     )
 }
 
-function TableFilter({ itemAmount, onItemAmountChange, searchQuery, setSearchQuery, isSearchLoading }: { itemAmount: number, onItemAmountChange: (amount: number) => void, searchQuery: string, setSearchQuery: (query: string) => void, isSearchLoading: boolean }) {
+function TableFilter({
+    appliedFilters,
+    setAppliedFilters,
+    itemAmount,
+    onItemAmountChange,
+    searchQuery,
+    setSearchQuery,
+    isSearchLoading
+}: {
+    appliedFilters: z.infer<typeof PurchaseFilterFormScheme>,
+    setAppliedFilters: (filters: z.infer<typeof PurchaseFilterFormScheme>) => void,
+    itemAmount: number,
+    onItemAmountChange: (amount: number) => void,
+    searchQuery: string,
+    setSearchQuery: (query: string) => void,
+    isSearchLoading: boolean
+}) {
     return (
         <div className="mt-2 flex flex-row items-center justify-between">
-            <SearchField searchQuery={searchQuery} setSearchQuery={setSearchQuery} isSearchLoading={isSearchLoading} />
+            <SearchField 
+                appliedFilters={appliedFilters} 
+                setAppliedFilters={setAppliedFilters} 
+                searchQuery={searchQuery} 
+                setSearchQuery={setSearchQuery} 
+                isSearchLoading={isSearchLoading} 
+            />
             <ItemsPerPage itemAmount={itemAmount} onItemAmountChange={onItemAmountChange} />
         </div>
     )
@@ -95,6 +147,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                         <CustomTableHead>Tanggal</CustomTableHead>
                         <CustomTableHead>ID Pembelian</CustomTableHead>
                         <CustomTableHead>Status</CustomTableHead>
+                        <CustomTableHead>Supplier</CustomTableHead>
                         <CustomTableHead>Total Transaksi</CustomTableHead>
                         <TableHead />
                     </TableRow>
@@ -105,7 +158,8 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                             <TableCell>{BaseUtil.formatDate(purchase.date)}</TableCell>
                             <TableCell>{purchase.id}</TableCell>
                             <TableCell>{purchase.status}</TableCell>
-                            <TableCell>{purchase.total}</TableCell>
+                            <TableCell>{purchase.supplier}</TableCell>
+                            <TableCell>{BaseUtil.formatRupiah(purchase.total)}</TableCell>
                             <TableCell>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -148,9 +202,15 @@ function GetPurchaseView() {
     const debounce = useRef<NodeJS.Timeout | null>(null);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [appliedFilters, setAppliedFilters] = useState<z.infer<typeof PurchaseFilterFormScheme>>({
+        supplier: "",
+        status: "ALL",
+        dateFrom: undefined,
+        dateTo: undefined,
+    });
 
     const fetchPurchasesData = async () => {
-        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage, debouncedSearchQuery);
+        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage, debouncedSearchQuery, appliedFilters);
         if (isSuccess) {
             setDisplayedPurchases(fetchedPurchases);
             setTotalPage(totalPage);
@@ -175,12 +235,12 @@ function GetPurchaseView() {
 
     useEffect(() => {
         fetchPurchasesData();
-    }, [itemAmount, currentPage, debouncedSearchQuery]);
+    }, [itemAmount, currentPage, debouncedSearchQuery, appliedFilters]);
 
     return (
         <div>
             <GetPurchaseHeader />
-            <TableFilter itemAmount={itemAmount} onItemAmountChange={setItemAmount} searchQuery={searchQuery} setSearchQuery={handleSearchChange} isSearchLoading={isSearchLoading} />
+            <TableFilter appliedFilters={appliedFilters} setAppliedFilters={setAppliedFilters} itemAmount={itemAmount} onItemAmountChange={setItemAmount} searchQuery={searchQuery} setSearchQuery={handleSearchChange} isSearchLoading={isSearchLoading} />
             {
                 displayedPurchases ? <PurchaseTable purchases={displayedPurchases} /> : <TablePlaceholder />
             }
