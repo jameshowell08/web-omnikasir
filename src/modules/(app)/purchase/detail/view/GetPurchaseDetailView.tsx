@@ -12,6 +12,7 @@ import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import PurchaseDetailItem from "../model/PurchaseDetailItem";
 import { Skeleton } from "@/components/ui/skeleton";
 import PurchaseDetailData from "../model/PurchaseDetailData";
+import clsx from "clsx";
 
 function GetPurchaseDetailHeader() {
     return (
@@ -80,36 +81,35 @@ function GetPurchaseDetailTable({ purchaseDetailItems, totalPrice }: { purchaseD
                             <TableCell>{BaseUtil.formatNumberV2(item.quantity)}</TableCell>
                             <TableCell wrap>
                                 {
-                                    item.imeis ? (
-                                        <Dialog>
-                                            <DialogTrigger className="cursor-pointer flex flex-row gap-2">
-                                                {item.imeis[0]}
-                                                {
-                                                    item.imeis.length > 1 && (
-                                                        <Badge variant="outline">+{item.imeis.length - 1}</Badge>
-                                                    )
-                                                }
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>IMEI</DialogTitle>
-                                                    <DialogDescription>
-                                                        List IMEI yang dimasukkan
-                                                    </DialogDescription>
-                                                </DialogHeader>
+                                    item.imeis ?
+                                        item.imeis.length > 1 ? (
+                                            <Dialog>
+                                                <DialogTrigger className={clsx("cursor-pointer flex flex-row gap-2")}>
+                                                    {item.imeis[0]}
+                                                    <Badge variant="outline">+{item.imeis.length - 1}</Badge>
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>IMEI</DialogTitle>
+                                                        <DialogDescription>
+                                                            List IMEI yang dimasukkan
+                                                        </DialogDescription>
+                                                    </DialogHeader>
 
-                                                <Separator />
+                                                    <Separator />
 
-                                                <section className="flex flex-col gap-2">
-                                                    {item.imeis.map((imei) => (
-                                                        <span key={imei}>{imei}</span>
-                                                    ))}
-                                                </section>
-                                            </DialogContent>
-                                        </Dialog>
-                                    ) : (
-                                        "-"
-                                    )
+                                                    <section className="flex flex-col gap-2">
+                                                        {item.imeis.map((imei) => (
+                                                            <span key={imei}>{imei}</span>
+                                                        ))}
+                                                    </section>
+                                                </DialogContent>
+                                            </Dialog>
+                                        ) : (
+                                            item.imeis[0]
+                                        ) : (
+                                            "-"
+                                        )
                                 }
                             </TableCell>
                             <TableCell>{BaseUtil.formatRupiah(item.subtotal)}</TableCell>
