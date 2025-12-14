@@ -1,7 +1,7 @@
 import Routes from "@/src/modules/shared/model/Routes";
 import z from "zod";
 import PurchaseData from "../model/PurchaseData";
-import PurchaseFilterFormScheme from "../model/PurchaseFilterFormScheme";
+import { PurchaseFilterFormScheme } from "../model/PurchaseFilterFormScheme";
 
 class GetPurchaseController {
     public static async getPurchases(itemAmount: number, currentPage: number, searchQuery: string, filters: z.infer<typeof PurchaseFilterFormScheme>): Promise<[boolean, number, PurchaseData[], string]> {

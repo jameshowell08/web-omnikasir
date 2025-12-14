@@ -1,6 +1,6 @@
 import z from "zod";
 
-const PurchaseFilterFormScheme = z.object({
+export const PurchaseFilterFormScheme = z.object({
     supplier: z.string().optional(),
     status: z.string().optional(),
     dateFrom: z.date().optional(),
@@ -15,4 +15,9 @@ const PurchaseFilterFormScheme = z.object({
     path: ["dateTo"]
 })
 
-export default PurchaseFilterFormScheme;
+export const DefaultFilterFormValues = {
+    supplier: "",
+    status: "ALL",
+    dateFrom: undefined,
+    dateTo: undefined
+}

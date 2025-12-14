@@ -8,33 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
-import PurchaseFilterFormScheme from "../model/PurchaseFilterFormScheme";
+import { DefaultFilterFormValues, PurchaseFilterFormScheme } from "../model/PurchaseFilterFormScheme";
 
 function FilterDialogBody({
-    appliedFilters = {
-        supplier: "",
-        status: "ALL",
-        dateFrom: undefined,
-        dateTo: undefined,
-    },
-    handleSubmitFilter,
-    dismissDialog
+    appliedFilters = DefaultFilterFormValues,
+    handleSubmitFilter
 }: {
     appliedFilters?: z.infer<typeof PurchaseFilterFormScheme>,
-    handleSubmitFilter: (data: z.infer<typeof PurchaseFilterFormScheme>) => void,
-    dismissDialog: () => void
+    handleSubmitFilter: (data: z.infer<typeof PurchaseFilterFormScheme>) => void
 }) {
 
     const form = useForm<z.infer<typeof PurchaseFilterFormScheme>>({
         resolver: zodResolver(PurchaseFilterFormScheme),
-        defaultValues: appliedFilters
+        values: appliedFilters,
+        defaultValues: DefaultFilterFormValues
     })
 
     const handleResetForm = () => {
-        form.setValue("supplier", "")
-        form.setValue("status", "ALL")
-        form.setValue("dateFrom", undefined)
-        form.setValue("dateTo", undefined)
+        form.reset(DefaultFilterFormValues)
     }
 
     return (
@@ -47,7 +38,7 @@ function FilterDialogBody({
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="gap-0">Supplier</FieldLabel>
+                                    <FieldLabel htmlFor={field.name}>Supplier</FieldLabel>
                                     <Input
                                         {...field}
                                         aria-invalid={fieldState.invalid}
@@ -66,12 +57,16 @@ function FilterDialogBody({
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="gap-0">Status</FieldLabel>
+                                    <FieldLabel htmlFor={field.name}>Status</FieldLabel>
                                     <Select
+                                        key={field.value}
                                         value={field.value}
                                         onValueChange={field.onChange}
                                     >
-                                        <SelectTrigger aria-invalid={fieldState.invalid}>
+                                        <SelectTrigger
+                                            name={field.name}
+                                            aria-invalid={fieldState.invalid}
+                                        >
                                             <SelectValue placeholder="Pilih status" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -97,7 +92,7 @@ function FilterDialogBody({
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="gap-0">Dari Tanggal</FieldLabel>
+                                    <FieldLabel htmlFor={field.name}>Dari Tanggal</FieldLabel>
                                     <DatePicker
                                         date={field.value}
                                         setDate={field.onChange}
@@ -116,7 +111,7 @@ function FilterDialogBody({
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor={field.name} className="gap-0">Hingga Tanggal</FieldLabel>
+                                    <FieldLabel htmlFor={field.name}>Hingga Tanggal</FieldLabel>
                                     <DatePicker
                                         date={field.value}
                                         setDate={field.onChange}
@@ -134,7 +129,7 @@ function FilterDialogBody({
 
                     <div className="flex flex-row gap-2 justify-end">
                         <Button type="reset" variant="link">Reset</Button>
-                        <Button type="submit" onClick={dismissDialog}>Terapkan</Button>
+                        <Button type="submit">Terapkan</Button>
                     </div>
                 </FieldGroup>
             </form>

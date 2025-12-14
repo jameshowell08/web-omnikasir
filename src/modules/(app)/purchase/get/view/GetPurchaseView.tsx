@@ -1,6 +1,6 @@
 'use client';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
@@ -13,12 +13,11 @@ import { IconDots, IconEdit, IconEye, IconFilter, IconPlus, IconSearch, IconTras
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import z from "zod";
 import GetPurchaseController from "../controller/GetPurchaseController";
 import PurchaseData from "../model/PurchaseData";
-import { FieldGroup } from "@/components/ui/field";
+import { DefaultFilterFormValues, PurchaseFilterFormScheme } from "../model/PurchaseFilterFormScheme";
 import FilterDialogBody from "./FilterDialogBody";
-import PurchaseFilterFormScheme from "../model/PurchaseFilterFormScheme";
-import z from "zod";
 
 function GetPurchaseHeader() {
     return (
@@ -32,15 +31,15 @@ function GetPurchaseHeader() {
     )
 }
 
-function SearchField({ 
-    searchQuery, 
-    setSearchQuery, 
+function SearchField({
+    searchQuery,
+    setSearchQuery,
     isSearchLoading,
     appliedFilters,
     setAppliedFilters
-}: { 
-    searchQuery: string, 
-    setSearchQuery: (query: string) => void, 
+}: {
+    searchQuery: string,
+    setSearchQuery: (query: string) => void,
     isSearchLoading: boolean,
     appliedFilters: z.infer<typeof PurchaseFilterFormScheme>,
     setAppliedFilters: (filters: z.infer<typeof PurchaseFilterFormScheme>) => void
@@ -73,7 +72,10 @@ function SearchField({
                         <DialogTitle>Filter</DialogTitle>
                     </DialogHeader>
 
-                    <FilterDialogBody dismissDialog={() => setIsFilterOpen(false)} appliedFilters={appliedFilters} handleSubmitFilter={(data) => { setAppliedFilters(data) }} />
+                    <FilterDialogBody appliedFilters={appliedFilters} handleSubmitFilter={(data) => {
+                        setAppliedFilters(data)
+                        setIsFilterOpen(false)
+                    }} />
                 </DialogContent>
             </Dialog>
         </div>
@@ -118,12 +120,12 @@ function TableFilter({
 }) {
     return (
         <div className="mt-2 flex flex-row items-center justify-between">
-            <SearchField 
-                appliedFilters={appliedFilters} 
-                setAppliedFilters={setAppliedFilters} 
-                searchQuery={searchQuery} 
-                setSearchQuery={setSearchQuery} 
-                isSearchLoading={isSearchLoading} 
+            <SearchField
+                appliedFilters={appliedFilters}
+                setAppliedFilters={setAppliedFilters}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                isSearchLoading={isSearchLoading}
             />
             <ItemsPerPage itemAmount={itemAmount} onItemAmountChange={onItemAmountChange} />
         </div>
@@ -202,12 +204,7 @@ function GetPurchaseView() {
     const debounce = useRef<NodeJS.Timeout | null>(null);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isSearchLoading, setIsSearchLoading] = useState(false);
-    const [appliedFilters, setAppliedFilters] = useState<z.infer<typeof PurchaseFilterFormScheme>>({
-        supplier: "",
-        status: "ALL",
-        dateFrom: undefined,
-        dateTo: undefined,
-    });
+    const [appliedFilters, setAppliedFilters] = useState<z.infer<typeof PurchaseFilterFormScheme>>(DefaultFilterFormValues);
 
     const fetchPurchasesData = async () => {
         const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage, debouncedSearchQuery, appliedFilters);
