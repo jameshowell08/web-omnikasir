@@ -173,7 +173,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                                         <DropdownMenuItem asChild>
                                             <Link href={Routes.PURCHASE.GET_BY_ID(purchase.id)}>
                                                 <IconEye />
-                                                Lihat
+                                                Detail
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
