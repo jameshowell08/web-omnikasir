@@ -1,6 +1,6 @@
 'use client';
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BackButton from "@/src/modules/shared/view/BackButton";
@@ -22,7 +22,7 @@ function AddPurchaseHeader() {
 function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurchaseHeaderFormScheme>> }) {
     return (
         <div className="flex flex-col">
-            <form className="flex flex-row mt-5 gap-5 items-center">
+            <form className="flex flex-row mt-5 gap-5">
                 <Field className="w-40 gap-2">
                     <FieldLabel className="font-bold text-sm gap-0">ID Pembelian</FieldLabel>
                     <Input
@@ -69,8 +69,9 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
                             <Input
                                 {...field}
                                 aria-invalid={fieldState.invalid}
-                                placeholder="Enter supplier name"
+                                placeholder="Masukkan nama supplier"
                             />
+                            <FieldError errors={[fieldState.error]} />
                         </Field>
                     )}
                 />
