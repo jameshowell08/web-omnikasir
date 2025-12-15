@@ -1,5 +1,6 @@
 'use client';
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,9 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus } from "@tabler/icons-react";
 import { Control, Controller, useForm } from "react-hook-form";
 import z from "zod";
-import { AddPurchaseHeaderFormScheme } from "../model/AddPurchaseHeaderFormScheme";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
 import AddPurchaseItemDialogContent from "./AddPurchaseItemDialogContent";
 
 function AddPurchaseHeader() {
@@ -22,22 +21,22 @@ function AddPurchaseHeader() {
     )
 }
 
-function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurchaseHeaderFormScheme>> }) {
+function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurchaseFormScheme>> }) {
     return (
         <div className="flex flex-col">
             <form className="flex flex-row mt-5 gap-5">
                 <Field className="w-40 gap-2">
                     <FieldLabel className="font-bold text-sm gap-0">ID Pembelian</FieldLabel>
                     <Input
-                        value={"(Dibuat otomatis)"}
-                        readOnly
+                        value="(Dibuat otomatis)"
+                        disabled
                     />
                 </Field>
                 <Field className="w-40 gap-2">
                     <FieldLabel className="font-bold text-sm gap-0">Tanggal dibuat</FieldLabel>
                     <Input
-                        value={"(Dibuat otomatis)"}
-                        readOnly
+                        value="(Dibuat otomatis)"
+                        disabled
                     />
                 </Field>
                 <Controller
@@ -60,11 +59,12 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
                                     <SelectItem value="CANCELLED">Cancelled</SelectItem>
                                 </SelectContent>
                             </Select>
+                            <FieldError errors={[fieldState.error]} />
                         </Field>
                     )}
                 />
                 <Controller
-                    name="supplierName"
+                    name="supplier"
                     control={control}
                     render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid} className="w-70 gap-2">
@@ -72,7 +72,7 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
                             <Input
                                 {...field}
                                 aria-invalid={fieldState.invalid}
-                                placeholder="Masukkan nama supplier"
+                                placeholder="Masukkan supplier"
                             />
                             <FieldError errors={[fieldState.error]} />
                         </Field>
@@ -103,11 +103,12 @@ function AddPurchaseDetailItemHeader({ isButtonDisabled }: { isButtonDisabled: b
 }
 
 function AddPurchaseView() {
-    const form = useForm<z.infer<typeof AddPurchaseHeaderFormScheme>>({
-        resolver: zodResolver(AddPurchaseHeaderFormScheme),
+    const form = useForm<z.infer<typeof AddPurchaseFormScheme>>({
+        resolver: zodResolver(AddPurchaseFormScheme),
         defaultValues: {
             status: "DRAFT",
-            supplierName: "",
+            supplier: "",
+            items: []
         },
         mode: "all"
     })
