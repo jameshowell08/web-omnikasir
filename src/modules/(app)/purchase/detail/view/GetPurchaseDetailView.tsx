@@ -64,7 +64,7 @@ function GetPurchaseDetailTable({ purchaseDetailItems, totalPrice }: { purchaseD
                         <CustomTableHead title="Nama" />
                         <CustomTableHead title="Merek" />
                         <CustomTableHead title="Kategori" />
-                        <CustomTableHead title="Harga Satuan" />
+                        <CustomTableHead title="Harga" />
                         <CustomTableHead title="Jumlah" />
                         <CustomTableHead title="IMEI" />
                         <CustomTableHead title="Subtotal" />

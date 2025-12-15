@@ -9,6 +9,9 @@ import { IconPlus } from "@tabler/icons-react";
 import { Control, Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { AddPurchaseHeaderFormScheme } from "../model/AddPurchaseHeaderFormScheme";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import AddPurchaseItemDialogContent from "./AddPurchaseItemDialogContent";
 
 function AddPurchaseHeader() {
     return (
@@ -84,12 +87,17 @@ function AddPurchaseDetailItemHeader({ isButtonDisabled }: { isButtonDisabled: b
     return (
         <div className="mt-3 flex flex-row justify-between items-center">
             <h1 className="text-lg font-bold">Item Pembelian</h1>
-            <Button
-                disabled={isButtonDisabled}
-            >
-                <IconPlus />
-                Tambah Item
-            </Button>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button
+                        disabled={isButtonDisabled}
+                    >
+                        <IconPlus />
+                        Tambah Item
+                    </Button>
+                </DialogTrigger>
+                <AddPurchaseItemDialogContent />
+            </Dialog>
         </div>
     )
 }
