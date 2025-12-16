@@ -140,7 +140,7 @@ function PaymentMethodTable({ displayedPaymentMethods, onDeleteItem }: { display
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost"><IconDots /></Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
+                                    <DropdownMenuContent align="end">
                                         <DropdownMenuItem asChild>
                                             <Link href={Routes.PAYMENT_METHOD.EDIT(pm.id)}>
                                                 <IconEdit />

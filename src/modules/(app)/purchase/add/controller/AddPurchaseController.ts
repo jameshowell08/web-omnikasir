@@ -1,5 +1,6 @@
 import Routes from "@/src/modules/shared/model/Routes";
 import PurchaseItemData from "../model/PurchaseItemData";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 class AddPurchaseController {
     public static async getPurchaseItemBySku(sku: string): Promise<[boolean, PurchaseItemData | null, string]> {
@@ -23,6 +24,12 @@ class AddPurchaseController {
         }
 
         return [res.ok, purchaseItemData, errorMessage]
+    }
+
+    public static calculateSubtotal(itemPrice: string, itemQuantity: string): string {
+        const price = BaseUtil.unformatNumberV2(itemPrice)
+        const quantity = BaseUtil.unformatNumberV2(itemQuantity)
+        return BaseUtil.formatNumberV2(price * quantity)
     }
 }
 

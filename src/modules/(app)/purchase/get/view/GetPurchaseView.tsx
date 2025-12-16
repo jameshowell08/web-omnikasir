@@ -153,7 +153,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                         <CustomTableHead>Status</CustomTableHead>
                         <CustomTableHead>Supplier</CustomTableHead>
                         <CustomTableHead>Total Transaksi</CustomTableHead>
-                        <TableHead />
+                        <TableHead className="w-0" />
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -171,7 +171,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                                             <IconDots />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
+                                    <DropdownMenuContent align="end">
                                         <DropdownMenuItem asChild>
                                             <Link href={Routes.PURCHASE.GET_BY_ID(purchase.id)}>
                                                 <IconEye />
