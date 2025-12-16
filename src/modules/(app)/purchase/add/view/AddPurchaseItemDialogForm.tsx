@@ -13,7 +13,7 @@ import AddPurchaseController from "../controller/AddPurchaseController";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
 
-function AddPurchaseItemDialogForm({ id }: { id: string }) {
+function AddPurchaseItemDialogForm({ id, onAddPurchaseItem }: { id: string, onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
     const [isLoading, setIsLoading] = useState(false)
     const [isSkuValid, setIsSkuValid] = useState(false)
     const debounceSku = useRef<NodeJS.Timeout | null>(null)
@@ -62,9 +62,9 @@ function AddPurchaseItemDialogForm({ id }: { id: string }) {
     const handleSubmit = (data: z.infer<typeof AddPurchaseItemFormScheme>) => {
         if (!isSkuValid) {
             toast.error("SKU tidak valid")
+        } else {
+            onAddPurchaseItem(data)
         }
-
-        console.log(data)
     }
 
     return (

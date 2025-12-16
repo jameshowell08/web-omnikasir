@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import BackButton from "@/src/modules/shared/view/BackButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
 import { Control, Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
+import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 import AddPurchaseItemDialogContent from "./AddPurchaseItemDialogContent";
 
 function AddPurchaseHeader() {
@@ -83,11 +85,13 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
     )
 }
 
-function AddPurchaseDetailItemHeader({ isButtonDisabled }: { isButtonDisabled: boolean }) {
+function AddPurchaseDetailItemHeader({ isButtonDisabled, onAddPurchaseItem }: { isButtonDisabled: boolean, onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
+    const [dialogOpen, setDialogOpen] = useState(false)
+
     return (
         <div className="mt-3 flex flex-row justify-between items-center">
             <h1 className="text-lg font-bold">Item Pembelian</h1>
-            <Dialog>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                     <Button
                         disabled={isButtonDisabled}
@@ -96,7 +100,10 @@ function AddPurchaseDetailItemHeader({ isButtonDisabled }: { isButtonDisabled: b
                         Tambah Item
                     </Button>
                 </DialogTrigger>
-                <AddPurchaseItemDialogContent />
+                <AddPurchaseItemDialogContent onAddPurchaseItem={(data) => {
+                    onAddPurchaseItem(data)
+                    setDialogOpen(false)
+                }} />
             </Dialog>
         </div>
     )
@@ -113,12 +120,17 @@ function AddPurchaseView() {
         mode: "all"
     })
 
+    const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => {
+        console.log(productItem)
+        form.setValue("items", [...form.getValues("items"), productItem])
+    }
+
     return (
         <div>
             <AddPurchaseHeader />
             <div className="mx-3">
                 <PurchaseDetail control={form.control} />
-                <AddPurchaseDetailItemHeader isButtonDisabled={!form.formState.isValid} />
+                <AddPurchaseDetailItemHeader isButtonDisabled={!form.formState.isValid} onAddPurchaseItem={onAddPurchaseItem} />
             </div>
         </div>
     )

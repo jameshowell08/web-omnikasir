@@ -3,8 +3,10 @@ import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTit
 import { Separator } from "@/components/ui/separator";
 import AddPurchaseItemDialogForm from "./AddPurchaseItemDialogForm";
 import { Button } from "@/components/ui/button";
+import z from "zod";
+import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 
-function AddPurchaseItemDialogContent() {
+function AddPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
     return (
         <DialogContent>
             <DialogHeader>
@@ -16,7 +18,7 @@ function AddPurchaseItemDialogContent() {
 
             <Separator />
 
-            <AddPurchaseItemDialogForm id="add-purchase-item-form" />
+            <AddPurchaseItemDialogForm id="add-purchase-item-form" onAddPurchaseItem={onAddPurchaseItem} />
 
             <DialogFooter>
                 <Button type="submit" form="add-purchase-item-form">Tambah Item</Button>
