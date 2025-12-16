@@ -6,5 +6,5 @@ export const AddPurchaseFormScheme = z.object({
         error: "Status tidak valid."
     }),
     supplier: z.string().min(1, "Supplier tidak boleh kosong."),
-    items: z.array(AddPurchaseItemFormScheme),
+    items: z.array(AddPurchaseItemFormScheme).min(1, "Harus ada minimal 1 item."),
 })

@@ -16,6 +16,7 @@ import AddPurchaseItemDialogContent from "./AddPurchaseItemDialogContent";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AddPurchaseController from "../controller/AddPurchaseController";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 
 function AddPurchaseHeader() {
     return (
@@ -86,7 +87,7 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
     )
 }
 
-function AddPurchaseDetailItemHeader({ isButtonDisabled, onAddPurchaseItem }: { isButtonDisabled: boolean, onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
+function AddPurchaseDetailItemHeader({ isButtonDisabled, onAddPurchaseItem }: { isButtonDisabled: boolean, onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => boolean }) {
     const [dialogOpen, setDialogOpen] = useState(false)
 
     return (
@@ -102,8 +103,8 @@ function AddPurchaseDetailItemHeader({ isButtonDisabled, onAddPurchaseItem }: { 
                     </Button>
                 </DialogTrigger>
                 <AddPurchaseItemDialogContent onAddPurchaseItem={(data) => {
-                    onAddPurchaseItem(data)
-                    setDialogOpen(false)
+                    const isAddSuccessful = onAddPurchaseItem(data)
+                    if (isAddSuccessful) setDialogOpen(false)
                 }} />
             </Dialog>
         </div>
@@ -118,77 +119,96 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function PurchaseItemTableBody({ purchaseItems }: { purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[] }) {
-    return purchaseItems.map((item, index) => (
-        <TableRow key={index}>
-            <TableCell>{item.sku}</TableCell>
-            <TableCell>{item.productName}</TableCell>
-            <TableCell>{item.productBrand}</TableCell>
-            <TableCell>{item.productCategory}</TableCell>
-            <TableCell>{item.price}</TableCell>
-            <TableCell>{item.quantity}</TableCell>
-            <TableCell>-</TableCell>
-            <TableCell>{AddPurchaseController.calculateSubtotal(item.price, item.quantity)}</TableCell>
-            <TableCell className="w-0 whitespace-nowrap">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm" type="button">
-                            <IconDots />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                            <IconEdit />
-                            Ubah
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive">
-                            <IconTrash />
-                            Hapus
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </TableCell>
-        </TableRow>
-    ))
+function PurchaseItemTableBody({ purchaseItems, onDeleteItem }: { purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[], onDeleteItem: (sku: string) => void }) {
+    return (
+        <>
+            {
+                purchaseItems.map((item, index) => (
+                    <TableRow key={index}>
+                        <TableCell>{item.sku}</TableCell>
+                        <TableCell>{item.productName}</TableCell>
+                        <TableCell>{item.productBrand}</TableCell>
+                        <TableCell>{item.productCategory}</TableCell>
+                        <TableCell>Rp{item.price}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell>-</TableCell>
+                        <TableCell>Rp{AddPurchaseController.calculateSubtotalToString(item.price, item.quantity)}</TableCell>
+                        <TableCell className="w-0 whitespace-nowrap">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon-sm" type="button">
+                                        <IconDots />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>
+                                        <IconEdit />
+                                        Ubah
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem variant="destructive" onClick={() => onDeleteItem(item.sku)}>
+                                        <IconTrash />
+                                        Hapus
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                ))
+            }
+            <TableRow>
+                <TableCell colSpan={7} className="font-bold">
+                    Total
+                </TableCell>
+                <TableCell>Rp{AddPurchaseController.calculateTotal(purchaseItems)}</TableCell>
+                <TableCell />
+            </TableRow>
+        </>
+    )
 }
 
 function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPurchaseFormScheme>> }) {
+    const onDeleteItem = (sku: string, value: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+        onChange(value.filter((item) => item.sku !== sku))
+    }
+
     return (
-        <div className="mt-3 rounded-lg border overflow-hidden">
+        <div className="mt-3">
             <Controller
                 name="items"
                 control={control}
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <Table>
-                            <TableHeader className="bg-black">
-                                <TableRow>
-                                    <CustomTableHead>SKU</CustomTableHead>
-                                    <CustomTableHead>Nama</CustomTableHead>
-                                    <CustomTableHead>Merek</CustomTableHead>
-                                    <CustomTableHead>Kategori</CustomTableHead>
-                                    <CustomTableHead>Harga</CustomTableHead>
-                                    <CustomTableHead>Jumlah</CustomTableHead>
-                                    <CustomTableHead>IMEI</CustomTableHead>
-                                    <CustomTableHead>Subtotal</CustomTableHead>
-                                    <TableHead className="w-0 whitespace-nowrap" />
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody className="overflow-auto">
-                                {
-                                    field.value.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={9} className="text-center">
-                                                Tidak ada data
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        <PurchaseItemTableBody purchaseItems={field.value} />
-                                    )
-                                }
-                            </TableBody>
-                        </Table>
+                    <Field>
+                        <div className="rounded-lg border overflow-hidden">
+                            <Table>
+                                <TableHeader className="bg-black">
+                                    <TableRow>
+                                        <CustomTableHead>SKU</CustomTableHead>
+                                        <CustomTableHead>Nama</CustomTableHead>
+                                        <CustomTableHead>Merek</CustomTableHead>
+                                        <CustomTableHead>Kategori</CustomTableHead>
+                                        <CustomTableHead>Harga</CustomTableHead>
+                                        <CustomTableHead>Jumlah</CustomTableHead>
+                                        <CustomTableHead>IMEI</CustomTableHead>
+                                        <CustomTableHead>Subtotal</CustomTableHead>
+                                        <TableHead className="w-0 whitespace-nowrap" />
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="overflow-auto">
+                                    {
+                                        field.value.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={9} className="text-center">
+                                                    Tidak ada data
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            <PurchaseItemTableBody purchaseItems={field.value} onDeleteItem={(sku) => onDeleteItem(sku, field.value, field.onChange)} />
+                                        )
+                                    }
+                                </TableBody>
+                            </Table>
+                        </div>
                         <FieldError errors={[fieldState.error]} />
                     </Field>
                 )}
@@ -214,8 +234,16 @@ function AddPurchaseView() {
         mode: "all"
     })
 
-    const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => {
-        form.setValue("items", [...form.getValues("items"), productItem])
+    const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>): boolean => {
+        const currentItems = form.getValues("items")
+
+        if (currentItems.some(item => item.sku === productItem.sku)) {
+            toast.error("Item sudah ditambahkan sebelumnya.")
+            return false
+        }
+
+        form.setValue("items", [...currentItems, productItem], { shouldValidate: true })
+        return true
     }
 
     const isButtonDisabled = form.watch("supplier") === ""
@@ -223,7 +251,9 @@ function AddPurchaseView() {
     return (
         <div>
             <AddPurchaseHeader />
-            <form className="mx-3 flex flex-col">
+            <form className="mx-3 flex flex-col" onSubmit={form.handleSubmit((data) => {
+                console.log(data)
+            })}>
                 <PurchaseDetail control={form.control} />
                 <AddPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
                 <PurchaseItemTable control={form.control} />
