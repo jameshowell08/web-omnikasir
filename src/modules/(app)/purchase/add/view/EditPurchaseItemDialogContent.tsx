@@ -3,28 +3,28 @@ import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTit
 import { Separator } from "@/components/ui/separator";
 import AddEditPurchaseItemDialogForm from "./AddEditPurchaseItemDialogForm";
 import { Button } from "@/components/ui/button";
-import z from "zod";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
+import z from "zod";
 
-function AddPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
+function EditPurchaseItemDialogContent({ item, onEditPurchaseItem }: { item: z.infer<typeof AddPurchaseItemFormScheme>, onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
     return (
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Tambah Item</DialogTitle>
+                <DialogTitle>Ubah Item</DialogTitle>
                 <DialogDescription>
-                    Tambahkan item baru ke dalam pembelian ini.
+                    Ubah item ini.
                 </DialogDescription>
             </DialogHeader>
 
             <Separator />
 
-            <AddEditPurchaseItemDialogForm id="add-purchase-item-form" onSubmitForm={onAddPurchaseItem} />
+            <AddEditPurchaseItemDialogForm id="edit-purchase-item-form" onSubmitForm={onEditPurchaseItem} isEdit={true} initialValues={item} />
 
             <DialogFooter>
-                <Button type="submit" form="add-purchase-item-form">Tambah Item</Button>
+                <Button type="submit" form="edit-purchase-item-form">Ubah Item</Button>
             </DialogFooter>
         </DialogContent>
     )
 }
 
-export default AddPurchaseItemDialogContent;
+export default EditPurchaseItemDialogContent;

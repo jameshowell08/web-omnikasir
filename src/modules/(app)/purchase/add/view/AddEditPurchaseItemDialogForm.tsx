@@ -1,25 +1,24 @@
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconSearch } from "@tabler/icons-react";
-import { Controller, useForm } from "react-hook-form";
-import z from "zod";
-import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 import { useRef, useState } from "react";
-import AddPurchaseController from "../controller/AddPurchaseController";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Spinner } from "@/components/ui/spinner";
+import z from "zod";
+import AddPurchaseController from "../controller/AddPurchaseController";
+import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 
-function AddPurchaseItemDialogForm({ id, onAddPurchaseItem }: { id: string, onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
+function AddEditPurchaseItemDialogForm({ id, onSubmitForm, isEdit = false, initialValues = undefined }: { id: string, onSubmitForm: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void, isEdit?: boolean, initialValues?: z.infer<typeof AddPurchaseItemFormScheme> }) {
     const [isLoading, setIsLoading] = useState(false)
-    const [isSkuValid, setIsSkuValid] = useState(false)
+    const [isSkuValid, setIsSkuValid] = useState(isEdit)
     const debounceSku = useRef<NodeJS.Timeout | null>(null)
 
     const form = useForm<z.infer<typeof AddPurchaseItemFormScheme>>({
         resolver: zodResolver(AddPurchaseItemFormScheme),
+        values: initialValues,
         defaultValues: {
             sku: "",
             productName: "",
@@ -63,7 +62,7 @@ function AddPurchaseItemDialogForm({ id, onAddPurchaseItem }: { id: string, onAd
         if (!isSkuValid) {
             toast.error("SKU tidak valid")
         } else {
-            onAddPurchaseItem(data)
+            onSubmitForm(data)
         }
     }
 
@@ -80,6 +79,7 @@ function AddPurchaseItemDialogForm({ id, onAddPurchaseItem }: { id: string, onAd
                                 <InputGroupInput
                                     placeholder="Masukkan SKU"
                                     value={field.value}
+                                    disabled={isEdit}
                                     onChange={(e) => {
                                         field.onChange(e)
                                         handleSkuChanged(e)
@@ -209,4 +209,4 @@ function AddPurchaseItemDialogForm({ id, onAddPurchaseItem }: { id: string, onAd
     )
 }
 
-export default AddPurchaseItemDialogForm;
+export default AddEditPurchaseItemDialogForm;

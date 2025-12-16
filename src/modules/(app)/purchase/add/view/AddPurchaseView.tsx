@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AddPurchaseController from "../controller/AddPurchaseController";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import toast from "react-hot-toast";
+import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
 
 function AddPurchaseHeader() {
     return (
@@ -96,6 +97,7 @@ function AddPurchaseDetailItemHeader({ isButtonDisabled, onAddPurchaseItem }: { 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                     <Button
+                        type="button"
                         disabled={isButtonDisabled}
                     >
                         <IconPlus />
@@ -119,41 +121,58 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function PurchaseItemTableBody({ purchaseItems, onDeleteItem }: { purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[], onDeleteItem: (sku: string) => void }) {
+function PurchaseItemRow({ item, onEditPurchaseItem, onDeleteItem }: { item: z.infer<typeof AddPurchaseItemFormScheme>, onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void, onDeleteItem: (sku: string) => void }) {
+    const [open, setOpen] = useState(false)
+
+    return (
+        <TableRow>
+            <TableCell>{item.sku}</TableCell>
+            <TableCell>{item.productName}</TableCell>
+            <TableCell>{item.productBrand}</TableCell>
+            <TableCell>{item.productCategory}</TableCell>
+            <TableCell>Rp{item.price}</TableCell>
+            <TableCell>{item.quantity}</TableCell>
+            <TableCell>-</TableCell>
+            <TableCell>Rp{AddPurchaseController.calculateSubtotalToString(item.price, item.quantity)}</TableCell>
+            <TableCell className="w-0 whitespace-nowrap">
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon-sm" type="button">
+                                <IconDots />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem>
+                                    <IconEdit />
+                                    Ubah
+                                </DropdownMenuItem>
+                            </DialogTrigger>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem variant="destructive" onClick={() => onDeleteItem(item.sku)}>
+                                <IconTrash />
+                                Hapus
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <EditPurchaseItemDialogContent item={item} onEditPurchaseItem={(data) => {
+                        onEditPurchaseItem(data)
+                        setOpen(false)
+                    }} />
+                </Dialog>
+            </TableCell>
+        </TableRow>
+    )
+}
+
+function PurchaseItemTableBody({ purchaseItems, onEditPurchaseItem, onDeleteItem }: { purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[], onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void, onDeleteItem: (sku: string) => void }) {
     return (
         <>
             {
                 purchaseItems.map((item, index) => (
-                    <TableRow key={index}>
-                        <TableCell>{item.sku}</TableCell>
-                        <TableCell>{item.productName}</TableCell>
-                        <TableCell>{item.productBrand}</TableCell>
-                        <TableCell>{item.productCategory}</TableCell>
-                        <TableCell>Rp{item.price}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>-</TableCell>
-                        <TableCell>Rp{AddPurchaseController.calculateSubtotalToString(item.price, item.quantity)}</TableCell>
-                        <TableCell className="w-0 whitespace-nowrap">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon-sm" type="button">
-                                        <IconDots />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>
-                                        <IconEdit />
-                                        Ubah
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem variant="destructive" onClick={() => onDeleteItem(item.sku)}>
-                                        <IconTrash />
-                                        Hapus
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
+                    <PurchaseItemRow key={index} item={item} onEditPurchaseItem={onEditPurchaseItem} onDeleteItem={onDeleteItem} />
                 ))
             }
             <TableRow>
@@ -168,6 +187,10 @@ function PurchaseItemTableBody({ purchaseItems, onDeleteItem }: { purchaseItems:
 }
 
 function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPurchaseFormScheme>> }) {
+    const onEditPurchaseItem = (item: z.infer<typeof AddPurchaseItemFormScheme>, value: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+        onChange(value.map((it) => it.sku === item.sku ? item : it))
+    }
+
     const onDeleteItem = (sku: string, value: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
         onChange(value.filter((item) => item.sku !== sku))
     }
@@ -203,7 +226,7 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            <PurchaseItemTableBody purchaseItems={field.value} onDeleteItem={(sku) => onDeleteItem(sku, field.value, field.onChange)} />
+                                            <PurchaseItemTableBody purchaseItems={field.value} onEditPurchaseItem={(data) => onEditPurchaseItem(data, field.value, field.onChange)} onDeleteItem={(sku) => onDeleteItem(sku, field.value, field.onChange)} />
                                         )
                                     }
                                 </TableBody>
@@ -234,6 +257,8 @@ function AddPurchaseView() {
         mode: "all"
     })
 
+    const isButtonDisabled = form.watch("supplier") === ""
+
     const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>): boolean => {
         const currentItems = form.getValues("items")
 
@@ -246,14 +271,14 @@ function AddPurchaseView() {
         return true
     }
 
-    const isButtonDisabled = form.watch("supplier") === ""
+    const handleSubmit = (data: z.infer<typeof AddPurchaseFormScheme>) => {
+        console.log(data)
+    }
 
     return (
         <div>
             <AddPurchaseHeader />
-            <form className="mx-3 flex flex-col" onSubmit={form.handleSubmit((data) => {
-                console.log(data)
-            })}>
+            <form className="mx-3 flex flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
                 <PurchaseDetail control={form.control} />
                 <AddPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
                 <PurchaseItemTable control={form.control} />
