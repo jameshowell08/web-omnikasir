@@ -1,7 +1,7 @@
-import AddPurchaseView from "@/src/modules/(app)/purchase/add/view/AddPurchaseView";
+import AddEditPurchaseView from "@/src/modules/(app)/purchase/add/view/AddEditPurchaseView";
 
 function AddPurchasePage() {
-    return <AddPurchaseView />
+    return <AddEditPurchaseView />
 }
 
 export default AddPurchasePage;

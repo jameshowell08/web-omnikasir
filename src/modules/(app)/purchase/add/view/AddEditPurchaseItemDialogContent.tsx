@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import z from "zod";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 
-function AddPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
+function AddEditPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
     return (
         <DialogContent>
             <DialogHeader>
@@ -27,4 +27,4 @@ function AddPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem
     )
 }
 
-export default AddPurchaseItemDialogContent;
+export default AddEditPurchaseItemDialogContent;

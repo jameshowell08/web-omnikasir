@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import BackButton from "@/src/modules/shared/view/BackButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import clsx from "clsx";
 import { useState } from "react";
 import { Control, Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -17,13 +18,11 @@ import z from "zod";
 import AddPurchaseController from "../controller/AddPurchaseController";
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
-import AddPurchaseItemDialogContent from "./AddPurchaseItemDialogContent";
+import AddEditPurchaseItemDialogContent from "./AddEditPurchaseItemDialogContent";
 import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
 import ManageIMEIDialog from "./ManageIMEIDialog";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
-import clsx from "clsx";
 
-function AddPurchaseHeader() {
+function AddEditPurchaseHeader() {
     return (
         <div className="flex flex-row items-center gap-2">
             <BackButton />
@@ -92,7 +91,7 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
     )
 }
 
-function AddPurchaseDetailItemHeader({
+function AddEditPurchaseDetailItemHeader({
     isButtonDisabled,
     onAddPurchaseItem
 }: {
@@ -114,7 +113,7 @@ function AddPurchaseDetailItemHeader({
                         Tambah Item
                     </Button>
                 </DialogTrigger>
-                <AddPurchaseItemDialogContent onAddPurchaseItem={(data) => {
+                <AddEditPurchaseItemDialogContent onAddPurchaseItem={(data) => {
                     const isAddSuccessful = onAddPurchaseItem(data)
                     if (isAddSuccessful) setDialogOpen(false)
                 }} />
@@ -324,13 +323,13 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
     )
 }
 
-function AddPurchaseItemFooter({ formId, isButtonDisabled }: { formId: string, isButtonDisabled: boolean }) {
+function AddEditPurchaseItemFooter({ formId, isButtonDisabled }: { formId: string, isButtonDisabled: boolean }) {
     return (
         <Button className="mt-3 self-end" disabled={isButtonDisabled} form={formId}>Tambah Pembelian</Button>
     )
 }
 
-function AddPurchaseView() {
+function AddEditPurchaseView() {
     const form = useForm<z.infer<typeof AddPurchaseFormScheme>>({
         resolver: zodResolver(AddPurchaseFormScheme),
         defaultValues: {
@@ -367,15 +366,15 @@ function AddPurchaseView() {
 
     return (
         <div>
-            <AddPurchaseHeader />
+            <AddEditPurchaseHeader />
             <form id="add-purchase-form" className="mx-3 flex flex-col" onSubmit={form.handleSubmit((data) => { handleSubmit(data) })}>
                 <PurchaseDetail control={form.control} />
-                <AddPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
+                <AddEditPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
                 <PurchaseItemTable control={form.control} />
-                <AddPurchaseItemFooter formId="add-purchase-form" isButtonDisabled={!form.formState.isValid} />
+                <AddEditPurchaseItemFooter formId="add-purchase-form" isButtonDisabled={!form.formState.isValid} />
             </form>
         </div>
     )
 }
 
-export default AddPurchaseView;
+export default AddEditPurchaseView;
