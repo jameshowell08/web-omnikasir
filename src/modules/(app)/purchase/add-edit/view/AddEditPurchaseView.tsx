@@ -22,6 +22,8 @@ import AddEditPurchaseItemDialogContent from "./AddEditPurchaseItemDialogContent
 import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
 import ManageIMEIDialog from "./ManageIMEIDialog";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { useRouter } from "next/navigation";
+import Routes from "@/src/modules/shared/model/Routes";
 
 function AddEditPurchaseHeader({ isEdit = false }: { isEdit?: boolean }) {
     return (
@@ -331,7 +333,9 @@ function AddEditPurchaseItemFooter({ formId, isButtonDisabled, isEdit }: { formI
 }
 
 function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?: boolean }) {
+    const router = useRouter();
     const showLoadingOverlay = useContext(LoadingOverlayContext);
+    
     const form = useForm<z.infer<typeof AddPurchaseFormScheme>>({
         resolver: zodResolver(AddPurchaseFormScheme),
         defaultValues: {
@@ -341,7 +345,6 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
         },
         mode: "all"
     })
-
     const isButtonDisabled = form.watch("supplier") === ""
 
     const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>): boolean => {
@@ -357,10 +360,10 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
     }
 
     const handleSubmit = async (data: z.infer<typeof AddPurchaseFormScheme>) => {
-        const [isSuccess, errorMessage] = await AddEditPurchaseController.postPurchase(data)
+        const [isSuccess, errorMessage] = await AddEditPurchaseController.postPurchase(data, isEdit, id)
         if (isSuccess) {
             toast.success("Pembelian berhasil ditambahkan.")
-            form.reset()
+            router.replace(Routes.PURCHASE.GET)
         } else {
             toast.error(errorMessage)
         }

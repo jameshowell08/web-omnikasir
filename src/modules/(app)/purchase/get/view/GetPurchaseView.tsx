@@ -11,13 +11,14 @@ import TablePagination from "@/src/modules/shared/view/TablePagination";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import { IconDots, IconEdit, IconEye, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import z from "zod";
 import GetPurchaseController from "../controller/GetPurchaseController";
 import PurchaseData from "../model/PurchaseData";
 import { DefaultFilterFormValues, PurchaseFilterFormScheme } from "../model/PurchaseFilterFormScheme";
 import FilterDialogBody from "./FilterDialogBody";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
 function GetPurchaseHeader() {
     return (
@@ -142,7 +143,7 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
+function PurchaseTable({ purchases, onDeletePurchase }: { purchases: PurchaseData[], onDeletePurchase: (id: string) => void }) {
     return (
         <div className="mt-4 border rounded-lg overflow-hidden">
             <Table>
@@ -184,7 +185,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                                                 Edit
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem variant="destructive">
+                                        <DropdownMenuItem variant="destructive" onClick={() => onDeletePurchase(purchase.id)}>
                                             <IconTrash />
                                             Hapus
                                         </DropdownMenuItem>
@@ -200,6 +201,7 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
 }
 
 function GetPurchaseView() {
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
     const [displayedPurchases, setDisplayedPurchases] = useState<PurchaseData[] | null>(null);
     const [itemAmount, setItemAmount] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
@@ -219,6 +221,18 @@ function GetPurchaseView() {
             toast.error(errorMsg)
         }
         setIsSearchLoading(false);
+    }
+
+    const onDeletePurchase = async (id: string) => {
+        showLoadingOverlay(true)
+        const [isSuccess, errorMessage] = await GetPurchaseController.deletePurchase(id)
+        if (isSuccess) {
+            toast.success("Pembelian berhasil dihapus.")
+            await fetchPurchasesData()
+        } else {
+            toast.error(errorMessage)
+        }
+        showLoadingOverlay(false)
     }
 
     const handleSearchChange = async (query: string) => {
@@ -243,7 +257,7 @@ function GetPurchaseView() {
             <GetPurchaseHeader />
             <TableFilter appliedFilters={appliedFilters} setAppliedFilters={setAppliedFilters} itemAmount={itemAmount} onItemAmountChange={setItemAmount} searchQuery={searchQuery} setSearchQuery={handleSearchChange} isSearchLoading={isSearchLoading} />
             {
-                displayedPurchases ? <PurchaseTable purchases={displayedPurchases} /> : <TablePlaceholder />
+                displayedPurchases ? <PurchaseTable purchases={displayedPurchases} onDeletePurchase={onDeletePurchase} /> : <TablePlaceholder />
             }
             <TablePagination currentPage={currentPage} maxPage={totalPage} onNextPage={() => setCurrentPage(currentPage + 1)} onPreviousPage={() => setCurrentPage(currentPage - 1)} />
         </div>

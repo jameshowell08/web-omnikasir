@@ -53,6 +53,16 @@ class GetPurchaseController {
 
         return [res.ok, totalPage, purchaseDatas, errorMsg];
     }
+
+    public static async deletePurchase(id: string): Promise<[boolean, string]> {
+        const res = await fetch(Routes.STOCK_API.BY_ID(id), {
+            method: "DELETE"
+        })
+
+        const data = await res.json()
+
+        return [res.ok, data.message]
+    }
 }
 
 export default GetPurchaseController;

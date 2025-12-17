@@ -81,7 +81,7 @@ class AddEditPurchaseController {
         return [res.ok, purchaseItemData, errorMessage]
     }
 
-    public static async postPurchase(purchase: z.infer<typeof AddPurchaseFormScheme>): Promise<[boolean, string]> {
+    public static async postPurchase(purchase: z.infer<typeof AddPurchaseFormScheme>, isEdit: boolean, id: string): Promise<[boolean, string]> {
         const requestBodyItems: { sku: string, quantity: number, price: number, imeiCode?: string }[] = []
 
         purchase.items.forEach(item => {
@@ -109,8 +109,8 @@ class AddEditPurchaseController {
             items: requestBodyItems
         }
 
-        const res = await fetch(Routes.STOCK_API.DEFAULT, {
-            method: "POST",
+        const res = await fetch(isEdit ? Routes.STOCK_API.BY_ID(id) : Routes.STOCK_API.DEFAULT, {
+            method: isEdit ? "PUT" : "POST",
             headers: {
                 "Content-Type": "application/json"
             },
