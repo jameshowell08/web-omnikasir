@@ -1,27 +1,27 @@
 'use client';
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import BackButton from "@/src/modules/shared/view/BackButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { Control, Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import z from "zod";
+import AddPurchaseController from "../controller/AddPurchaseController";
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 import AddPurchaseItemDialogContent from "./AddPurchaseItemDialogContent";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import AddPurchaseController from "../controller/AddPurchaseController";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
 import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
 import ManageIMEIDialog from "./ManageIMEIDialog";
-import { Item } from "@radix-ui/react-dropdown-menu";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
-import { Badge } from "@/components/ui/badge";
+import clsx from "clsx";
 
 function AddPurchaseHeader() {
     return (
@@ -145,6 +145,7 @@ function PurchaseItemRow({
     onDeleteItem: (sku: string) => void
 }) {
     const [open, setOpen] = useState(false)
+    const isImeiBadgeError = AddPurchaseController.isImeiBadgeError(item)
 
     return (
         <TableRow>
@@ -155,7 +156,7 @@ function PurchaseItemRow({
             <TableCell>Rp{item.price}</TableCell>
             <TableCell>{item.quantity}</TableCell>
             <TableCell align="center" className="w-0">
-                <Badge variant="outline">
+                <Badge variant="outline" className={clsx(isImeiBadgeError && "text-destructive border-destructive")}>
                     {item.isNeedImei ?
                         <ManageIMEIDialog
                             quantity={item.quantity}

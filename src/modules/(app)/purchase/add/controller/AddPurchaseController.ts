@@ -46,6 +46,11 @@ class AddPurchaseController {
         })
         return BaseUtil.formatNumberV2(total)
     }
+
+    public static isImeiBadgeError(item: z.infer<typeof AddPurchaseItemFormScheme>): boolean {
+        const quantityInt = BaseUtil.unformatNumberV2(item.quantity)
+        return item.isNeedImei && quantityInt !== item.imeis.length
+    }
 }
 
 export default AddPurchaseController;

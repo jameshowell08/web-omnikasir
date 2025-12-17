@@ -37,12 +37,12 @@ function IMEIForm({ imeiInputted, quantity, onAddImei }: { imeiInputted: string,
                     <Field>
                         <div className="flex flex-row gap-2">
                             <div className="flex flex-col flex-1 gap-1">
-                                <Input placeholder="Masukkan IMEI" {...field} />
+                                <Input aria-invalid={fieldState.invalid} placeholder="Masukkan IMEI" {...field} />
+                                <FieldError errors={[fieldState.error]} />
                                 <p className="self-end text-xs">{imeiInputted}/{quantity}</p>
                             </div>
                             <Button size="icon" form="imei-form"><IconPlus /></Button>
                         </div>
-                        <FieldError errors={[fieldState.error]} />
                     </Field>
                 )}
             />
