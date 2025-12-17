@@ -355,14 +355,20 @@ function AddPurchaseView() {
         return true
     }
 
-    const handleSubmit = (data: z.infer<typeof AddPurchaseFormScheme>) => {
-        console.log(data)
+    const handleSubmit = async (data: z.infer<typeof AddPurchaseFormScheme>) => {
+        const [isSuccess, errorMessage] = await AddPurchaseController.postPurchase(data)
+        if (isSuccess) {
+            toast.success("Pembelian berhasil ditambahkan.")
+            form.reset()
+        } else {
+            toast.error(errorMessage)
+        }
     }
 
     return (
         <div>
             <AddPurchaseHeader />
-            <form id="add-purchase-form" className="mx-3 flex flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
+            <form id="add-purchase-form" className="mx-3 flex flex-col" onSubmit={form.handleSubmit((data) => { handleSubmit(data) })}>
                 <PurchaseDetail control={form.control} />
                 <AddPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
                 <PurchaseItemTable control={form.control} />
