@@ -19,7 +19,8 @@ class AddPurchaseController {
                 content.productName,
                 content.categoryName,
                 content.brand,
-                content.buyingPrice
+                content.buyingPrice,
+                content.isNeedImei
             )
         } else {
             errorMessage = data.message

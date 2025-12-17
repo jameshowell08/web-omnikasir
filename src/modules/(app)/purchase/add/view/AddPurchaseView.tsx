@@ -18,6 +18,10 @@ import AddPurchaseController from "../controller/AddPurchaseController";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import toast from "react-hot-toast";
 import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
+import ManageIMEIDialog from "./ManageIMEIDialog";
+import { Item } from "@radix-ui/react-dropdown-menu";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import { Badge } from "@/components/ui/badge";
 
 function AddPurchaseHeader() {
     return (
@@ -88,7 +92,13 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
     )
 }
 
-function AddPurchaseDetailItemHeader({ isButtonDisabled, onAddPurchaseItem }: { isButtonDisabled: boolean, onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => boolean }) {
+function AddPurchaseDetailItemHeader({
+    isButtonDisabled,
+    onAddPurchaseItem
+}: {
+    isButtonDisabled: boolean,
+    onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => boolean
+}) {
     const [dialogOpen, setDialogOpen] = useState(false)
 
     return (
@@ -121,7 +131,19 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function PurchaseItemRow({ item, onEditPurchaseItem, onDeleteItem }: { item: z.infer<typeof AddPurchaseItemFormScheme>, onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void, onDeleteItem: (sku: string) => void }) {
+function PurchaseItemRow({
+    item,
+    onAddImei,
+    onDeleteImei,
+    onEditPurchaseItem,
+    onDeleteItem
+}: {
+    item: z.infer<typeof AddPurchaseItemFormScheme>,
+    onAddImei: (imei: string) => void,
+    onDeleteImei: (imei: string) => void,
+    onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void,
+    onDeleteItem: (sku: string) => void
+}) {
     const [open, setOpen] = useState(false)
 
     return (
@@ -132,7 +154,19 @@ function PurchaseItemRow({ item, onEditPurchaseItem, onDeleteItem }: { item: z.i
             <TableCell>{item.productCategory}</TableCell>
             <TableCell>Rp{item.price}</TableCell>
             <TableCell>{item.quantity}</TableCell>
-            <TableCell>-</TableCell>
+            <TableCell align="center" className="w-0">
+                <Badge variant="outline">
+                    {item.isNeedImei ?
+                        <ManageIMEIDialog
+                            quantity={item.quantity}
+                            onAddImei={onAddImei}
+                            onDeleteImei={onDeleteImei}
+                            imeis={item.imeis.map((imei) => imei.value)}
+                        />
+                        : "-"
+                    }
+                </Badge>
+            </TableCell>
             <TableCell>Rp{AddPurchaseController.calculateSubtotalToString(item.price, item.quantity)}</TableCell>
             <TableCell className="w-0 whitespace-nowrap">
                 <Dialog open={open} onOpenChange={setOpen}>
@@ -167,12 +201,31 @@ function PurchaseItemRow({ item, onEditPurchaseItem, onDeleteItem }: { item: z.i
     )
 }
 
-function PurchaseItemTableBody({ purchaseItems, onEditPurchaseItem, onDeleteItem }: { purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[], onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void, onDeleteItem: (sku: string) => void }) {
+function PurchaseItemTableBody({
+    purchaseItems,
+    onAddImei,
+    onDeleteImei,
+    onEditPurchaseItem,
+    onDeleteItem
+}: {
+    purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[],
+    onAddImei: (sku: string, imei: string) => void,
+    onDeleteImei: (sku: string, imei: string) => void,
+    onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void,
+    onDeleteItem: (sku: string) => void
+}) {
     return (
         <>
             {
-                purchaseItems.map((item, index) => (
-                    <PurchaseItemRow key={index} item={item} onEditPurchaseItem={onEditPurchaseItem} onDeleteItem={onDeleteItem} />
+                purchaseItems.map((item) => (
+                    <PurchaseItemRow
+                        key={item.sku}
+                        onAddImei={(imei) => onAddImei(item.sku, imei)}
+                        onDeleteImei={(imei) => onDeleteImei(item.sku, imei)}
+                        item={item}
+                        onEditPurchaseItem={onEditPurchaseItem}
+                        onDeleteItem={onDeleteItem}
+                    />
                 ))
             }
             <TableRow>
@@ -191,8 +244,32 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
         onChange(value.map((it) => it.sku === item.sku ? item : it))
     }
 
-    const onDeleteItem = (sku: string, value: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+    const onDeleteItem = (
+        sku: string,
+        value: z.infer<typeof AddPurchaseItemFormScheme>[],
+        onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void
+    ) => {
         onChange(value.filter((item) => item.sku !== sku))
+    }
+
+    const onAddImei = (sku: string, imei: string, items: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+        const newItems = items.map((item) => {
+            if (item.sku === sku) {
+                item.imeis.push({ value: imei })
+            }
+            return item
+        })
+        onChange(newItems)
+    }
+
+    const onDeleteImei = (sku: string, imei: string, items: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+        const newItems = items.map((item) => {
+            if (item.sku === sku) {
+                item.imeis = item.imeis.filter((it) => it.value !== imei)
+            }
+            return item
+        })
+        onChange(newItems)
     }
 
     return (
@@ -226,7 +303,13 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            <PurchaseItemTableBody purchaseItems={field.value} onEditPurchaseItem={(data) => onEditPurchaseItem(data, field.value, field.onChange)} onDeleteItem={(sku) => onDeleteItem(sku, field.value, field.onChange)} />
+                                            <PurchaseItemTableBody
+                                                purchaseItems={field.value}
+                                                onAddImei={(sku, imei) => onAddImei(sku, imei, field.value, field.onChange)}
+                                                onDeleteImei={(sku, imei) => onDeleteImei(sku, imei, field.value, field.onChange)}
+                                                onEditPurchaseItem={(data) => onEditPurchaseItem(data, field.value, field.onChange)}
+                                                onDeleteItem={(sku) => onDeleteItem(sku, field.value, field.onChange)}
+                                            />
                                         )
                                     }
                                 </TableBody>
@@ -240,9 +323,9 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
     )
 }
 
-function AddPurchaseItemFooter({ isButtonDisabled }: { isButtonDisabled: boolean }) {
+function AddPurchaseItemFooter({ formId, isButtonDisabled }: { formId: string, isButtonDisabled: boolean }) {
     return (
-        <Button className="mt-3 self-end" disabled={isButtonDisabled}>Tambah Pembelian</Button>
+        <Button className="mt-3 self-end" disabled={isButtonDisabled} form={formId}>Tambah Pembelian</Button>
     )
 }
 
@@ -278,11 +361,11 @@ function AddPurchaseView() {
     return (
         <div>
             <AddPurchaseHeader />
-            <form className="mx-3 flex flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
+            <form id="add-purchase-form" className="mx-3 flex flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
                 <PurchaseDetail control={form.control} />
                 <AddPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
                 <PurchaseItemTable control={form.control} />
-                <AddPurchaseItemFooter isButtonDisabled={!form.formState.isValid} />
+                <AddPurchaseItemFooter formId="add-purchase-form" isButtonDisabled={!form.formState.isValid} />
             </form>
         </div>
     )

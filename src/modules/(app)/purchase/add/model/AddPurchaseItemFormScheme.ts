@@ -1,4 +1,5 @@
 import z from "zod";
+import { IMEIFormScheme } from "./IMEIFormScheme";
 
 export const AddPurchaseItemFormScheme = z.object({
     sku: z.string().min(1, "SKU tidak boleh kosong."),
@@ -7,4 +8,6 @@ export const AddPurchaseItemFormScheme = z.object({
     productBrand: z.string(),
     quantity: z.string().min(1, "Jumlah tidak boleh kosong."),
     price: z.string().min(1, "Harga tidak boleh kosong."),
+    isNeedImei: z.boolean(),
+    imeis: z.array(IMEIFormScheme),
 })

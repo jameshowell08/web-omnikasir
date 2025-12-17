@@ -26,6 +26,8 @@ function AddEditPurchaseItemDialogForm({ id, onSubmitForm, isEdit = false, initi
             productBrand: "",
             quantity: "",
             price: "",
+            isNeedImei: false,
+            imeis: [],
         }
     })
 
@@ -49,6 +51,8 @@ function AddEditPurchaseItemDialogForm({ id, onSubmitForm, isEdit = false, initi
             form.setValue("productCategory", purchaseItemData?.productCategory ?? "")
             form.setValue("productBrand", purchaseItemData?.productBrand ?? "")
             form.setValue("price", buyPrice || buyPrice === 0 ? BaseUtil.formatNumberV2(buyPrice) : "")
+            form.setValue("isNeedImei", purchaseItemData?.isNeedImei ?? false)
+            form.setValue("imeis", [])
             setIsSkuValid(true)
         } else {
             toast.error(errorMessage)
@@ -67,7 +71,10 @@ function AddEditPurchaseItemDialogForm({ id, onSubmitForm, isEdit = false, initi
     }
 
     return (
-        <form id={id} onSubmit={form.handleSubmit((data) => { handleSubmit(data) })}>
+        <form id={id} onSubmit={(e) => {
+            e.stopPropagation()
+            form.handleSubmit(handleSubmit)(e)
+        }}>
             <FieldGroup>
                 <Controller
                     name="sku"

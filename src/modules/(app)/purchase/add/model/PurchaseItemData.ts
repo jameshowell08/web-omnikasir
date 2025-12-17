@@ -4,7 +4,8 @@ class PurchaseItemData {
         public productName: string,
         public productCategory: string,
         public productBrand: string,
-        public buyPrice: number
+        public buyPrice: number,
+        public isNeedImei: boolean
     ) {}
 }
 
