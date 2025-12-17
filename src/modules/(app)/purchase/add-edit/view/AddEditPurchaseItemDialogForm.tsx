@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import z from "zod";
-import AddPurchaseController from "../controller/AddPurchaseController";
+import AddEditPurchaseController from "../controller/AddEditPurchaseController";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 
 function AddEditPurchaseItemDialogForm({ id, onSubmitForm, isEdit = false, initialValues = undefined }: { id: string, onSubmitForm: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void, isEdit?: boolean, initialValues?: z.infer<typeof AddPurchaseItemFormScheme> }) {
@@ -43,7 +43,7 @@ function AddEditPurchaseItemDialogForm({ id, onSubmitForm, isEdit = false, initi
     }
 
     const fetchPurchaseItemDetailBySku = async (sku: string) => {
-        const [isSuccess, purchaseItemData, errorMessage] = await AddPurchaseController.getPurchaseItemBySku(sku)
+        const [isSuccess, purchaseItemData, errorMessage] = await AddEditPurchaseController.getPurchaseItemBySku(sku)
 
         if (isSuccess) {
             const buyPrice = purchaseItemData?.buyPrice

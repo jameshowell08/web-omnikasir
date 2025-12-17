@@ -9,7 +9,7 @@ const Routes = {
         GET: "/purchase",
         GET_BY_ID: (id: string) => `/purchase/${id}`,
         ADD: "/purchase/add",
-        EDIT: (id: string) => `/purchase/edit/${id}`,
+        EDIT_BY_ID: (id: string) => `/purchase/edit/${id}`,
     },
 
     PAYMENT_METHOD_API: {

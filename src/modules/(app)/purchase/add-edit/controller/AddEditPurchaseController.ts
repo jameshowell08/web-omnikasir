@@ -5,7 +5,58 @@ import z from "zod";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
 
-class AddPurchaseController {
+class AddEditPurchaseController {
+    public static async getPurchaseById(id: string): Promise<[boolean, z.infer<typeof AddPurchaseFormScheme> | undefined, string]> {
+        const res = await fetch(Routes.STOCK_API.BY_ID(id))
+
+        const data = await res.json()
+        let addPurchaseFormValue: z.infer<typeof AddPurchaseFormScheme> | undefined = undefined
+        let errorMessage = ""
+
+        if (res.ok) {
+            const content = data.data
+            addPurchaseFormValue = {
+                supplier: content.supplier,
+                status: content.status,
+                items: Object.values(content.productInventoryDetails.reduce((acc: any, item: any) => {
+                    const sku = item.sku;
+                    const price = parseFloat(item.price);
+                    const quantity = parseInt(item.quantity);
+                    const imei = item.imeiCode;
+
+                    if (!acc[sku]) {
+                        acc[sku] = {
+                            sku,
+                            productName: item.Product.productName,
+                            productCategory: item.Product.category.categoryName,
+                            productBrand: item.Product.brand,
+                            quantity,
+                            price,
+                            isNeedImei: item.Product.isNeedImei,
+                            imeis: imei ? [imei] : []
+                        }
+                    }
+
+                    acc[sku].quantity += quantity;
+
+                    if (acc[sku].imeis !== null && imei) {
+                        acc[sku].imeis.push(imei);
+                    }
+
+                    return acc;
+                }, {})).map((item: any) => ({
+                    ...item,
+                    quantity: BaseUtil.formatNumberV2(item.quantity),
+                    price: BaseUtil.formatNumberV2(item.price)
+                }))
+            }
+        } else {
+            errorMessage = data.message ?? "Ada yang salah. Coba lagi."
+        }
+
+        return [res.ok, addPurchaseFormValue, errorMessage]
+    }
+
     public static async getPurchaseItemBySku(sku: string): Promise<[boolean, PurchaseItemData | null, string]> {
         const res = await fetch(Routes.PRODUCTS_API.GET_BY_ID(sku))
 
@@ -100,4 +151,4 @@ class AddPurchaseController {
     }
 }
 
-export default AddPurchaseController;
+export default AddEditPurchaseController;

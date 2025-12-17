@@ -178,9 +178,11 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                                                 Detail
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <IconEdit />
-                                            Edit
+                                        <DropdownMenuItem asChild>
+                                            <Link href={Routes.PURCHASE.EDIT_BY_ID(purchase.id)}>
+                                                <IconEdit />
+                                                Edit
+                                            </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem variant="destructive">
                                             <IconTrash />

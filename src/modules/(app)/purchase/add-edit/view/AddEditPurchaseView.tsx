@@ -11,22 +11,23 @@ import BackButton from "@/src/modules/shared/view/BackButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import clsx from "clsx";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Control, Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import z from "zod";
-import AddPurchaseController from "../controller/AddPurchaseController";
+import AddEditPurchaseController from "../controller/AddEditPurchaseController";
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
 import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 import AddEditPurchaseItemDialogContent from "./AddEditPurchaseItemDialogContent";
 import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
 import ManageIMEIDialog from "./ManageIMEIDialog";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
-function AddEditPurchaseHeader() {
+function AddEditPurchaseHeader({ isEdit = false }: { isEdit?: boolean }) {
     return (
         <div className="flex flex-row items-center gap-2">
             <BackButton />
-            <h1 className="text-2xl font-bold">Tambah Pembelian</h1>
+            <h1 className="text-2xl font-bold">{isEdit ? "Ubah" : "Tambah"} Pembelian</h1>
         </div>
     )
 }
@@ -144,7 +145,7 @@ function PurchaseItemRow({
     onDeleteItem: (sku: string) => void
 }) {
     const [open, setOpen] = useState(false)
-    const isImeiBadgeError = AddPurchaseController.isImeiBadgeError(item)
+    const isImeiBadgeError = AddEditPurchaseController.isImeiBadgeError(item)
 
     return (
         <TableRow>
@@ -167,7 +168,7 @@ function PurchaseItemRow({
                     }
                 </Badge>
             </TableCell>
-            <TableCell>Rp{AddPurchaseController.calculateSubtotalToString(item.price, item.quantity)}</TableCell>
+            <TableCell>Rp{AddEditPurchaseController.calculateSubtotalToString(item.price, item.quantity)}</TableCell>
             <TableCell className="w-0 whitespace-nowrap">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DropdownMenu>
@@ -232,7 +233,7 @@ function PurchaseItemTableBody({
                 <TableCell colSpan={7} className="font-bold">
                     Total
                 </TableCell>
-                <TableCell>Rp{AddPurchaseController.calculateTotal(purchaseItems)}</TableCell>
+                <TableCell>Rp{AddEditPurchaseController.calculateTotal(purchaseItems)}</TableCell>
                 <TableCell />
             </TableRow>
         </>
@@ -323,13 +324,14 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
     )
 }
 
-function AddEditPurchaseItemFooter({ formId, isButtonDisabled }: { formId: string, isButtonDisabled: boolean }) {
+function AddEditPurchaseItemFooter({ formId, isButtonDisabled, isEdit }: { formId: string, isButtonDisabled: boolean, isEdit: boolean }) {
     return (
-        <Button className="mt-3 self-end" disabled={isButtonDisabled} form={formId}>Tambah Pembelian</Button>
+        <Button className="mt-3 self-end" disabled={isButtonDisabled} form={formId}>{isEdit ? "Ubah" : "Tambah"} Pembelian</Button>
     )
 }
 
-function AddEditPurchaseView() {
+function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?: boolean }) {
+    const showLoadingOverlay = useContext(LoadingOverlayContext);
     const form = useForm<z.infer<typeof AddPurchaseFormScheme>>({
         resolver: zodResolver(AddPurchaseFormScheme),
         defaultValues: {
@@ -355,7 +357,7 @@ function AddEditPurchaseView() {
     }
 
     const handleSubmit = async (data: z.infer<typeof AddPurchaseFormScheme>) => {
-        const [isSuccess, errorMessage] = await AddPurchaseController.postPurchase(data)
+        const [isSuccess, errorMessage] = await AddEditPurchaseController.postPurchase(data)
         if (isSuccess) {
             toast.success("Pembelian berhasil ditambahkan.")
             form.reset()
@@ -364,14 +366,31 @@ function AddEditPurchaseView() {
         }
     }
 
+    const fetchPurchaseDetail = async (id: string) => {
+        showLoadingOverlay(true)
+        const [isSuccess, data, errorMessage] = await AddEditPurchaseController.getPurchaseById(id)
+        if (isSuccess) {
+            form.reset(data)
+        } else {
+            toast.error(errorMessage)
+        }
+        showLoadingOverlay(false)
+    }
+
+    useEffect(() => {
+        if (isEdit) {
+            fetchPurchaseDetail(id)
+        }
+    }, [])
+
     return (
         <div>
-            <AddEditPurchaseHeader />
+            <AddEditPurchaseHeader isEdit={isEdit} />
             <form id="add-purchase-form" className="mx-3 flex flex-col" onSubmit={form.handleSubmit((data) => { handleSubmit(data) })}>
                 <PurchaseDetail control={form.control} />
                 <AddEditPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
                 <PurchaseItemTable control={form.control} />
-                <AddEditPurchaseItemFooter formId="add-purchase-form" isButtonDisabled={!form.formState.isValid} />
+                <AddEditPurchaseItemFooter formId="add-purchase-form" isButtonDisabled={!form.formState.isValid} isEdit={isEdit} />
             </form>
         </div>
     )

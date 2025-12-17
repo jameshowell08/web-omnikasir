@@ -34,6 +34,7 @@ export async function GET(
               select: {
                 productName: true,
                 brand: true,
+                isNeedImei: true,
                 category: {
                   select: {
                     categoryName: true
