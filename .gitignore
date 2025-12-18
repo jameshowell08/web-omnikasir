@@ -45,5 +45,3 @@ next-env.d.ts
 .github
 
 /generated/prisma
-.github
-.agent
