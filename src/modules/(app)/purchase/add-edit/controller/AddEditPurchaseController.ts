@@ -40,14 +40,14 @@ class AddEditPurchaseController {
                 quantity: 0,
                 price,
                 isNeedImei: item.Product.isNeedImei,
-                imeis: imei ? [imei] : [],
+                imeis: [],
               }
             }
 
             acc[sku].quantity += quantity
 
             if (acc[sku].imeis !== null && imei) {
-              acc[sku].imeis.push(imei)
+              acc[sku].imeis.push({ value: imei })
             }
 
             return acc
