@@ -30,7 +30,7 @@ class AddEditPurchaseController {
                             productName: item.Product.productName,
                             productCategory: item.Product.category.categoryName,
                             productBrand: item.Product.brand,
-                            quantity,
+                            quantity: 0,
                             price,
                             isNeedImei: item.Product.isNeedImei,
                             imeis: imei ? [imei] : []
