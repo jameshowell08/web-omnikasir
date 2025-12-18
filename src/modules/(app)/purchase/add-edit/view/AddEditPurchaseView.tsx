@@ -34,7 +34,7 @@ function AddEditPurchaseHeader({ isEdit = false }: { isEdit?: boolean }) {
     )
 }
 
-function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurchaseFormScheme>> }) {
+function PurchaseDetail({ control, clearAllImeis }: { control: Control<z.infer<typeof AddPurchaseFormScheme>>, clearAllImeis: () => void }) {
     return (
         <div className="flex flex-row mt-5 gap-5">
             <Field className="w-40 gap-2">
@@ -60,7 +60,13 @@ function PurchaseDetail({ control }: { control: Control<z.infer<typeof AddPurcha
                         <Select
                             {...field}
                             aria-invalid={fieldState.invalid}
-                            onValueChange={(value) => field.onChange(value)}
+                            onValueChange={(newValue) => {
+                                const oldValue = field.value
+                                field.onChange(newValue)
+                                if (oldValue === "COMPLETED" && newValue !== "COMPLETED") {
+                                    clearAllImeis()
+                                }
+                            }}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a status" />
@@ -135,12 +141,14 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
 
 function PurchaseItemRow({
     item,
+    status,
     onAddImei,
     onDeleteImei,
     onEditPurchaseItem,
     onDeleteItem
 }: {
     item: z.infer<typeof AddPurchaseItemFormScheme>,
+    status: string,
     onAddImei: (imei: string) => void,
     onDeleteImei: (imei: string) => void,
     onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void,
@@ -161,6 +169,7 @@ function PurchaseItemRow({
                 <Badge variant="outline" className={clsx(isImeiBadgeError && "text-destructive border-destructive")}>
                     {item.isNeedImei ?
                         <ManageIMEIDialog
+                            disableDialog={status !== "COMPLETED"}
                             quantity={item.quantity}
                             onAddImei={onAddImei}
                             onDeleteImei={onDeleteImei}
@@ -206,12 +215,14 @@ function PurchaseItemRow({
 
 function PurchaseItemTableBody({
     purchaseItems,
+    status,
     onAddImei,
     onDeleteImei,
     onEditPurchaseItem,
     onDeleteItem
 }: {
     purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[],
+    status: string,
     onAddImei: (sku: string, imei: string) => void,
     onDeleteImei: (sku: string, imei: string) => void,
     onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void,
@@ -226,6 +237,7 @@ function PurchaseItemTableBody({
                         onAddImei={(imei) => onAddImei(item.sku, imei)}
                         onDeleteImei={(imei) => onDeleteImei(item.sku, imei)}
                         item={item}
+                        status={status}
                         onEditPurchaseItem={onEditPurchaseItem}
                         onDeleteItem={onDeleteItem}
                     />
@@ -242,7 +254,7 @@ function PurchaseItemTableBody({
     )
 }
 
-function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPurchaseFormScheme>> }) {
+function PurchaseItemTable({ control, status }: { control: Control<z.infer<typeof AddPurchaseFormScheme>>, status: string }) {
     const onEditPurchaseItem = (item: z.infer<typeof AddPurchaseItemFormScheme>, value: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
         onChange(value.map((it) => it.sku === item.sku ? item : it))
     }
@@ -258,7 +270,11 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
     const onAddImei = (sku: string, imei: string, items: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
         const newItems = items.map((item) => {
             if (item.sku === sku) {
-                item.imeis.push({ value: imei })
+                if (!item.imeis.some((it) => it.value === imei)) {
+                    item.imeis.push({ value: imei })
+                } else {
+                    toast.error("IMEI sudah dimasukkan.")
+                }
             }
             return item
         })
@@ -307,6 +323,7 @@ function PurchaseItemTable({ control }: { control: Control<z.infer<typeof AddPur
                                             </TableRow>
                                         ) : (
                                             <PurchaseItemTableBody
+                                                status={status}
                                                 purchaseItems={field.value}
                                                 onAddImei={(sku, imei) => onAddImei(sku, imei, field.value, field.onChange)}
                                                 onDeleteImei={(sku, imei) => onDeleteImei(sku, imei, field.value, field.onChange)}
@@ -346,6 +363,16 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
         mode: "all"
     })
     const isButtonDisabled = form.watch("supplier") === ""
+    const status = form.watch("status")
+
+    const clearAllImeis = () => {
+        const items = form.getValues("items")
+
+        form.setValue("items", items.map((item) => {
+            item.imeis = []
+            return item
+        }), { shouldValidate: true })
+    }
 
     const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>): boolean => {
         const currentItems = form.getValues("items")
@@ -390,9 +417,9 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
         <div>
             <AddEditPurchaseHeader isEdit={isEdit} />
             <form id="add-purchase-form" className="mx-3 flex flex-col" onSubmit={form.handleSubmit((data) => { handleSubmit(data) })}>
-                <PurchaseDetail control={form.control} />
+                <PurchaseDetail control={form.control} clearAllImeis={clearAllImeis} />
                 <AddEditPurchaseDetailItemHeader isButtonDisabled={isButtonDisabled} onAddPurchaseItem={onAddPurchaseItem} />
-                <PurchaseItemTable control={form.control} />
+                <PurchaseItemTable control={form.control} status={status} />
                 <AddEditPurchaseItemFooter formId="add-purchase-form" isButtonDisabled={!form.formState.isValid} isEdit={isEdit} />
             </form>
         </div>

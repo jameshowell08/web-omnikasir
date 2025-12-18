@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconPlus, IconX } from "@tabler/icons-react";
+import { IconEdit, IconEditCircle, IconPlus, IconX } from "@tabler/icons-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { IMEIFormScheme } from "../model/IMEIFormScheme";
+import clsx from "clsx";
 
 function IMEIForm({ imeiInputted, quantity, onAddImei }: { imeiInputted: string, quantity: string, onAddImei: (imei: string) => void }) {
     const form = useForm<z.infer<typeof IMEIFormScheme>>({
@@ -73,11 +74,13 @@ function IMEIList({ imeis, onDeleteImei }: { imeis: string[], onDeleteImei: (ime
 function ManageIMEIDialog({
     imeis,
     quantity,
+    disableDialog,
     onAddImei,
     onDeleteImei
 }: {
     imeis: string[],
     quantity: string,
+    disableDialog: boolean,
     onAddImei: (imei: string) => void,
     onDeleteImei: (imei: string) => void
 }) {
@@ -85,8 +88,15 @@ function ManageIMEIDialog({
 
     return (
         <Dialog>
-            <DialogTrigger className="cursor-pointer">
-                {imeiInputted}/{quantity}
+            <DialogTrigger
+                disabled={disableDialog}
+                className={clsx(
+                    "flex flex-row items-center gap-1",
+                    !disableDialog && "cursor-pointer"
+                )}
+            >
+                <span>{imeiInputted}/{quantity}</span>
+                { !disableDialog && <IconEdit className="size-3" /> }
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
