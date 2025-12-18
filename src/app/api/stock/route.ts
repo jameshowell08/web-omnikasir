@@ -128,14 +128,14 @@ export async function POST(req: NextRequest) {
 
     if (status === "CANCELLED") {
       return NextResponse.json(
-        { success: false, error: "Initial status must be DRAFT or COMPLETED" },
+        { success: false, message: "Status harus antara DRAFT or COMPLETED" },
         { status: 400 }
       )
     }
 
     if (!items || items.length === 0) {
       return NextResponse.json(
-        { success: false, error: "Inventory items cannot be empty" },
+        { success: false, message: "Items tidak boleh kosong" },
         { status: 400 }
       )
     }
