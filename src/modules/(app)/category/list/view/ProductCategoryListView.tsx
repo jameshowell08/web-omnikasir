@@ -72,7 +72,7 @@ function ProductCategoryTable(props: { categories: ProductCategory[], deleteCate
                                                 <IconDots />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
+                                        <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild>
                                                 <Link href={BaseUtil.formatString(Constants.EDIT_CATEGORY_URL, category.categoryId)}>
                                                     <IconEdit />

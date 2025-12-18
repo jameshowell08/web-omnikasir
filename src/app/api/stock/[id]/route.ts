@@ -30,14 +30,18 @@ export async function GET(
         productInventoryDetails: {
           orderBy: { sku: "asc" },
           include: {
-            product: {
+            Product: {
               select: {
                 productName: true,
                 brand: true,
-                quantity: true,
+                isNeedImei: true,
+                category: {
+                  select: {
+                    categoryName: true,
+                  },
+                },
               },
             },
-            imei: true,
           },
         },
         createdBy: { select: { username: true } },
@@ -72,12 +76,12 @@ export async function PUT(
   try {
     const { id } = await params
 
-    const cookieStore = cookies()
-    const token = (await cookieStore).get("token")?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: no token" },
+        { success: false, error: "Unauthorized" },
         { status: 401 }
       )
     }
@@ -85,12 +89,10 @@ export async function PUT(
     const user = await verifyJwt(token)
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: invalid token" },
+        { success: false, error: "Invalid token" },
         { status: 401 }
       )
     }
-
-    const modifiedById = user.user_id as string
 
     const body = await request.json()
     const validation = UpdateInventorySchema.safeParse(body)
@@ -103,93 +105,110 @@ export async function PUT(
 
     const { supplier, status: newStatus, items } = validation.data
 
-    const result = await db.$transaction(async (tx) => {
-      const existingHeader = await tx.productInventoryHeader.findUnique({
-        where: { id },
-        include: { productInventoryDetails: true },
-      })
-
-      if (!existingHeader) throw new Error("Inventory ID not found")
-
-      if (existingHeader.status === "COMPLETED" && newStatus !== "CANCELLED") {
-        throw new Error("Cannot edit an inventory that is already COMPLETED.")
-      }
-
-      const totalAmount = items
-        ? items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-        : existingHeader.totalAmount
-
-      const updatedHeader = await tx.productInventoryHeader.update({
-        where: { id },
-        data: {
-          ...(supplier && { supplier }),
-          modifiedById,
-          status: newStatus,
-          totalAmount,
-        },
-      })
-
-      if (items) {
-        await tx.productInventoryDetail.deleteMany({
-          where: { headerId: id },
+    const result = await db.$transaction(
+      async (tx) => {
+        const existingHeader = await tx.productInventoryHeader.findUnique({
+          where: { id },
+          include: { productInventoryDetails: true },
         })
 
-        await tx.productInventoryDetail.createMany({
-          data: items.map((item) => ({
-            headerId: id,
-            sku: item.sku,
-            quantity: item.quantity,
-            price: item.price,
-            imeiCode: item.imeiCode || null,
-          })),
-        })
-      }
+        if (!existingHeader) throw new Error("Inventory record not found")
 
-      if (existingHeader.status === "DRAFT" && newStatus === "COMPLETED") {
-        const itemsToProcess = items || existingHeader.productInventoryDetails
-
-        if (!itemsToProcess || itemsToProcess.length === 0) {
-          throw new Error("Cannot complete inventory with no items")
+        if (existingHeader.status === "CANCELLED") {
+          throw new Error("Cannot modify a cancelled inventory record.")
         }
 
-        const skuUpdates = new Map<string, number>()
+        if (existingHeader.status === newStatus && !items) {
+          return existingHeader
+        }
 
-        for (const item of itemsToProcess) {
-          const qty = "quantity" in item ? item.quantity : 0
-          const currentQty = skuUpdates.get(item.sku) || 0
-          skuUpdates.set(item.sku, currentQty + qty)
+        if (
+          existingHeader.status === "COMPLETED" &&
+          newStatus === "CANCELLED"
+        ) {
+          for (const detail of existingHeader.productInventoryDetails) {
+            await tx.product.update({
+              where: { sku: detail.sku },
+              data: { quantity: { decrement: detail.quantity } },
+            })
+            if (detail.imeiCode) {
+              await tx.imei.deleteMany({
+                where: { imei: detail.imeiCode, isSold: false },
+              })
+            }
+          }
+        } else if (
+          existingHeader.status === "DRAFT" &&
+          newStatus === "COMPLETED"
+        ) {
+          const itemsToProcess = items || existingHeader.productInventoryDetails
+          if (itemsToProcess.length === 0)
+            throw new Error("Cannot complete empty inventory")
 
-          if (item.imeiCode) {
-            await tx.imei
-              .create({
-                data: {
-                  imei: item.imeiCode,
-                  sku: item.sku,
-                  isSold: false,
-                },
+          for (const item of itemsToProcess) {
+            if (item.imeiCode) {
+              await tx.imei.upsert({
+                where: { imei: item.imeiCode },
+                update: { sku: item.sku },
+                create: { imei: item.imeiCode, sku: item.sku, isSold: false },
               })
-              .catch(() => {
-                throw new Error(`Duplicate IMEI detected: ${item.imeiCode}`)
-              })
+            }
+            await tx.product.update({
+              where: { sku: item.sku },
+              data: { quantity: { increment: item.quantity } },
+            })
           }
         }
 
-        for (const [sku, totalQty] of skuUpdates.entries()) {
-          await tx.product.update({
-            where: { sku },
-            data: { quantity: { increment: totalQty } },
+        if (existingHeader.status === "DRAFT" && items) {
+          for (const item of items) {
+            if (item.imeiCode) {
+              await tx.imei.upsert({
+                where: { imei: item.imeiCode },
+                update: { sku: item.sku },
+                create: { imei: item.imeiCode, sku: item.sku, isSold: false },
+              })
+            }
+          }
+
+          await tx.productInventoryDetail.deleteMany({
+            where: { headerId: id },
+          })
+          await tx.productInventoryDetail.createMany({
+            data: items.map((i) => ({
+              headerId: id,
+              sku: i.sku,
+              quantity: i.quantity,
+              price: i.price,
+              imeiCode: i.imeiCode || null,
+            })),
           })
         }
-      }
+        const newTotalPrice =
+          existingHeader.status === "DRAFT" && items
+            ? items.reduce((sum, i) => sum + i.quantity * i.price, 0)
+            : existingHeader.totalPrice
 
-      return updatedHeader
-    })
+        return await tx.productInventoryHeader.update({
+          where: { id },
+          data: {
+            status: newStatus,
+            modifiedById: user.user_id as string,
+            ...(existingHeader.status === "DRAFT" && {
+              supplier: supplier ?? existingHeader.supplier,
+              totalPrice: newTotalPrice,
+            }),
+          },
+        })
+      },
+      { timeout: 15000 }
+    )
 
     return NextResponse.json({ success: true, data: result })
   } catch (error: any) {
-    console.error("Error updating inventory:", error)
+    console.error("Inventory Update Error:", error)
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to update" },
+      { success: false, error: error.message || "Failed to update inventory" },
       { status: 500 }
     )
   }

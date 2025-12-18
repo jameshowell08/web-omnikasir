@@ -1,43 +1,86 @@
 'use client';
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import TablePagination from "@/src/modules/shared/view/TablePagination";
-import { IconDots, IconEdit, IconEye, IconEyeBitcoin, IconEyeFilled, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import PurchaseData from "../model/PurchaseData";
-import { useEffect, useState } from "react";
-import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
-import GetPurchaseController from "../controller/GetPurchaseController";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
-import toast from "react-hot-toast";
-import Link from "next/link";
 import Routes from "@/src/modules/shared/model/Routes";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import TablePagination from "@/src/modules/shared/view/TablePagination";
+import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import { IconDots, IconEdit, IconEye, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import Link from "next/link";
+import { useContext, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import z from "zod";
+import GetPurchaseController from "../controller/GetPurchaseController";
+import PurchaseData from "../model/PurchaseData";
+import { DefaultFilterFormValues, PurchaseFilterFormScheme } from "../model/PurchaseFilterFormScheme";
+import FilterDialogBody from "./FilterDialogBody";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 
 function GetPurchaseHeader() {
     return (
         <div className="flex flex-row items-center justify-between">
             <h1 className="text-2xl font-bold">Pembelian</h1>
-            <Button variant="ghost" size="sm">
-                <IconPlus />
-                <span className="text-xs font-bold">Tambah Pembelian</span>
+            <Button variant="ghost" size="sm" asChild>
+                <Link href={Routes.PURCHASE.ADD}>
+                    <IconPlus />
+                    <span className="text-xs font-bold">Tambah Pembelian</span>
+                </Link>
             </Button>
         </div>
     )
 }
 
-function SearchField() {
+function SearchField({
+    searchQuery,
+    setSearchQuery,
+    isSearchLoading,
+    appliedFilters,
+    setAppliedFilters
+}: {
+    searchQuery: string,
+    setSearchQuery: (query: string) => void,
+    isSearchLoading: boolean,
+    appliedFilters: z.infer<typeof PurchaseFilterFormScheme>,
+    setAppliedFilters: (filters: z.infer<typeof PurchaseFilterFormScheme>) => void
+}) {
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
     return (
         <div className="flex flex-row items-center gap-2">
             <InputGroup className="w-sm">
                 <InputGroupAddon>
                     <IconSearch />
                 </InputGroupAddon>
-                <InputGroupInput placeholder="Cari Pembelian" />
+                <InputGroupInput placeholder="Cari Pembelian" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                {
+                    isSearchLoading && (
+                        <InputGroupAddon align="inline-end">
+                            <Spinner />
+                        </InputGroupAddon>
+                    )
+                }
             </InputGroup>
-            <Button size="icon">
-                <IconFilter />
-            </Button>
+            <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <DialogTrigger asChild>
+                    <Button size="icon">
+                        <IconFilter />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Filter</DialogTitle>
+                    </DialogHeader>
+
+                    <FilterDialogBody appliedFilters={appliedFilters} handleSubmitFilter={(data) => {
+                        setAppliedFilters(data)
+                        setIsFilterOpen(false)
+                    }} />
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
@@ -61,10 +104,32 @@ function ItemsPerPage({ itemAmount, onItemAmountChange }: { itemAmount: number, 
     )
 }
 
-function TableFilter({ itemAmount, onItemAmountChange }: { itemAmount: number, onItemAmountChange: (amount: number) => void }) {
+function TableFilter({
+    appliedFilters,
+    setAppliedFilters,
+    itemAmount,
+    onItemAmountChange,
+    searchQuery,
+    setSearchQuery,
+    isSearchLoading
+}: {
+    appliedFilters: z.infer<typeof PurchaseFilterFormScheme>,
+    setAppliedFilters: (filters: z.infer<typeof PurchaseFilterFormScheme>) => void,
+    itemAmount: number,
+    onItemAmountChange: (amount: number) => void,
+    searchQuery: string,
+    setSearchQuery: (query: string) => void,
+    isSearchLoading: boolean
+}) {
     return (
         <div className="mt-2 flex flex-row items-center justify-between">
-            <SearchField />
+            <SearchField
+                appliedFilters={appliedFilters}
+                setAppliedFilters={setAppliedFilters}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                isSearchLoading={isSearchLoading}
+            />
             <ItemsPerPage itemAmount={itemAmount} onItemAmountChange={onItemAmountChange} />
         </div>
     )
@@ -78,7 +143,7 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
+function PurchaseTable({ purchases, onDeletePurchase }: { purchases: PurchaseData[], onDeletePurchase: (id: string) => void }) {
     return (
         <div className="mt-4 border rounded-lg overflow-hidden">
             <Table>
@@ -87,8 +152,9 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                         <CustomTableHead>Tanggal</CustomTableHead>
                         <CustomTableHead>ID Pembelian</CustomTableHead>
                         <CustomTableHead>Status</CustomTableHead>
+                        <CustomTableHead>Supplier</CustomTableHead>
                         <CustomTableHead>Total Transaksi</CustomTableHead>
-                        <TableHead />
+                        <TableHead className="w-0" />
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -97,7 +163,8 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                             <TableCell>{BaseUtil.formatDate(purchase.date)}</TableCell>
                             <TableCell>{purchase.id}</TableCell>
                             <TableCell>{purchase.status}</TableCell>
-                            <TableCell>{purchase.total}</TableCell>
+                            <TableCell>{purchase.supplier}</TableCell>
+                            <TableCell>{BaseUtil.formatRupiah(purchase.total)}</TableCell>
                             <TableCell>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -105,18 +172,20 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
                                             <IconDots />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
+                                    <DropdownMenuContent align="end">
                                         <DropdownMenuItem asChild>
                                             <Link href={Routes.PURCHASE.GET_BY_ID(purchase.id)}>
                                                 <IconEye />
-                                                Lihat
+                                                Detail
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <IconEdit />
-                                            Edit
+                                        <DropdownMenuItem asChild>
+                                            <Link href={Routes.PURCHASE.EDIT_BY_ID(purchase.id)}>
+                                                <IconEdit />
+                                                Edit
+                                            </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem variant="destructive">
+                                        <DropdownMenuItem variant="destructive" onClick={() => onDeletePurchase(purchase.id)}>
                                             <IconTrash />
                                             Hapus
                                         </DropdownMenuItem>
@@ -132,31 +201,63 @@ function PurchaseTable({ purchases }: { purchases: PurchaseData[] }) {
 }
 
 function GetPurchaseView() {
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
     const [displayedPurchases, setDisplayedPurchases] = useState<PurchaseData[] | null>(null);
     const [itemAmount, setItemAmount] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPage, setTotalPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+    const debounce = useRef<NodeJS.Timeout | null>(null);
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [appliedFilters, setAppliedFilters] = useState<z.infer<typeof PurchaseFilterFormScheme>>(DefaultFilterFormValues);
 
     const fetchPurchasesData = async () => {
-        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage);
+        const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage, debouncedSearchQuery, appliedFilters);
         if (isSuccess) {
             setDisplayedPurchases(fetchedPurchases);
             setTotalPage(totalPage);
         } else {
             toast.error(errorMsg)
         }
+        setIsSearchLoading(false);
+    }
+
+    const onDeletePurchase = async (id: string) => {
+        showLoadingOverlay(true)
+        const [isSuccess, errorMessage] = await GetPurchaseController.deletePurchase(id)
+        if (isSuccess) {
+            toast.success("Pembelian berhasil dihapus.")
+            await fetchPurchasesData()
+        } else {
+            toast.error(errorMessage)
+        }
+        showLoadingOverlay(false)
+    }
+
+    const handleSearchChange = async (query: string) => {
+        setIsSearchLoading(false);
+        setSearchQuery(query);
+        if (debounce.current) {
+            clearTimeout(debounce.current);
+        }
+        debounce.current = setTimeout(() => {
+            setIsSearchLoading(true);
+            setDebouncedSearchQuery(query);
+            setCurrentPage(1);
+        }, 500);
     }
 
     useEffect(() => {
         fetchPurchasesData();
-    }, [itemAmount, currentPage]);
+    }, [itemAmount, currentPage, debouncedSearchQuery, appliedFilters]);
 
     return (
         <div>
             <GetPurchaseHeader />
-            <TableFilter itemAmount={itemAmount} onItemAmountChange={setItemAmount} />
+            <TableFilter appliedFilters={appliedFilters} setAppliedFilters={setAppliedFilters} itemAmount={itemAmount} onItemAmountChange={setItemAmount} searchQuery={searchQuery} setSearchQuery={handleSearchChange} isSearchLoading={isSearchLoading} />
             {
-                displayedPurchases ? <PurchaseTable purchases={displayedPurchases} /> : <TablePlaceholder />
+                displayedPurchases ? <PurchaseTable purchases={displayedPurchases} onDeletePurchase={onDeletePurchase} /> : <TablePlaceholder />
             }
             <TablePagination currentPage={currentPage} maxPage={totalPage} onNextPage={() => setCurrentPage(currentPage + 1)} onPreviousPage={() => setCurrentPage(currentPage - 1)} />
         </div>

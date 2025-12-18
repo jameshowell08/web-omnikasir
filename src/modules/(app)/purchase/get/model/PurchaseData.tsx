@@ -3,6 +3,7 @@ class PurchaseData {
         public date: Date,
         public id: string,
         public status: string,
+        public supplier: string,
         public total: number,
     ) { }
 }

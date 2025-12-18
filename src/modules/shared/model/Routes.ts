@@ -9,7 +9,7 @@ const Routes = {
         GET: "/purchase",
         GET_BY_ID: (id: string) => `/purchase/${id}`,
         ADD: "/purchase/add",
-        EDIT: (id: string) => `/purchase/edit/${id}`,
+        EDIT_BY_ID: (id: string) => `/purchase/edit/${id}`,
     },
 
     PAYMENT_METHOD_API: {
@@ -23,6 +23,10 @@ const Routes = {
     STOCK_API: {
         DEFAULT: "/api/stock",
         BY_ID: (id: string) => `/api/stock/${id}`,
+    },
+
+    PRODUCTS_API: {
+        GET_BY_ID: (id: string) => `/api/products/get/${id}`,
     }
 }
 

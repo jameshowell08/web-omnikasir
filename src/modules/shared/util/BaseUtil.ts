@@ -12,6 +12,7 @@ export class BaseUtil {
      * This function is used to format a number to a string with a thousand separator.
      * @param value The number to format.
      * @returns The formatted number as a string.
+     * @deprecated Use formatNumberV2 instead.
      */
     public static formatNumber(value: string | number) {
         const stringValue = String(value);
@@ -19,8 +20,49 @@ export class BaseUtil {
         return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
+    /**
+     * This function is used to format a number to a string with a thousand separator.
+     * @param value The number to format.
+     * @returns The formatted number as a string.
+     */
+    public static formatNumberV2(value: number): string {
+        return value.toLocaleString('id-ID');
+    }
+
+    /**
+     * This function is used to format a string to a number with a thousand separator.
+     * @param value The string to format.
+     * @returns The formatted number as a string.
+     */
+    public static formatNumberV2FromString(value: string): string {
+        const val = parseFloat(value);
+        return val.toLocaleString('id-ID');
+    }
+
+    /**
+     * This function is used to unformat a string with a thousand separator to a number.
+     * @param value The string to unformat.
+     * @returns The unformatted number.
+     */
+    public static unformatNumberV2(value: string): number {
+        return Number(this.unformatNumberV2ToString(value));
+    }
+
+    /**
+     * This function is used to unformat a string with a thousand separator to a string.
+     * @param value The string to unformat.
+     * @returns The unformatted string.
+     */
+    public static unformatNumberV2ToString(value: string): string {
+        return value.replace(/\./g, "").replace(/,/g, ".");
+    }
+
     public static unformatNumber(value: string) {
         return value.replace(/\./g, "");
+    }
+
+    public static formatRupiah(value: number) {
+        return "Rp" + value.toLocaleString('id-ID');
     }
 
     public static formatString(str: string, ...values: any[]) {

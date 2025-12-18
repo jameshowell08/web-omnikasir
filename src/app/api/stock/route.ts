@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url)
     const { searchParams } = url
 
+    const search = searchParams.get("search")
     const status = searchParams.get("status")
     const supplier = searchParams.get("supplier")
     const startDate = searchParams.get("startDate")
@@ -44,6 +45,12 @@ export async function GET(req: NextRequest) {
             lte: new Date(endDate),
           },
         }),
+      ...(search && {
+        OR: [
+          { id: { contains: search, mode: "insensitive" } },
+          { supplier: { contains: search, mode: "insensitive" } },
+        ],
+      }),
     }
 
     const [total, inventoryHeaders] = await db.$transaction([
@@ -85,15 +92,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Get userId from header (set by middleware)
-
-    // Get token from cookies and verify
-    const cookieStore = cookies()
-    const token = (await cookieStore).get("token")?.value
+    // 1. AUTHENTICATION
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: no token" },
+        { success: false, error: "Unauthorized" },
         { status: 401 }
       )
     }
@@ -101,16 +106,17 @@ export async function POST(req: NextRequest) {
     const user = await verifyJwt(token)
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: invalid token" },
+        { success: false, error: "Invalid token" },
         { status: 401 }
       )
     }
 
     const userId = user.user_id as string
-    console.log("User ID from token:", userId)
 
+    // 2. BODY VALIDATION
     const body = await req.json()
     const validation = CreateInventorySchema.safeParse(body)
+
     if (!validation.success) {
       return NextResponse.json(
         { success: false, error: validation.error.format() },
@@ -120,85 +126,80 @@ export async function POST(req: NextRequest) {
 
     const { supplier, status, items } = validation.data
 
-    if (items && items.length > 0) {
-      const requestSkus = items.map((i) => i.sku)
-
-      const products = await db.product.findMany({
-        where: { sku: { in: requestSkus } },
-        select: { sku: true },
-      })
-
-      const existingSkuSet = new Set(products.map((p) => p.sku))
-      const missingSkus = requestSkus.filter((sku) => !existingSkuSet.has(sku))
-
-      if (missingSkus.length > 0) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `SKU not registered: ${missingSkus.join(", ")}`,
-          },
-          { status: 400 }
-        )
-      }
+    if (status === "CANCELLED") {
+      return NextResponse.json(
+        { success: false, message: "Status harus antara DRAFT or COMPLETED" },
+        { status: 400 }
+      )
     }
 
-    const totalPrice = items
-      ? items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-      : 0
+    if (!items || items.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Items tidak boleh kosong" },
+        { status: 400 }
+      )
+    }
 
-    const result = await db.$transaction(async (tx) => {
-      const header = await tx.productInventoryHeader.create({
-        data: {
-          supplier,
-          createdById: userId, // Use userId from header
-          status,
-          totalPrice,
-          productInventoryDetails: items
-            ? {
-                create: items.map((item) => ({
-                  sku: item.sku,
-                  quantity: item.quantity,
-                  price: item.price,
-                  imeiCode: item.imeiCode || null,
-                })),
-              }
-            : undefined,
-        },
-        include: { productInventoryDetails: true },
-      })
+    const totalPrice = items.reduce((sum, item) => {
+      const q = Number(item.quantity)
+      const p = Number(item.price)
+      return sum + q * p
+    }, 0)
 
-      if (status === "COMPLETED" && items && items.length > 0) {
-        const skuUpdates = new Map<string, number>()
-
-        for (const item of items) {
-          const currentQty = skuUpdates.get(item.sku) || 0
-          skuUpdates.set(item.sku, currentQty + item.quantity)
-
-          if (item.imeiCode) {
-            await tx.imei
-              .create({
-                data: {
+    const result = await db.$transaction(
+      async (tx) => {
+        if (status === "COMPLETED") {
+          for (const item of items) {
+            if (item.imeiCode) {
+              await tx.imei.upsert({
+                where: { imei: item.imeiCode },
+                update: { sku: item.sku },
+                create: {
                   imei: item.imeiCode,
                   sku: item.sku,
                   isSold: false,
                 },
               })
-              .catch(() => {
-                throw new Error(`Duplicate IMEI detected: ${item.imeiCode}`)
-              })
+            }
+          }
+        }
+        const header = await tx.productInventoryHeader.create({
+          data: {
+            supplier,
+            createdById: userId,
+            status,
+            totalPrice,
+            productInventoryDetails: {
+              create: items.map((item) => ({
+                sku: item.sku,
+                quantity: item.quantity,
+                price: item.price,
+                imeiCode: item.imeiCode || null,
+              })),
+            },
+          },
+          include: {
+            productInventoryDetails: true,
+            createdBy: { select: { username: true } },
+          },
+        })
+
+        // STEP 3: APPLY STOCK (ONLY WHEN COMPLETED)
+        if (status === "COMPLETED") {
+          for (const item of items) {
+            await tx.product.update({
+              where: { sku: item.sku },
+              data: {
+                quantity: { increment: item.quantity },
+              },
+            })
           }
         }
 
-        for (const [sku, qty] of skuUpdates.entries()) {
-          await tx.product.update({
-            where: { sku },
-            data: { quantity: { increment: qty } },
-          })
-        }
-      }
-
-      return header
-    })
+        return header
+      },
+      { timeout: 15000 }
+    )
 
     return NextResponse.json({ success: true, data: result })
   } catch (error: any) {
