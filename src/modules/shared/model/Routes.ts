@@ -36,7 +36,8 @@ const Routes = {
     },
 
     CUSTOMER_API: {
-        GET: "/api/customer"
+        GET: "/api/customer",
+        BY_ID: (id: string) => `/api/customer/${id}`,
     }
 }
 

@@ -87,7 +87,7 @@ function CustomTableHead({ children }: { children: React.ReactNode }) {
     )
 }
 
-function CustomTableCell({ customer }: { customer: CustomerTableData }) {
+function CustomTableCell({ customer, onDelete }: { customer: CustomerTableData, onDelete: (id: string) => void }) {
     return (
         <TableRow>
             <TableCell>{customer.id}</TableCell>
@@ -112,7 +112,7 @@ function CustomTableCell({ customer }: { customer: CustomerTableData }) {
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem variant="destructive">
+                        <DropdownMenuItem variant="destructive" onClick={() => onDelete(customer.id)}>
                             <IconTrash />
                             Hapus
                         </DropdownMenuItem>
@@ -123,7 +123,7 @@ function CustomTableCell({ customer }: { customer: CustomerTableData }) {
     )
 }
 
-function CustomerTable({ customers }: { customers: CustomerTableData[] }) {
+function CustomerTable({ customers, onDelete }: { customers: CustomerTableData[], onDelete: (id: string) => void }) {
     return (
         <div className="border rounded-lg overflow-hidden mt-4">
             <Table>
@@ -141,7 +141,7 @@ function CustomerTable({ customers }: { customers: CustomerTableData[] }) {
                 <TableBody>
                     {
                         customers.map((customer) => (
-                            <CustomTableCell key={customer.id} customer={customer} />
+                            <CustomTableCell key={customer.id} customer={customer} onDelete={() => onDelete(customer.id)} />
                         ))
                     }
                 </TableBody>
@@ -190,6 +190,17 @@ function GetCustomerView() {
         showLoadingOverlay(false)
     }
 
+    const onDeleteCustomer = async (id: string) => {
+        const [isSuccess, errorMessage] = await GetCustomerController.deleteCustomer(id)
+
+        if (isSuccess) {
+            toast.success("Customer berhasil dihapus")
+            fetchCustomerData(searchQuery, page, limit)
+        } else {
+            toast.error(errorMessage)
+        }
+    }
+
     useEffect(() => {
         fetchCustomerData(searchQuery, page, limit)
     }, [searchQuery, page, limit])
@@ -200,7 +211,7 @@ function GetCustomerView() {
             <GetCustomerFilter setSearchQuery={setSearchQuery} limit={limit} setLimit={setLimit} />
             {
                 customers ? (
-                    <CustomerTable customers={customers} />
+                    <CustomerTable customers={customers} onDelete={onDeleteCustomer} />
                 ) : (
                     <TablePlaceholder />
                 )

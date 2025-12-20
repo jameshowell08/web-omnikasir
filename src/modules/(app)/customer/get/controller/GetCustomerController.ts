@@ -18,13 +18,28 @@ class GetCustomerController {
                 customer.customerPhoneNumber,
                 customer.customerAddress,
                 customer.isActive
-            )))
+            ))).filter((customer: CustomerTableData) => customer.isActive)
             totalPages = data.meta.totalPages
         } else {
             errorMessage = data.message
         }
 
         return [res.ok, customers, errorMessage, totalPages]
+    }
+
+    public static async deleteCustomer(id: string): Promise<[boolean, string]> {
+        const res = await fetch(Routes.CUSTOMER_API.BY_ID(id), {
+            method: "DELETE",
+        })
+        const data = await res.json()
+
+        let errorMessage = ""
+
+        if (!res.ok) {
+            errorMessage = data.message
+        }
+
+        return [res.ok, errorMessage]
     }
 }
 
