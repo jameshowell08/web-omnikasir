@@ -4,7 +4,7 @@ import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderCon
 import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
 import { Constants } from "@/src/modules/shared/model/Constants";
 import Routes from "@/src/modules/shared/model/Routes";
-import { IconBuildingStore, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconSettings, IconStackPush, IconTags } from "@tabler/icons-react";
+import { IconBuildingStore, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,6 +32,18 @@ function AppLayout({
                     menuItemName: "Overview",
                     menuItemIcon: IconHome,
                     menuItemPath: "/overview"
+                }
+            ]
+        },
+        {
+            menuName: "Transaksi",
+            menuIcon: IconReceipt,
+            expanded: true,
+            menuItems: [
+                {
+                    menuItemName: "Pelanggan",
+                    menuItemIcon: IconUsers,
+                    menuItemPath: Routes.CUSTOMER.DEFAULT
                 }
             ]
         },

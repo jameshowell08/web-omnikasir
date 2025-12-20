@@ -216,7 +216,10 @@ async function main() {
       create: {
         customerId: custId,
         customerName: `Customer ${i}`,
-        customerPhoneNumber: `0812345678${i}`
+        customerEmail: `customer${i}@gmail.com`,
+        customerPhoneNumber: `+62 812345678${i}`,
+        customerAddress: `Address ${i}`,
+        isActive: true,
       }
     })
   }
