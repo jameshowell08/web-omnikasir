@@ -6,9 +6,10 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconArrowBackUp, IconTrash, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -17,7 +18,6 @@ import { ProductFormController } from "../../controller/ProductFormController";
 import { Category } from "../../model/Category";
 import { NavigateTo, ProductFormEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateProductDetail } from "../../model/ProductFormEventCallback";
 import { ProductFormScheme } from "../../model/ProductFormScheme";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 function ProductDetailForm(
     {

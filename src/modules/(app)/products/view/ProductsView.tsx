@@ -24,6 +24,7 @@ import { Product } from "../model/Product";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
 
+
 function ProductsView() {
     const showLoadingOverlay = useContext(LoadingOverlayContext)
     const router = useRouter();

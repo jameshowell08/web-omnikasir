@@ -1,7 +1,7 @@
 export class Constants {
-    static readonly OVERVIEW_URL = "/overview/"
-    static readonly PRODUCTS_URL = "/products/"
-    static readonly CATEGORIES_URL = "/category/"
+    static readonly OVERVIEW_URL = "/overview"
+    static readonly PRODUCTS_URL = "/products"
+    static readonly CATEGORIES_URL = "/category"
     static readonly ADD_PRODUCT_URL = "/products/add/"
     static readonly EDIT_PRODUCT_URL = "/products/edit/{0}/"
     static readonly ADD_CATEGORY_URL = "/category/add/"
