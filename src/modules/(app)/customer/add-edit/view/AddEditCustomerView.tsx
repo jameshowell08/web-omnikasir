@@ -1,20 +1,20 @@
 'use client';
+import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import BackButton from "@/src/modules/shared/view/BackButton";
-import { Controller, useForm } from "react-hook-form";
-import { AddEditCustomerFormScheme } from "../model/AddEditCustomerFormScheme";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Button } from "@/components/ui/button";
-import z from "zod";
 import { Textarea } from "@/components/ui/textarea";
-import AddEditCustomerController from "../controller/AddEditCustomerController";
-import toast from "react-hot-toast";
-import { useContext } from "react";
-import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
-import { useRouter } from "next/navigation";
 import Routes from "@/src/modules/shared/model/Routes";
+import BackButton from "@/src/modules/shared/view/BackButton";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import z from "zod";
+import AddEditCustomerController from "../controller/AddEditCustomerController";
+import { AddEditCustomerFormScheme } from "../model/AddEditCustomerFormScheme";
 
 function AddEditCustomerHeader({ isEdit }: { isEdit: boolean }) {
     return (
@@ -25,11 +25,12 @@ function AddEditCustomerHeader({ isEdit }: { isEdit: boolean }) {
     )
 }
 
-function AddEditCustomerForm({ isEdit }: { isEdit: boolean }) {
+function AddEditCustomerForm({ initialCustomerData, isEdit }: { initialCustomerData: z.infer<typeof AddEditCustomerFormScheme> | undefined, isEdit: boolean }) {
     const router = useRouter();
     const showLoadingOverlay = useContext(LoadingOverlayContext);
     const form = useForm({
         resolver: zodResolver(AddEditCustomerFormScheme),
+        values: initialCustomerData,
         defaultValues: {
             customerId: "(Dibuat otomatis)",
             customerName: "",
@@ -42,10 +43,10 @@ function AddEditCustomerForm({ isEdit }: { isEdit: boolean }) {
     const handleSubmit = async (data: z.infer<typeof AddEditCustomerFormScheme>) => {
         showLoadingOverlay(true)
 
-        const [isSuccess, errorMessage] = await AddEditCustomerController.addCustomer(data)
+        const [isSuccess, errorMessage] = await AddEditCustomerController.addEditCustomer(data, isEdit)
 
         if (isSuccess) {
-            toast.success("Pelanggan berhasil ditambahkan")
+            toast.success(isEdit ? "Pelanggan berhasil diubah" : "Pelanggan berhasil ditambahkan")
             router.push(Routes.CUSTOMER.DEFAULT)
         } else {
             toast.error(errorMessage)
@@ -131,10 +132,30 @@ function AddEditCustomerForm({ isEdit }: { isEdit: boolean }) {
 }
 
 function AddEditCustomerView({ id, isEdit = false }: { id?: string, isEdit?: boolean }) {
+    const showLoadingOverlay = useContext(LoadingOverlayContext)
+    const [initialCustomerData, setInitialCustomerData] = useState<z.infer<typeof AddEditCustomerFormScheme> | undefined>(undefined)
+
+    const fetchInitialCustomerData = async () => {
+        if (isEdit) {
+            showLoadingOverlay(true)
+            const [isSuccess, data, errorMessage] = await AddEditCustomerController.getCustomerById(id!)
+            if (isSuccess) {
+                setInitialCustomerData(data)
+            } else {
+                toast.error(errorMessage)
+            }
+            showLoadingOverlay(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchInitialCustomerData()
+    }, [isEdit, id])
+
     return (
         <div className="flex flex-col gap-2">
             <AddEditCustomerHeader isEdit={isEdit} />
-            <AddEditCustomerForm isEdit={isEdit} />
+            <AddEditCustomerForm initialCustomerData={initialCustomerData} isEdit={isEdit} />
         </div>
     )
 }
