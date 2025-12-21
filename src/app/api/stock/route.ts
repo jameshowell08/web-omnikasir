@@ -4,6 +4,7 @@ import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 const InventoryItemSchema = z.object({
   sku: z.string().min(1),
@@ -19,6 +20,8 @@ const CreateInventorySchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const url = new URL(req.url)
     const { searchParams } = url
@@ -91,6 +94,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     // 1. AUTHENTICATION
     const cookieStore = await cookies()

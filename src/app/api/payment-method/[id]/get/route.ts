@@ -1,12 +1,15 @@
 // app/api/payment-methods/[id]/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 type Params = {
   params: { id: string }
 }
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const { id } = params
 
@@ -22,7 +25,7 @@ export async function GET(_req: Request, { params }: Params) {
     if (!paymentMethod) {
       return NextResponse.json(
         { status: false, message: "Payment method not found" },
-        { status: 404 },
+        { status: 404 }
       )
     }
 
@@ -38,7 +41,7 @@ export async function GET(_req: Request, { params }: Params) {
     console.error("Get Payment Method Detail API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to fetch payment method detail" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

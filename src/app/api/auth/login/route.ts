@@ -1,49 +1,54 @@
 import { NextResponse } from "next/server"
-import { db } from "../../../../modules/shared/util/db"
-import bcrypt from "bcryptjs"
-import { signJwt } from "../../../../modules/shared/util/auth"
-const SYMBOLS = /^[!@#$%^&*()]/
+import { db } from "@/src/modules/shared/util/db"
+import { generateJwt } from "@/src/modules/shared/util/auth"
+import { compare } from "bcryptjs" // Or your preferred hashing lib
 
-export async function POST(req: Request) {
-  const { username, password }: { username: string; password: string } =
-    await req.json()
+export async function POST(request: Request) {
+  try {
+    const { username, password } = await request.json()
 
-  const user = await db.users.findFirst({ where: { username } })
+    // 1. Find user
+    const user = await db.users.findUnique({ where: { username } })
+    if (!user || !user.isActive) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      )
+    }
 
-  if (username.length < 5) {
-    return NextResponse.json(
-      { message: "Username minimal 5 karakter" },
-      { status: 400 }
-    )
+    // 2. Check password
+    const isPasswordValid = await compare(password, user.password)
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      )
+    }
+
+    // 3. Generate JWT
+    const token = await generateJwt(user.userId)
+
+    // 4. Create response
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: user.userId,
+        username: user.username,
+        role: user.role, // <--- Throwing the role to the frontend here
+      },
+    })
+
+    // 5. Set the cookie (Secure & HTTP-Only)
+    response.cookies.set("token", token, {
+      httpOnly: true, // Prevents JS from reading the token (XSS protection)
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: "/",
+    })
+
+    return response
+  } catch (error) {
+    return NextResponse.json({ error: "Login failed" }, { status: 500 })
   }
-  if (SYMBOLS.test(username.charAt(0))) {
-    return NextResponse.json(
-      { message: "Username tidak boleh diawali dengan simbol" },
-      { status: 400 }
-    )
-  }
-  if (password.length < 8) {
-    return NextResponse.json(
-      { message: "Password minimal 8 karakter" },
-      { status: 400 }
-    )
-  }
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return NextResponse.json(
-      { message: "Username atau Password salah" },
-      { status: 401 }
-    )
-  }
-
-  const token = await signJwt({ user_id: user.userId, username: user.username })
-
-  const res = NextResponse.json({ message: "Login success" })
-  res.cookies.set("token", token, {
-    httpOnly: true,
-    path: "/",
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-  })
-
-  return res
 }
