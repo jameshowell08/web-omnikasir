@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -22,8 +23,6 @@ import { Category } from "../model/Category";
 import { Product } from "../model/Product";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
-import ItemButton from "./component/ItemButton";
-
 
 function ProductsView() {
     const showLoadingOverlay = useContext(LoadingOverlayContext)
