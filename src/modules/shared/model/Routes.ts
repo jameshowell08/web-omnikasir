@@ -42,6 +42,10 @@ const Routes = {
     CUSTOMER_API: {
         DEFAULT: "/api/customer",
         BY_ID: (id: string) => `/api/customer/${id}`,
+    },
+
+    STORE_PROFILE_API: {
+        GET: "/api/store/get?id=STORE",
     }
 }
 

@@ -1,39 +1,173 @@
+'use client';
+import { useContext, useEffect, useRef, useState } from "react";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { StoreProfileFormScheme } from "../model/StoreProfileFormScheme";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
+import { Textarea } from "@/components/ui/textarea";
+import z from "zod";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import StoreProfileController from "../controller/StoreProfileController";
+import toast from "react-hot-toast";
+
+function StoreProfileHeader() {
+    return (
+        <div>
+            <h1 className="text-2xl font-bold">Profil toko</h1>
+        </div>
+    )
+}
+
+function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof StoreProfileFormScheme> | undefined }) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const form = useForm({
+        resolver: zodResolver(StoreProfileFormScheme),
+        values: storeProfile,
+        defaultValues: {
+            storeImage: undefined,
+            storeName: "",
+            storePhone: "",
+            storeAddress: "",
+        }
+    })
+
+    const handleSubmit = (data: z.infer<typeof StoreProfileFormScheme>) => {
+        console.log(data);
+    }
+
+    return (
+        <form className="mt-4" onSubmit={form.handleSubmit(handleSubmit)}>
+            <FieldGroup className="flex flex-row items-center">
+                <Controller
+                    name="storeImage"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field className="w-fit" data-invalid={fieldState.invalid}>
+                            <span className="rounded-lg overflow-clip" aria-invalid={fieldState.invalid}>
+                                <Image
+                                    src={field.value instanceof File ? URL.createObjectURL(field.value) : "/assets/placeholder-image.png"}
+                                    alt="Logo toko"
+                                    width={300}
+                                    height={300}
+                                    className="aspect-square object-contain"
+                                />
+                            </span>
+                            <Button variant="outline" type="button" aria-invalid={fieldState.invalid} onClick={() => fileInputRef.current?.click()}>Ubah Logo</Button>
+                            <Input
+                                type="file"
+                                className="hidden"
+                                ref={fileInputRef}
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        field.onChange(file);
+                                    }
+                                }}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
+
+                <div className="flex flex-col flex-1 gap-4">
+                    <Controller
+                        name="storeName"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel className="gap-0 font-bold">Nama toko <span className="text-red-500">*</span></FieldLabel>
+                                <Input
+                                    type="text"
+                                    placeholder="Nama toko"
+                                    {...field}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        name="storePhone"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid = {fieldState.invalid}>
+                                <FieldLabel className="gap-0 font-bold">Nomor telepon <span className="text-red-500">*</span></FieldLabel>
+                                <FieldDescription>Dimulai dari angka setelah '0'. Contoh: 081234567890 ditulis menjadi 81234567890</FieldDescription>
+                                <InputGroup>
+                                    <InputGroupAddon>
+                                        <InputGroupText>+62</InputGroupText>
+                                    </InputGroupAddon>
+                                    <InputGroupInput
+                                        placeholder="Nomor telepon"
+                                        value = {field.value}
+                                        onChange = {(e) => {
+                                            field.onChange(e.target.value.replace(/[^0-9]/g, ""))
+                                        }}
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                </InputGroup>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        name="storeAddress"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel className="gap-0 font-bold">Alamat <span className="text-red-500">*</span></FieldLabel>
+                                <Textarea
+                                    placeholder="Alamat"
+                                    {...field}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
+                    <Button type="submit" className="self-end">
+                        Simpan
+                    </Button>
+                </div>
+            </FieldGroup>
+        </form>
+    )
+}
 
 function StoreProfileView() {
+    const showLoadingOverlay = useContext(LoadingOverlayContext);
+    const [storeProfile, setStoreProfile] = useState<z.infer<typeof StoreProfileFormScheme> | undefined>(undefined)
+
+    const fetchStoreProfileData = async () => {
+        showLoadingOverlay(true)
+        const [success, storeProfile, errorMessage] = await StoreProfileController.getStoreProfile()
+
+        if (success) {
+            setStoreProfile(storeProfile)
+        } else {
+            toast.error(errorMessage)
+        }
+
+        showLoadingOverlay(false)
+    }
+
+    useEffect(() => {
+        fetchStoreProfileData()
+    }, [])
+
     return (
-        <>
-            <h1 className="text-2xl font-bold mb-6">Profil Toko</h1>
-            <div className="flex justify-between items-center bg-black rounded-lg p-3">
-                <h2 className="text-white text-lg font-bold">Profil Toko</h2>
-                <span className="material-symbols-rounded filled text-white p-2 select-none rounded-lg hover:bg-white/20">edit</span>
-            </div>
-            <div className="flex flex-row mt-6">
-                <Image
-                    className="border border-black rounded-lg"
-                    src="/assets/placeholder-image.png"
-                    alt="Logo Toko"
-                    width={240}
-                    height={240}
-                />
-                <div className="flex flex-col gap-3 ml-6 justify-center">
-                    <div>
-                        <h5 className="text-xs">Nama Toko</h5>
-                        <p className="font-bold text-lg">Toko Pelita Literasi</p>
-                    </div>
-
-                    <div>
-                        <h5 className="text-xs">Kontak Toko</h5>
-                        <p className="font-bold text-lg">+62 812 3456 7890</p>
-                    </div>
-
-                    <div>
-                        <h5 className="text-xs">Alamat Toko</h5>
-                        <p className="font-bold text-lg">Jl. Boulevard Palem Raya 15810, Klp. Dua, Kecamatan Kelapa Dua, Kabupaten Tangerang, Banten 15810</p>
-                    </div>
-                </div>
-            </div>
-        </>
+        <div>
+            <StoreProfileHeader />
+            <StoreProfileForm storeProfile={storeProfile} />
+        </div>
     )
 }
 

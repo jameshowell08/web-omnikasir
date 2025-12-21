@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import fs from "fs"
+import path from "path"
 
 const prisma = new PrismaClient()
 
@@ -240,19 +242,26 @@ async function main() {
   }
 
   // --- Stores ---
-  for (let i = 1; i <= 5; i++) {
-    const storeId = `store-00${i}`
-    await prisma.store.upsert({
-      where: { id: storeId },
-      update: {},
-      create: {
-        id: storeId,
-        nama: `Omni Store ${i}`,
-        alamat: `Jl. Demo No.${i}`,
-        noHp: `081111111${i}`
-      }
-    })
+  const placeholderPath = path.join(process.cwd(), "public", "assets", "omnikasir-png.png")
+  let profilePicture: Buffer | undefined
+
+  try {
+    profilePicture = fs.readFileSync(placeholderPath)
+  } catch (error) {
+    console.warn("Warning: Could not load placeholder image for seeding:", error)
   }
+
+  await prisma.store.upsert({
+    where: { id: "STORE" },
+    update: {},
+    create: {
+      id: "STORE",
+      nama: `Omni Store`,
+      alamat: `Jakarta, Indonesia`,
+      noHp: `8123456789`,
+      profilePicture: profilePicture ? new Uint8Array(profilePicture) : null
+    }
+  })
 
   console.log("Seeding completed.")
 }

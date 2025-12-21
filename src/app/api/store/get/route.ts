@@ -1,11 +1,13 @@
 import { db } from "../../../../modules/shared/util/db"
 import { NextResponse } from "next/server"
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get("id")
+
+  if (!id) {
+    return NextResponse.json({ message: "Store ID is required" }, { status: 400 })
+  }
 
   try {
     const store = await db.store.findUnique({
@@ -24,7 +26,7 @@ export async function GET(
     let base64Image: string | null = null
 
     if (store.profilePicture) {
-      const buffer = store.profilePicture as Buffer
+      const buffer = Buffer.from(store.profilePicture)
       base64Image = `data:image/png;base64,${buffer.toString("base64")}`
     }
 
