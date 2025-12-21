@@ -23,7 +23,8 @@ function StoreProfileHeader() {
     )
 }
 
-function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof StoreProfileFormScheme> | undefined }) {
+function StoreProfileForm({ storeProfile, refreshData }: { storeProfile: z.infer<typeof StoreProfileFormScheme> | undefined, refreshData: () => void }) {
+    const showLoadingOverlay = useContext(LoadingOverlayContext);
     const [isEditMode, setIsEditMode] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,12 +39,23 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
         }
     })
 
-    const handleSubmit = (data: z.infer<typeof StoreProfileFormScheme>) => {
-        console.log(data);
+    
+
+    const handleSubmit = async (data: z.infer<typeof StoreProfileFormScheme>) => {
+        showLoadingOverlay(true)
+        const [isSuccess, errorMessage] = await StoreProfileController.updateStoreProfile(data);
+        if (isSuccess) {
+            setIsEditMode(false)
+            refreshData()
+        } else {
+            toast.error(errorMessage)
+        }
+        showLoadingOverlay(false)
     }
 
     const cancelEdit = () => {
         setIsEditMode(false)
+        form.reset(storeProfile)
     }
 
     return (
@@ -195,7 +207,7 @@ function StoreProfileView() {
     return (
         <div>
             <StoreProfileHeader />
-            <StoreProfileForm storeProfile={storeProfile} />
+            <StoreProfileForm storeProfile={storeProfile} refreshData={() => fetchStoreProfileData()} />
         </div>
     )
 }
