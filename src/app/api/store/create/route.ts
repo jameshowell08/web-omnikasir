@@ -7,13 +7,19 @@ export async function POST(request: Request) {
     const { nama, alamat, noHp, profilePicture } = body
 
     if (!nama || !alamat || !noHp) {
-      return NextResponse.json({ error: "All fields are required." }, { status: 400 })
+      return NextResponse.json(
+        { error: "All fields are required." },
+        { status: 400 }
+      )
     }
 
     let profilePictureBuffer: Buffer | null = null
 
     if (profilePicture && typeof profilePicture === "string") {
-      const base64Data = profilePicture.includes(",") ? profilePicture.split(",").pop() : profilePicture
+      const base64Data = profilePicture.includes(",")
+        ? profilePicture.split(",").pop()
+        : profilePicture
+
       if (base64Data) {
         profilePictureBuffer = Buffer.from(base64Data, "base64")
       }
@@ -28,16 +34,27 @@ export async function POST(request: Request) {
       },
     })
 
+    const { profilePicture: rawBuffer, ...restOfStore } = newStore
+
     const responseData = {
-      ...newStore,
-      profilePicture: newStore.profilePicture
-        ? Buffer.from(newStore.profilePicture).toString("base64")
+      ...restOfStore,
+      profilePicture: rawBuffer
+        ? `data:image/png;base64,${Buffer.from(rawBuffer).toString("base64")}`
         : null,
     }
 
-    return NextResponse.json({ message: "Store created", data: responseData }, { status: 201 })
+    return NextResponse.json(
+      { message: "Store created", data: responseData },
+      { status: 201 }
+    )
   } catch (error) {
     console.error("Create store error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

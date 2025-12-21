@@ -23,7 +23,9 @@ model Users {
   modifiedCategories       ProductCategory[]        @relation("ProductCategoryModifiedBy")
   createdInventoryHeaders  ProductInventoryHeader[] @relation("InventoryHeaderCreatedBy")
   modifiedInventoryHeaders ProductInventoryHeader[] @relation("InventoryHeaderModifiedBy")
-  transactionHeaders       TransactionHeader[]
+  transactionHeaders         TransactionHeader[]
+  createdTransactionHeaders  TransactionHeader[] @relation("TransactionHeaderCreatedBy")
+  modifiedTransactionHeaders TransactionHeader[] @relation("TransactionHeaderModifiedBy")
 }
 
 enum UserRole {
@@ -145,19 +147,29 @@ model PaymentMethod {
 
 model TransactionHeader {
   transactionHeaderId String              @id @map("transactionHeaderID") @db.VarChar(255)
-  transactionDate     DateTime
+  transactionDate     DateTime            @default(now())
   paymentId           String              @map("payment_id")
   userId              String              @map("user_id")
   transactionMethod   String              @db.VarChar(255)
-  customerId          String              @map("customer_id")
+  customerId          String?              @map("customer_id")
+  status              String              @default("SUCCESS") // "SUCCESS" or "VOID"
+          
+  modifiedDate        DateTime            @updatedAt
+  modifiedById        String?             @map("modified_by")
+  createdById         String              @map("created_by")
+  createdDate         DateTime            @default(now())
+  createdBy           Users               @relation("TransactionHeaderCreatedBy", fields: [createdById], references: [userId])
+  modifiedBy          Users?              @relation("TransactionHeaderModifiedBy", fields: [modifiedById], references: [userId])
   transactionDetails  TransactionDetail[]
-  customer            Customer            @relation(fields: [customerId], references: [customerId])
+  customer            Customer?            @relation(fields: [customerId], references: [customerId])
   paymentMethod       PaymentMethod       @relation(fields: [paymentId], references: [paymentId])
   user                Users               @relation(fields: [userId], references: [userId])
 }
 
+
+
 model TransactionDetail {
-  transactionDetailId String            @id @map("transactionDetailID") @db.VarChar(255)
+  transactionDetailId String            @id @default(uuid()) @map("transactionDetailID") @db.VarChar(255)
   transactionHeaderId String            @map("transactionHeaderID")
   quantity            Int
   price               Decimal           @db.Decimal(12, 2)
