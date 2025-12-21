@@ -46,6 +46,7 @@ const Routes = {
 
     STORE_PROFILE_API: {
         GET: "/api/store/get?id=STORE",
+        UPDATE: "api/store/update?id=STORE"
     }
 }
 

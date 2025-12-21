@@ -1,11 +1,13 @@
 import { db } from "../../../../modules/shared/util/db"
 import { NextResponse } from "next/server"
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const storeId = params.id
+export async function PATCH(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const storeId = searchParams.get("id")
+
+  if (!storeId) {
+    return NextResponse.json({ error: "Store ID is required" }, { status: 400 })
+  }
 
   try {
     const body = await request.json()
