@@ -39,8 +39,6 @@ function StoreProfileForm({ storeProfile, refreshData }: { storeProfile: z.infer
         }
     })
 
-    
-
     const handleSubmit = async (data: z.infer<typeof StoreProfileFormScheme>) => {
         showLoadingOverlay(true)
         const [isSuccess, errorMessage] = await StoreProfileController.updateStoreProfile(data);
