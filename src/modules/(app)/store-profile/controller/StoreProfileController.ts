@@ -1,6 +1,5 @@
 import Routes from "@/src/modules/shared/model/Routes";
 import { StoreProfileFormSchemeType } from "../model/StoreProfileFormScheme";
-import { Route } from "lucide-react";
 
 class StoreProfileController {
     private static base64ToFile(base64String: string, filename: string): File {
