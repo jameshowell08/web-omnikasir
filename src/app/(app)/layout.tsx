@@ -43,7 +43,7 @@ function AppLayout({
                 {
                     menuItemName: "Penjualan",
                     menuItemIcon: IconCashRegister,
-                    menuItemPath: Routes.TRANSACTION.DEFAULT
+                    menuItemPath: Routes.SALES.DEFAULT
                 },
                 {
                     menuItemName: "Pelanggan",

@@ -18,8 +18,9 @@ const Routes = {
         EDIT: (id: string) => `/customer/edit/${id}`,
     },
 
-    TRANSACTION: {
-        DEFAULT: "/transaction",
+    SALES: {
+        DEFAULT: "/sales",
+        ADD: "/sales/add"
     },
 
     PAYMENT_METHOD_API: {
