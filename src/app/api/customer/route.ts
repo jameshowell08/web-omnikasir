@@ -4,6 +4,7 @@ import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 const CustomerSchema = z.object({
   customerName: z.string().min(1, "Name is required").max(255),
@@ -16,6 +17,8 @@ const CustomerSchema = z.object({
 const UpdateCustomerSchema = CustomerSchema.partial()
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search")
@@ -71,6 +74,8 @@ export async function GET(req: NextRequest) {
 // --- POST: Create Customer ---
 // --- POST: Create Customer with Auto-Initial SeqNo ---
 export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     // 1. AUTHENTICATION
     const cookieStore = await cookies()

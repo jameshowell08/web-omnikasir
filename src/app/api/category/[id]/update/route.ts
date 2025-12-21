@@ -1,12 +1,15 @@
 // app/api/categories/[id]/update/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 type Params = {
   params: { id: string }
 }
 
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: NextRequest, { params }: Params) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const { id } = params
     const body = await req.json()
@@ -16,7 +19,7 @@ export async function PUT(req: Request, { params }: Params) {
     if (!modifiedById || typeof modifiedById !== "string") {
       return NextResponse.json(
         { status: false, message: "modifiedById is required" },
-        { status: 400 },
+        { status: 400 }
       )
     }
 
@@ -27,7 +30,7 @@ export async function PUT(req: Request, { params }: Params) {
     if (!category) {
       return NextResponse.json(
         { status: false, message: "Category not found" },
-        { status: 404 },
+        { status: 404 }
       )
     }
 
@@ -38,7 +41,7 @@ export async function PUT(req: Request, { params }: Params) {
     if (!user) {
       return NextResponse.json(
         { status: false, message: "User (modifiedById) not found" },
-        { status: 404 },
+        { status: 404 }
       )
     }
 
@@ -57,7 +60,7 @@ export async function PUT(req: Request, { params }: Params) {
       if (duplicate) {
         return NextResponse.json(
           { status: false, message: "Category name already exists" },
-          { status: 409 },
+          { status: 409 }
         )
       }
     }
@@ -92,7 +95,7 @@ export async function PUT(req: Request, { params }: Params) {
     console.error("Update Category API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to update category" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

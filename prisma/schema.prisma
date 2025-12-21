@@ -9,9 +9,14 @@ datasource db {
 
 model Users {
   userId                   String                   @id @map("user_id") @db.VarChar(255)
-  username                 String                   @unique @db.VarChar(255)
+   username                 String                   @unique @db.VarChar(255)
   password                 String                   @db.VarChar(255)
-  createdDate              DateTime?                @default(now()) @map("created_date") @db.Timestamp(6)
+  role                     UserRole                 @default(CASHIER)
+  isActive                 Boolean                  @default(true) @map("is_active")
+  createdDate              DateTime                 @default(now()) @map("created_date") @db.Timestamp(6)
+  lastLogin                DateTime?                @map("last_login") @db.Timestamp(6)
+  
+  // Relations
   createdProducts          Product[]                @relation("ProductCreatedBy")
   modifiedProducts         Product[]                @relation("ProductModifiedBy")
   createdCategories        ProductCategory[]        @relation("ProductCategoryCreatedBy")
@@ -19,7 +24,11 @@ model Users {
   createdInventoryHeaders  ProductInventoryHeader[] @relation("InventoryHeaderCreatedBy")
   modifiedInventoryHeaders ProductInventoryHeader[] @relation("InventoryHeaderModifiedBy")
   transactionHeaders       TransactionHeader[]
-  userAccesses             UserAccess[]
+}
+
+enum UserRole {
+  ADMIN
+  CASHIER
 }
 
 model SeqNo {
@@ -133,13 +142,6 @@ model PaymentMethod {
   transactionHeaders TransactionHeader[]
 }
 
-model UserAccess {
-  userId String @map("user_id")
-  access String
-  user   Users  @relation(fields: [userId], references: [userId])
-
-  @@id([userId, access])
-}
 
 model TransactionHeader {
   transactionHeaderId String              @id @map("transactionHeaderID") @db.VarChar(255)

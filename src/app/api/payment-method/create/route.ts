@@ -1,8 +1,11 @@
 // app/api/payment-methods/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const body = await req.json()
 
@@ -11,7 +14,7 @@ export async function POST(req: Request) {
     if (!paymentName || typeof paymentName !== "string") {
       return NextResponse.json(
         { status: false, message: "paymentName is required" },
-        { status: 400 },
+        { status: 400 }
       )
     }
 
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
     if (existing) {
       return NextResponse.json(
         { status: false, message: "Payment method already exists" },
-        { status: 409 },
+        { status: 409 }
       )
     }
 
@@ -47,13 +50,13 @@ export async function POST(req: Request) {
           paymentName: created.paymentName,
         },
       },
-      { status: 201 },
+      { status: 201 }
     )
   } catch (error) {
     console.error("Create Payment Method API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to create payment method" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

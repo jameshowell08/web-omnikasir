@@ -1,8 +1,11 @@
 // app/api/category/create/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const body = await req.json()
 
@@ -12,14 +15,14 @@ export async function POST(req: Request) {
     if (!categoryName || typeof categoryName !== "string") {
       return NextResponse.json(
         { status: false, message: "categoryName is required" },
-        { status: 400 },
+        { status: 400 }
       )
     }
 
     if (!createdById || typeof createdById !== "string") {
       return NextResponse.json(
         { status: false, message: "createdById is required" },
-        { status: 400 },
+        { status: 400 }
       )
     }
 
@@ -31,7 +34,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         { status: false, message: "User (createdById) not found" },
-        { status: 404 },
+        { status: 404 }
       )
     }
 
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
     if (existingCategory) {
       return NextResponse.json(
         { status: false, message: "Category name already exists" },
-        { status: 409 },
+        { status: 409 }
       )
     }
 
@@ -79,13 +82,13 @@ export async function POST(req: Request) {
           modifiedById: createdCategory.modifiedById,
         },
       },
-      { status: 201 },
+      { status: 201 }
     )
   } catch (error) {
     console.error("Create Category API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to create category" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }
