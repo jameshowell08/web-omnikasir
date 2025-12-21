@@ -22,7 +22,6 @@ import { Category } from "../model/Category";
 import { Product } from "../model/Product";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
-import ItemButton from "./component/ItemButton";
 
 
 function ProductsView() {
