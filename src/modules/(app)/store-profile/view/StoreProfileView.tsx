@@ -13,6 +13,7 @@ import z from "zod";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import StoreProfileController from "../controller/StoreProfileController";
 import toast from "react-hot-toast";
+import { IconEdit } from "@tabler/icons-react";
 
 function StoreProfileHeader() {
     return (
@@ -23,6 +24,8 @@ function StoreProfileHeader() {
 }
 
 function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof StoreProfileFormScheme> | undefined }) {
+    const [isEditMode, setIsEditMode] = useState(false);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const form = useForm({
         resolver: zodResolver(StoreProfileFormScheme),
@@ -37,6 +40,10 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
 
     const handleSubmit = (data: z.infer<typeof StoreProfileFormScheme>) => {
         console.log(data);
+    }
+
+    const cancelEdit = () => {
+        setIsEditMode(false)
     }
 
     return (
@@ -56,12 +63,17 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
                                     className="aspect-square object-contain"
                                 />
                             </span>
-                            <Button variant="outline" type="button" aria-invalid={fieldState.invalid} onClick={() => fileInputRef.current?.click()}>Ubah Logo</Button>
+                            {
+                                isEditMode && (
+                                    <Button variant="outline" type="button" aria-invalid={fieldState.invalid} onClick={() => fileInputRef.current?.click()}>Ubah Logo</Button>
+                                )
+                            }
                             <Input
                                 type="file"
                                 className="hidden"
                                 ref={fileInputRef}
                                 accept="image/*"
+                                disabled={!isEditMode}
                                 onChange={(e) => {
                                     const file = e.target.files?.[0];
                                     if (file) {
@@ -83,6 +95,7 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
                                 <FieldLabel className="gap-0 font-bold">Nama toko <span className="text-red-500">*</span></FieldLabel>
                                 <Input
                                     type="text"
+                                    disabled={!isEditMode}
                                     placeholder="Nama toko"
                                     {...field}
                                     aria-invalid={fieldState.invalid}
@@ -96,7 +109,7 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
                         name="storePhone"
                         control={form.control}
                         render={({ field, fieldState }) => (
-                            <Field data-invalid = {fieldState.invalid}>
+                            <Field data-invalid={fieldState.invalid}>
                                 <FieldLabel className="gap-0 font-bold">Nomor telepon <span className="text-red-500">*</span></FieldLabel>
                                 <FieldDescription>Dimulai dari angka setelah '0'. Contoh: 081234567890 ditulis menjadi 81234567890</FieldDescription>
                                 <InputGroup>
@@ -105,8 +118,9 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
                                     </InputGroupAddon>
                                     <InputGroupInput
                                         placeholder="Nomor telepon"
-                                        value = {field.value}
-                                        onChange = {(e) => {
+                                        disabled={!isEditMode}
+                                        value={field.value}
+                                        onChange={(e) => {
                                             field.onChange(e.target.value.replace(/[^0-9]/g, ""))
                                         }}
                                         aria-invalid={fieldState.invalid}
@@ -124,6 +138,7 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
                             <Field data-invalid={fieldState.invalid}>
                                 <FieldLabel className="gap-0 font-bold">Alamat <span className="text-red-500">*</span></FieldLabel>
                                 <Textarea
+                                    disabled={!isEditMode}
                                     placeholder="Alamat"
                                     {...field}
                                     aria-invalid={fieldState.invalid}
@@ -133,9 +148,23 @@ function StoreProfileForm({ storeProfile }: { storeProfile: z.infer<typeof Store
                         )}
                     />
 
-                    <Button type="submit" className="self-end">
-                        Simpan
-                    </Button>
+                    {
+                        isEditMode ? (
+                            <div className="flex flex-row justify-end gap-2">
+                                <Button variant="outline" type="button" onClick={cancelEdit}>
+                                    Batal
+                                </Button>
+                                <Button type="submit">
+                                    Simpan
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button type="button" className="self-end" onClick={() => setIsEditMode(true)}>
+                                <IconEdit />
+                                Ubah
+                            </Button>
+                        )
+                    }
                 </div>
             </FieldGroup>
         </form>
