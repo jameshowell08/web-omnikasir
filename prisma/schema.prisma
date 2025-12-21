@@ -42,8 +42,14 @@ model Store {
 model Customer {
   customerId          String              @id @default(uuid()) @map("customer_id")
   customerName        String              @unique @db.VarChar(255)
-  customerPhoneNumber String?
-  createdDate         DateTime?           @default(now()) @map("created_date") @db.Timestamp(6)
+  customerEmail       String?             @unique @db.VarChar(255)
+  customerPhoneNumber String?             @unique @db.VarChar(20)
+  customerAddress     String?
+
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
   transactionHeaders  TransactionHeader[]
 }
 

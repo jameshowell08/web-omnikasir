@@ -12,6 +12,16 @@ const Routes = {
         EDIT_BY_ID: (id: string) => `/purchase/edit/${id}`,
     },
 
+    CUSTOMER: {
+        DEFAULT: "/customer",
+        ADD: "/customer/add",
+        EDIT: (id: string) => `/customer/edit/${id}`,
+    },
+
+    TRANSACTION: {
+        DEFAULT: "/transaction",
+    },
+
     PAYMENT_METHOD_API: {
         CREATE: "/api/payment-method/create",
         UPDATE: (id: string) => `/api/payment-method/${id}/update`,
@@ -27,6 +37,11 @@ const Routes = {
 
     PRODUCTS_API: {
         GET_BY_ID: (id: string) => `/api/products/get/${id}`,
+    },
+
+    CUSTOMER_API: {
+        DEFAULT: "/api/customer",
+        BY_ID: (id: string) => `/api/customer/${id}`,
     }
 }
 
