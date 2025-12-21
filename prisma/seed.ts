@@ -217,7 +217,7 @@ async function main() {
         customerId: custId,
         customerName: `Customer ${i}`,
         customerEmail: `customer${i}@gmail.com`,
-        customerPhoneNumber: `+62 812345678${i}`,
+        customerPhoneNumber: `812345678${i}`,
         customerAddress: `Address ${i}`,
         isActive: true,
       }

@@ -93,7 +93,7 @@ function CustomTableCell({ customer, onDelete }: { customer: CustomerTableData, 
             <TableCell>{customer.id}</TableCell>
             <TableCell>{customer.name}</TableCell>
             <TableCell>{customer.email}</TableCell>
-            <TableCell>{customer.phone}</TableCell>
+            <TableCell>+62 {customer.phone}</TableCell>
             <TableCell>{customer.address}</TableCell>
             <TableCell>
                 <DropdownMenu>
