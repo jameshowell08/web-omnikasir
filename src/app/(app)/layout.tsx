@@ -4,7 +4,7 @@ import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderCon
 import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
 import { Constants } from "@/src/modules/shared/model/Constants";
 import Routes from "@/src/modules/shared/model/Routes";
-import { IconBuildingStore, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUser, IconUsers } from "@tabler/icons-react";
+import { IconBuildingStore, IconCashRegister, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,6 +40,11 @@ function AppLayout({
             menuIcon: IconReceipt,
             expanded: true,
             menuItems: [
+                {
+                    menuItemName: "Penjualan",
+                    menuItemIcon: IconCashRegister,
+                    menuItemPath: Routes.TRANSACTION.DEFAULT
+                },
                 {
                     menuItemName: "Pelanggan",
                     menuItemIcon: IconUsers,
