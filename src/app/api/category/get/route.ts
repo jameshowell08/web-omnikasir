@@ -1,8 +1,11 @@
 // app/api/categories/get/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const url = new URL(req.url)
 
@@ -60,7 +63,7 @@ export async function GET(req: Request) {
     console.error("Get Categories API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to fetch categories" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

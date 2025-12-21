@@ -1,8 +1,11 @@
 // app/api/payment-methods/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const url = new URL(req.url)
 
@@ -56,7 +59,7 @@ export async function GET(req: Request) {
     console.error("Get Payment Methods API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to fetch payment methods" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

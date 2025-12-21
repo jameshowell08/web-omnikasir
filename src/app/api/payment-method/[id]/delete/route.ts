@@ -1,12 +1,15 @@
 // app/api/payment-methods/[id]/route.ts
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 type Params = {
   params: { id: string }
 }
 
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(req: NextRequest, { params }: Params) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const { id } = params
 
@@ -22,7 +25,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     if (!paymentMethod) {
       return NextResponse.json(
         { status: false, message: "Payment method not found" },
-        { status: 404 },
+        { status: 404 }
       )
     }
 
@@ -33,7 +36,7 @@ export async function DELETE(_req: Request, { params }: Params) {
           message:
             "Cannot delete payment method because it is already used in transactions",
         },
-        { status: 400 },
+        { status: 400 }
       )
     }
 
@@ -49,7 +52,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     console.error("Delete Payment Method API Error:", error)
     return NextResponse.json(
       { status: false, message: "Failed to delete payment method" },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }

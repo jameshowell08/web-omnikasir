@@ -1,9 +1,12 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if ("error" in auth) return auth.error
   try {
     const cookieStore = cookies()
     const token = (await cookieStore).get("token")?.value

@@ -1,10 +1,13 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await requireAdmin(request)
+  if ("error" in auth) return auth.error
   try {
     const sku = params.id
 

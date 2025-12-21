@@ -3,6 +3,7 @@ import { db } from "../../../../modules/shared/util/db"
 import { z } from "zod"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 const InventoryItemSchema = z.object({
   sku: z.string().min(1),
@@ -21,6 +22,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request)
+  if ("error" in auth) return auth.error
   try {
     const { id } = await params
 
@@ -73,6 +76,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request)
+  if ("error" in auth) return auth.error
   try {
     const { id } = await params
 
@@ -218,6 +223,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request)
+  if ("error" in auth) return auth.error
   try {
     const { id } = await params
 
