@@ -68,7 +68,9 @@ export async function GET(req: NextRequest) {
           user: { select: { username: true } },
           createdBy: { select: { username: true } },
           transactionDetails: {
-            include: {
+            select: {
+              price: true,
+              quantity: true,
               product: { select: { productName: true, brand: true } },
             },
           },
