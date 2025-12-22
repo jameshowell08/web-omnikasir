@@ -3,7 +3,7 @@ import CustomerTableData from "../model/CustomerTableData";
 
 class GetCustomerController {
     public static async getCustomers(searchQuery: string, page: number, limit: number): Promise<[boolean, CustomerTableData[], string, number]> {
-        const res = await fetch(Routes.CUSTOMER_API.DEFAULT + `?page=${page}&limit=${limit}` + (searchQuery && `&search=${searchQuery}`))
+        const res = await fetch(Routes.CUSTOMER_API.DEFAULT + `?isActive=true&page=${page}&limit=${limit}` + (searchQuery && `&search=${searchQuery}`))
         const data = await res.json()
 
         let customers: CustomerTableData[] = []
@@ -18,7 +18,7 @@ class GetCustomerController {
                 customer.customerPhoneNumber,
                 customer.customerAddress,
                 customer.isActive
-            ))).filter((customer: CustomerTableData) => customer.isActive)
+            )))
             totalPages = data.meta.totalPages
         } else {
             errorMessage = data.message
