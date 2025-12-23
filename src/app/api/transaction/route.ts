@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
     const paymentId = searchParams.get("paymentId")
+    const transactionMethod = searchParams.get("transactionMethod")
 
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "10")
@@ -43,6 +44,7 @@ export async function GET(req: NextRequest) {
           ...(endDate && { lte: new Date(endDate) }),
         },
       }),
+      ...(transactionMethod && { transactionMethod }),
       ...(search && {
         OR: [
           { transactionHeaderId: { contains: search, mode: "insensitive" } },

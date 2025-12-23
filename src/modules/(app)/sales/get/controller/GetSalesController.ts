@@ -8,8 +8,8 @@ class GetSalesController {
         return transactionDetails.reduce((total, detail) => total + detail.price * detail.quantity, 0)
     }
 
-    public static async getSales(page: number, limit: number, searchQuery: string, startDate: Date | undefined, endDate: Date | undefined): Promise<[boolean, SalesTableData[], string, number]> {
-        const res = await fetch(Routes.TRANSACTION_API.DEFAULT + `?page=${page}&limit=${limit}` + (searchQuery ? `&search=${searchQuery}` : "") + (startDate ? `&startDate=${startDate.toISOString()}` : "") + (endDate ? `&endDate=${endDate.toISOString()}` : ""))
+    public static async getSales(page: number, limit: number, searchQuery: string, startDate: Date | undefined, endDate: Date | undefined, transactionMethod: string | undefined, paymentMethod: string | undefined): Promise<[boolean, SalesTableData[], string, number]> {
+        const res = await fetch(Routes.TRANSACTION_API.DEFAULT + `?page=${page}&limit=${limit}` + (searchQuery ? `&search=${searchQuery}` : "") + (startDate ? `&startDate=${startDate.toISOString()}` : "") + (endDate ? `&endDate=${endDate.toISOString()}` : "") + (transactionMethod ? `&transactionMethod=${transactionMethod}` : "") + (paymentMethod ? `&paymentId=${paymentMethod}` : ""))
         const data = await res.json()
 
         let sales: SalesTableData[] = []

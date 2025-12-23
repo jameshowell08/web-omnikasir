@@ -277,7 +277,7 @@ async function main() {
         transactionDate: date,
         paymentId: paymentId,
         userId: randomUser,
-        transactionMethod: "OFFLINE", // or ONLINE
+        transactionMethod: i % 2 == 0 ? "POS": "ONLINE",
         customerId: randomCustomer,
         status: "SUCCESS",
         createdById: randomUser,

@@ -41,13 +41,31 @@ function FilterDialogBody({ initialValues, formId, paymentMethods, handleFilter 
     return (
         <form id={formId} onSubmit={form.handleSubmit(handleFilter)} onReset={handleReset}>
             <FieldGroup>
+                <Controller 
+                    name="transactionMethod"
+                    control={form.control}
+                    render={({ field }) => (
+                        <Field>
+                            <FieldLabel>Metode Transaksi</FieldLabel>
+                            <Select key={field.value} value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih metode transaksi" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="POS">POS</SelectItem>
+                                    <SelectItem value="ONLINE">Online</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    )}
+                />
                 <Controller
                     name="paymentMethod"
                     control={form.control}
                     render={({ field }) => (
                         <Field>
                             <FieldLabel>Metode Pembayaran</FieldLabel>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Pilih metode pembayaran" />
                                 </SelectTrigger>
@@ -237,7 +255,7 @@ function GetSalesView() {
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethodData[]>([])
 
     const fetchSales = async (currentPage: number, selectedAmount: number, searchQuery: string, filterFormScheme: SalesTableFilterFormSchemeType | undefined) => {
-        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery, filterFormScheme?.startDate, filterFormScheme?.endDate)
+        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery, filterFormScheme?.startDate, filterFormScheme?.endDate, filterFormScheme?.transactionMethod, filterFormScheme?.paymentMethod)
 
         if (success) {
             setSales(salesData)
