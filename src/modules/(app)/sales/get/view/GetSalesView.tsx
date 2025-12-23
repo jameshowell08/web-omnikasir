@@ -1,20 +1,72 @@
 'use client';
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/datepicker";
+import { DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { TableCell, TableRow } from "@/components/ui/table";
 import Routes from "@/src/modules/shared/model/Routes";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import CustomTable from "@/src/modules/shared/view/CustomTable";
 import Header from "@/src/modules/shared/view/Header";
 import ItemAmountSelectSection from "@/src/modules/shared/view/ItemAmountSelectSection";
 import TablePagination from "@/src/modules/shared/view/TablePagination";
+import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import { Dialog } from "@radix-ui/react-dialog";
 import { IconDots, IconFilter, IconSearch } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import SalesTableData from "../model/SalesTableData";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
-import GetSalesController from "../controller/GetSalesController";
 import toast from "react-hot-toast";
-import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
-import { Spinner } from "@/components/ui/spinner";
+import GetSalesController from "../controller/GetSalesController";
+import SalesTableData from "../model/SalesTableData";
+
+function FilterDialogBody() {
+    return (
+        <section>
+            <FieldGroup>
+                <Field>
+                    <FieldLabel>Metode Transaksi</FieldLabel>
+                    <Select>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Pilih metode transaksi" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="OFFLINE">Offline</SelectItem>
+                            <SelectItem value="ONLINE">Online</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field>
+                    <FieldLabel>Metode Pembayaran</FieldLabel>
+                    <Select>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Pilih metode pembayaran" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="gopay">Gopay</SelectItem>
+                            <SelectItem value="ovo">Ovo</SelectItem>
+                            <SelectItem value="shopee-pay">Shopee Pay</SelectItem>
+                            <SelectItem value="dana">Dana</SelectItem>
+                            <SelectItem value="linkaja">Linkaja</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <div className="flex flex-row gap-2">
+                    <Field>
+                        <FieldLabel>Dari tanggal</FieldLabel>
+                        <DatePicker date={new Date("2025-02-10")} setDate={() => { }} />
+                    </Field>
+                    <Field>
+                        <FieldLabel>Sampai tanggal</FieldLabel>
+                        <DatePicker date={new Date("2025-02-10")} setDate={() => { }} />
+                    </Field>
+                </div>
+            </FieldGroup>
+        </section>
+    )
+}
 
 function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryChange, setIsSearchLoading }: { selectedAmount: number, onAmountChange: (amount: number) => void, onQueryChange: (query: string) => void, isSearchLoading: boolean, setIsSearchLoading: (isLoading: boolean) => void }) {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -49,9 +101,24 @@ function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryC
                     )}
                 </InputGroup>
 
-                <Button size="icon">
-                    <IconFilter />
-                </Button>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button size="icon">
+                            <IconFilter />
+                        </Button>
+                    </DialogTrigger>
+
+                    <DialogContent>
+                        <DialogTitle>Filter penjualan</DialogTitle>
+                        <DialogDescription>Filter penjualan berdasarkan metode transaksi, metode pembayaran, dan tanggal transaksi.</DialogDescription>
+
+                        <FilterDialogBody />
+
+                        <DialogFooter>
+                            <Button>Terapkan</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </span>
 
             <ItemAmountSelectSection selectedAmount={selectedAmount} onAmountChange={onAmountChange} />
