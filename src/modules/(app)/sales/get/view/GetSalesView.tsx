@@ -41,7 +41,7 @@ function FilterDialogBody({ initialValues, formId, paymentMethods, handleFilter 
     return (
         <form id={formId} onSubmit={form.handleSubmit(handleFilter)} onReset={handleReset}>
             <FieldGroup>
-                <Controller 
+                <Controller
                     name="transactionMethod"
                     control={form.control}
                     render={({ field }) => (
@@ -59,6 +59,26 @@ function FilterDialogBody({ initialValues, formId, paymentMethods, handleFilter 
                         </Field>
                     )}
                 />
+
+                <Controller
+                    name="transactionStatus"
+                    control={form.control}
+                    render={({ field }) => (
+                        <Field>
+                            <FieldLabel>Status Transaksi</FieldLabel>
+                            <Select key={field.value} value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih status transaksi" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="SUCCESS">Selesai</SelectItem>
+                                    <SelectItem value="IN_PROGRESS">Dalam proses</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    )}
+                />
+
                 <Controller
                     name="paymentMethod"
                     control={form.control}
@@ -230,7 +250,7 @@ function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
                         <TableCell>{sale.transactionHeaderId}</TableCell>
                         <TableCell>{BaseUtil.formatDate(sale.transactionDate)}</TableCell>
                         <TableCell>{sale.transactionMethod}</TableCell>
-                        <TableCell>{sale.status}</TableCell>
+                        <TableCell>{GetSalesController.mapStatusLabel(sale.status)}</TableCell>
                         <TableCell>{sale.paymentMethod}</TableCell>
                         <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
                         <TableCell className="w-0">
@@ -255,7 +275,7 @@ function GetSalesView() {
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethodData[]>([])
 
     const fetchSales = async (currentPage: number, selectedAmount: number, searchQuery: string, filterFormScheme: SalesTableFilterFormSchemeType | undefined) => {
-        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery, filterFormScheme?.startDate, filterFormScheme?.endDate, filterFormScheme?.transactionMethod, filterFormScheme?.paymentMethod)
+        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery, filterFormScheme)
 
         if (success) {
             setSales(salesData)

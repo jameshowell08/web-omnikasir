@@ -1,6 +1,7 @@
 import Routes from "@/src/modules/shared/model/Routes"
 import SalesTableData from "../model/SalesTableData"
 import PaymentMethodData from "../model/PaymentMethodData"
+import { SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormScheme"
 
 
 class GetSalesController {
@@ -8,8 +9,17 @@ class GetSalesController {
         return transactionDetails.reduce((total, detail) => total + detail.price * detail.quantity, 0)
     }
 
-    public static async getSales(page: number, limit: number, searchQuery: string, startDate: Date | undefined, endDate: Date | undefined, transactionMethod: string | undefined, paymentMethod: string | undefined): Promise<[boolean, SalesTableData[], string, number]> {
-        const res = await fetch(Routes.TRANSACTION_API.DEFAULT + `?page=${page}&limit=${limit}` + (searchQuery ? `&search=${searchQuery}` : "") + (startDate ? `&startDate=${startDate.toISOString()}` : "") + (endDate ? `&endDate=${endDate.toISOString()}` : "") + (transactionMethod ? `&transactionMethod=${transactionMethod}` : "") + (paymentMethod ? `&paymentId=${paymentMethod}` : ""))
+    public static async getSales(page: number, limit: number, searchQuery: string, filterForm: SalesTableFilterFormSchemeType | undefined): Promise<[boolean, SalesTableData[], string, number]> {
+        const res = await fetch(
+            Routes.TRANSACTION_API.DEFAULT
+            + `?page=${page}&limit=${limit}`
+            + (searchQuery ? `&search=${searchQuery}` : "")
+            + (filterForm?.startDate ? `&startDate=${filterForm.startDate.toISOString()}` : "")
+            + (filterForm?.endDate ? `&endDate=${filterForm.endDate.toISOString()}` : "")
+            + (filterForm?.transactionMethod ? `&transactionMethod=${filterForm.transactionMethod}` : "")
+            + (filterForm?.paymentMethod ? `&paymentId=${filterForm.paymentMethod}` : "")
+            + (filterForm?.transactionStatus ? `&status=${filterForm.transactionStatus}` : "")
+        )
         const data = await res.json()
 
         let sales: SalesTableData[] = []
@@ -50,6 +60,10 @@ class GetSalesController {
         }
 
         return [res.ok, paymentMethods, errorMessage]
+    }
+
+    public static mapStatusLabel(status: string) {
+        return status === "SUCCESS" ? "Selesai" : status === "IN_PROGRESS" ? "Dalam proses" : status
     }
 }
 
