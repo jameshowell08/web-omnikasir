@@ -26,6 +26,7 @@ import GetSalesController from "../controller/GetSalesController";
 import PaymentMethodData from "../model/PaymentMethodData";
 import SalesTableData from "../model/SalesTableData";
 import { SalesTableFilterFormScheme, SalesTableFilterFormSchemeDefaultValues, SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormScheme";
+import Link from "next/link";
 
 function FilterDialogBody({ initialValues, formId, paymentMethods, handleFilter }: { initialValues: SalesTableFilterFormSchemeType | undefined, formId: string, paymentMethods: PaymentMethodData[], handleFilter: (data: SalesTableFilterFormSchemeType) => void }) {
     const form = useForm({
@@ -208,7 +209,7 @@ function FilterSales({
     )
 }
 
-function GetSalesTableCellAction() {
+function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId: string }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -218,9 +219,11 @@ function GetSalesTableCellAction() {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                    <IconEye />
-                    Detail
+                <DropdownMenuItem asChild>
+                    <Link href={Routes.SALES.GET_BY_ID(transactionHeaderId)}>
+                        <IconEye />
+                        Detail
+                    </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
@@ -254,7 +257,7 @@ function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
                         <TableCell>{sale.paymentMethod}</TableCell>
                         <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
                         <TableCell className="w-0">
-                            <GetSalesTableCellAction />
+                            <GetSalesTableCellAction transactionHeaderId={sale.transactionHeaderId} />
                         </TableCell>
                     </TableRow>
                 ))

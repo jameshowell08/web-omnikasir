@@ -20,7 +20,8 @@ const Routes = {
 
     SALES: {
         DEFAULT: "/sales",
-        ADD: "/sales/add"
+        ADD: "/sales/add",
+        GET_BY_ID: (id: string) => `/sales/${id}`,
     },
 
     PAYMENT_METHOD_API: {
