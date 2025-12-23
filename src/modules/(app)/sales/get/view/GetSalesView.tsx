@@ -2,7 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/datepicker";
 import { DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
@@ -14,64 +15,119 @@ import Header from "@/src/modules/shared/view/Header";
 import ItemAmountSelectSection from "@/src/modules/shared/view/ItemAmountSelectSection";
 import TablePagination from "@/src/modules/shared/view/TablePagination";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog } from "@radix-ui/react-dialog";
-import { IconDetails, IconDots, IconEdit, IconEye, IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconDots, IconEdit, IconEye, IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import GetSalesController from "../controller/GetSalesController";
 import SalesTableData from "../model/SalesTableData";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SalesTableFilterFormScheme, SalesTableFilterFormSchemeDefaultValues, SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormScheme";
 
-function FilterDialogBody() {
+function FilterDialogBody({ initialValues, formId, handleFilter }: { initialValues: SalesTableFilterFormSchemeType | undefined, formId: string, handleFilter: (data: SalesTableFilterFormSchemeType) => void }) {
+    const form = useForm({
+        resolver: zodResolver(SalesTableFilterFormScheme),
+        values: initialValues,
+        defaultValues: SalesTableFilterFormSchemeDefaultValues
+    })
+
+    const handleReset = () => {
+        form.reset(SalesTableFilterFormSchemeDefaultValues)
+    }
+
     return (
-        <section>
+        <form id={formId} onSubmit={form.handleSubmit(handleFilter)} onReset={handleReset}>
             <FieldGroup>
-                <Field>
-                    <FieldLabel>Metode Transaksi</FieldLabel>
-                    <Select>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Pilih metode transaksi" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="OFFLINE">Offline</SelectItem>
-                            <SelectItem value="ONLINE">Online</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field>
-                    <FieldLabel>Metode Pembayaran</FieldLabel>
-                    <Select>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Pilih metode pembayaran" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="cash">Cash</SelectItem>
-                            <SelectItem value="gopay">Gopay</SelectItem>
-                            <SelectItem value="ovo">Ovo</SelectItem>
-                            <SelectItem value="shopee-pay">Shopee Pay</SelectItem>
-                            <SelectItem value="dana">Dana</SelectItem>
-                            <SelectItem value="linkaja">Linkaja</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
+                <Controller
+                    name="transactionMethod"
+                    control={form.control}
+                    render={({ field }) => (
+                        <Field>
+                            <FieldLabel>Metode Transaksi</FieldLabel>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih metode transaksi" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="OFFLINE">Offline</SelectItem>
+                                    <SelectItem value="ONLINE">Online</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    )}
+                />
+                <Controller
+                    name="paymentMethod"
+                    control={form.control}
+                    render={({ field }) => (
+                        <Field>
+                            <FieldLabel>Metode Pembayaran</FieldLabel>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih metode pembayaran" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="cash">Cash</SelectItem>
+                                    <SelectItem value="gopay">Gopay</SelectItem>
+                                    <SelectItem value="ovo">Ovo</SelectItem>
+                                    <SelectItem value="shopee-pay">Shopee Pay</SelectItem>
+                                    <SelectItem value="dana">Dana</SelectItem>
+                                    <SelectItem value="linkaja">Linkaja</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    )}
+                />
                 <div className="flex flex-row gap-2">
-                    <Field>
-                        <FieldLabel>Dari tanggal</FieldLabel>
-                        <DatePicker date={new Date("2025-02-10")} setDate={() => { }} />
-                    </Field>
-                    <Field>
-                        <FieldLabel>Sampai tanggal</FieldLabel>
-                        <DatePicker date={new Date("2025-02-10")} setDate={() => { }} />
-                    </Field>
+                    <Controller
+                        name="startDate"
+                        control={form.control}
+                        render={({ field }) => (
+                            <Field>
+                                <FieldLabel>Dari tanggal</FieldLabel>
+                                <DatePicker date={field.value} setDate={field.onChange} />
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        name="endDate"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Sampai tanggal</FieldLabel>
+                                <DatePicker date={field.value} setDate={field.onChange} aria-invalid={fieldState.invalid} />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
                 </div>
             </FieldGroup>
-        </section>
+        </form>
     )
 }
 
-function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryChange, setIsSearchLoading }: { selectedAmount: number, onAmountChange: (amount: number) => void, onQueryChange: (query: string) => void, isSearchLoading: boolean, setIsSearchLoading: (isLoading: boolean) => void }) {
+function FilterSales({
+    selectedAmount,
+    isSearchLoading,
+    filterFormValues,
+    onAmountChange,
+    onQueryChange,
+    setIsSearchLoading,
+    handleFilter
+}: {
+    selectedAmount: number,
+    isSearchLoading: boolean,
+    filterFormValues: SalesTableFilterFormSchemeType | undefined,
+    onAmountChange: (amount: number) => void,
+    onQueryChange: (query: string) => void,
+    setIsSearchLoading: (isLoading: boolean) => void,
+    handleFilter: (data: SalesTableFilterFormSchemeType) => void
+}) {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const debounce = useRef<NodeJS.Timeout | null>(null);
+    const [isDialogShown, showDialog] = useState(false);
 
     const handleSearch = (query: string) => {
         setIsSearchLoading(true);
@@ -102,7 +158,7 @@ function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryC
                     )}
                 </InputGroup>
 
-                <Dialog>
+                <Dialog open={isDialogShown} onOpenChange={showDialog}>
                     <DialogTrigger asChild>
                         <Button size="icon">
                             <IconFilter />
@@ -113,10 +169,14 @@ function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryC
                         <DialogTitle>Filter penjualan</DialogTitle>
                         <DialogDescription>Filter penjualan berdasarkan metode transaksi, metode pembayaran, dan tanggal transaksi.</DialogDescription>
 
-                        <FilterDialogBody />
+                        <FilterDialogBody initialValues={filterFormValues} formId="sales-filter-form" handleFilter={(data) => {
+                            handleFilter(data)
+                            showDialog(false)
+                        }} />
 
-                        <DialogFooter>
-                            <Button>Terapkan</Button>
+                        <DialogFooter className="flex flex-row justify-end gap-2">
+                            <Button variant="ghost" type="reset" form="sales-filter-form">Reset</Button>
+                            <Button type="submit" form="sales-filter-form">Terapkan</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -189,9 +249,10 @@ function GetSalesView() {
     const [sales, setSales] = useState<SalesTableData[] | undefined>(undefined);
     const [totalPage, setTotalPage] = useState(1);
     const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [filterFormScheme, setFilterFormScheme] = useState<SalesTableFilterFormSchemeType | undefined>(undefined)
 
-    const fetchSales = async (currentPage: number, selectedAmount: number, searchQuery: string) => {
-        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery)
+    const fetchSales = async (currentPage: number, selectedAmount: number, searchQuery: string, filterFormScheme: SalesTableFilterFormSchemeType | undefined) => {
+        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery, filterFormScheme?.startDate, filterFormScheme?.endDate)
 
         if (success) {
             setSales(salesData)
@@ -202,14 +263,26 @@ function GetSalesView() {
         setIsSearchLoading(false)
     }
 
+    const handleFilter = (data: SalesTableFilterFormSchemeType) => {
+        setFilterFormScheme(data)
+    }
+
     useEffect(() => {
-        fetchSales(currentPage, selectedAmount, searchQuery)
-    }, [currentPage, selectedAmount, searchQuery])
+        fetchSales(currentPage, selectedAmount, searchQuery, filterFormScheme)
+    }, [currentPage, selectedAmount, searchQuery, filterFormScheme])
 
     return (
         <div>
             <Header title="Penjualan" buttonLabel="Tambah penjualan" buttonHref={Routes.SALES.ADD} />
-            <FilterSales isSearchLoading={isSearchLoading} selectedAmount={selectedAmount} onAmountChange={setSelectedAmount} setIsSearchLoading={setIsSearchLoading} onQueryChange={setSearchQuery} />
+            <FilterSales
+                isSearchLoading={isSearchLoading}
+                selectedAmount={selectedAmount}
+                filterFormValues={filterFormScheme}
+                onAmountChange={setSelectedAmount}
+                setIsSearchLoading={setIsSearchLoading}
+                onQueryChange={setSearchQuery}
+                handleFilter={handleFilter}
+            />
             {
                 sales ? (
                     <GetSalesTable sales={sales} />
