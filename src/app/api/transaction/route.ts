@@ -37,13 +37,12 @@ export async function GET(req: NextRequest) {
 
     const whereClause: Prisma.TransactionHeaderWhereInput = {
       ...(paymentId && { paymentId }),
-      ...(startDate &&
-        endDate && {
-          transactionDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
-          },
-        }),
+      ...((startDate || endDate) && {
+        transactionDate: {
+          ...(startDate && { gte: new Date(startDate) }),
+          ...(endDate && { lte: new Date(endDate) }),
+        },
+      }),
       ...(search && {
         OR: [
           { transactionHeaderId: { contains: search, mode: "insensitive" } },

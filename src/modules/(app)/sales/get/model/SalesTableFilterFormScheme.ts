@@ -1,7 +1,6 @@
 import z from "zod";
 
 export const SalesTableFilterFormScheme = z.object({
-    transactionMethod: z.string().optional(),
     paymentMethod: z.string().optional(),
     startDate: z.date().optional(),
     endDate: z.date().optional()
@@ -18,7 +17,6 @@ export const SalesTableFilterFormScheme = z.object({
 export type SalesTableFilterFormSchemeType = z.infer<typeof SalesTableFilterFormScheme>
 
 export const SalesTableFilterFormSchemeDefaultValues: SalesTableFilterFormSchemeType = {
-    transactionMethod: "",
     paymentMethod: "",
     startDate: undefined,
     endDate: undefined

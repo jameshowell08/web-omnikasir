@@ -9,6 +9,8 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url)
 
+    const usePaging = url.searchParams.get("usePaging") !== "false"
+
     const search = url.searchParams.get("search") || ""
     const page = Number(url.searchParams.get("page")) || 1
     const limit = Number(url.searchParams.get("limit")) || 10
@@ -22,6 +24,24 @@ export async function GET(req: NextRequest) {
         contains: search,
         mode: "insensitive",
       }
+    }
+
+    if (!usePaging) {
+      const paymentMethods = await db.paymentMethod.findMany({
+        where,
+        orderBy: {
+          paymentName: "asc",
+        },
+        select: {
+          paymentId: true,
+          paymentName: true,
+        },
+      })
+
+      return NextResponse.json({
+        status: true,
+        data: paymentMethods,
+      })
     }
 
     const paymentMethods = await db.paymentMethod.findMany({

@@ -1,5 +1,7 @@
 import Routes from "@/src/modules/shared/model/Routes"
 import SalesTableData from "../model/SalesTableData"
+import PaymentMethodData from "../model/PaymentMethodData"
+
 
 class GetSalesController {
     private static getTotalPrice(transactionDetails: any[]): number {
@@ -29,6 +31,25 @@ class GetSalesController {
         }
 
         return [res.ok, sales, errorMessage, totalPages]
+    }
+
+    public static async getPaymentMethods(): Promise<[boolean, PaymentMethodData[], string]> {
+        const res = await fetch(Routes.PAYMENT_METHOD_API.GET + `?usePaging=false`)
+        const data = await res.json()
+
+        let paymentMethods: PaymentMethodData[] = []
+        let errorMessage = ""
+
+        if (res.ok) {
+            paymentMethods = data.data.map((paymentMethod: any) => new PaymentMethodData(
+                paymentMethod.paymentId,
+                paymentMethod.paymentName
+            ))
+        } else {
+            errorMessage = data.message
+        }
+
+        return [res.ok, paymentMethods, errorMessage]
     }
 }
 
