@@ -16,13 +16,12 @@ import toast from "react-hot-toast";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import { Spinner } from "@/components/ui/spinner";
 
-function FilterSales({ selectedAmount, onAmountChange, onQueryChange }: { selectedAmount: number, onAmountChange: (amount: number) => void, onQueryChange: (query: string) => void }) {
+function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryChange, setIsSearchLoading }: { selectedAmount: number, onAmountChange: (amount: number) => void, onQueryChange: (query: string) => void, isSearchLoading: boolean, setIsSearchLoading: (isLoading: boolean) => void }) {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const debounce = useRef<NodeJS.Timeout | null>(null);
 
     const handleSearch = (query: string) => {
-        setIsLoading(true);
+        setIsSearchLoading(true);
         setDebouncedSearchQuery(query);
         if (debounce.current) {
             clearTimeout(debounce.current);
@@ -30,7 +29,6 @@ function FilterSales({ selectedAmount, onAmountChange, onQueryChange }: { select
 
         debounce.current = setTimeout(() => {
             onQueryChange(query);
-            setIsLoading(false);
         }, 500);
     }
 
@@ -44,7 +42,7 @@ function FilterSales({ selectedAmount, onAmountChange, onQueryChange }: { select
 
                     <InputGroupInput value={debouncedSearchQuery} onChange={(e) => handleSearch(e.target.value)} placeholder="Cari penjualan" />
 
-                    {isLoading && (
+                    {isSearchLoading && (
                         <InputGroupAddon align="inline-end">
                             <Spinner />
                         </InputGroupAddon>
@@ -67,6 +65,7 @@ function GetSalesView() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sales, setSales] = useState<SalesTableData[] | undefined>(undefined);
     const [totalPage, setTotalPage] = useState(1);
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
 
     const fetchSales = async (currentPage: number, selectedAmount: number, searchQuery: string) => {
         const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery)
@@ -77,6 +76,7 @@ function GetSalesView() {
         } else {
             toast.error(errorMessage)
         }
+        setIsSearchLoading(false)
     }
 
     useEffect(() => {
@@ -86,7 +86,7 @@ function GetSalesView() {
     return (
         <div>
             <Header title="Penjualan" buttonLabel="Tambah penjualan" buttonHref={Routes.SALES.ADD} />
-            <FilterSales selectedAmount={selectedAmount} onAmountChange={setSelectedAmount} onQueryChange={setSearchQuery} />
+            <FilterSales isSearchLoading={isSearchLoading} selectedAmount={selectedAmount} onAmountChange={setSelectedAmount} setIsSearchLoading={setIsSearchLoading} onQueryChange={setSearchQuery} />
             {
                 sales ? (
                     <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Total"]} haveActions>
