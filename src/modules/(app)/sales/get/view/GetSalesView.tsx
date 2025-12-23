@@ -15,11 +15,12 @@ import ItemAmountSelectSection from "@/src/modules/shared/view/ItemAmountSelectS
 import TablePagination from "@/src/modules/shared/view/TablePagination";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import { Dialog } from "@radix-ui/react-dialog";
-import { IconDots, IconFilter, IconSearch } from "@tabler/icons-react";
+import { IconDetails, IconDots, IconEdit, IconEye, IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import GetSalesController from "../controller/GetSalesController";
 import SalesTableData from "../model/SalesTableData";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function FilterDialogBody() {
     return (
@@ -126,6 +127,61 @@ function FilterSales({ selectedAmount, isSearchLoading, onAmountChange, onQueryC
     )
 }
 
+function GetSalesTableCellAction() {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button size="icon-sm" variant="ghost">
+                    <IconDots />
+                </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                    <IconEye />
+                    Detail
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem>
+                    <IconEdit />
+                    Edit
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem variant="destructive">
+                    <IconTrash />
+                    Hapus
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
+function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
+    return (
+        <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Total"]} haveActions>
+            {
+                sales.map((sale) => (
+                    <TableRow key={sale.transactionHeaderId}>
+                        <TableCell>{sale.transactionHeaderId}</TableCell>
+                        <TableCell>{BaseUtil.formatDate(sale.transactionDate)}</TableCell>
+                        <TableCell>{sale.transactionMethod}</TableCell>
+                        <TableCell>{sale.status}</TableCell>
+                        <TableCell>{sale.paymentMethod}</TableCell>
+                        <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
+                        <TableCell className="w-0">
+                            <GetSalesTableCellAction />
+                        </TableCell>
+                    </TableRow>
+                ))
+            }
+        </CustomTable>
+    )
+}
+
 function GetSalesView() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedAmount, setSelectedAmount] = useState(10);
@@ -156,25 +212,7 @@ function GetSalesView() {
             <FilterSales isSearchLoading={isSearchLoading} selectedAmount={selectedAmount} onAmountChange={setSelectedAmount} setIsSearchLoading={setIsSearchLoading} onQueryChange={setSearchQuery} />
             {
                 sales ? (
-                    <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Total"]} haveActions>
-                        {
-                            sales.map((sale) => (
-                                <TableRow key={sale.transactionHeaderId}>
-                                    <TableCell>{sale.transactionHeaderId}</TableCell>
-                                    <TableCell>{BaseUtil.formatDate(sale.transactionDate)}</TableCell>
-                                    <TableCell>{sale.transactionMethod}</TableCell>
-                                    <TableCell>{sale.status}</TableCell>
-                                    <TableCell>{sale.paymentMethod}</TableCell>
-                                    <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
-                                    <TableCell className="w-0">
-                                        <Button size="icon-sm" variant="ghost">
-                                            <IconDots />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        }
-                    </CustomTable>
+                    <GetSalesTable sales={sales} />
                 ) : (<TablePlaceholder />)
             }
             <TablePagination currentPage={currentPage} maxPage={totalPage} onChangePage={setCurrentPage} />
