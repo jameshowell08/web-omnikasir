@@ -8,14 +8,32 @@ import Header from "@/src/modules/shared/view/Header";
 import ItemAmountSelectSection from "@/src/modules/shared/view/ItemAmountSelectSection";
 import TablePagination from "@/src/modules/shared/view/TablePagination";
 import { IconDots, IconFilter, IconSearch } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SalesTableData from "../model/SalesTableData";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import GetSalesController from "../controller/GetSalesController";
 import toast from "react-hot-toast";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import { Spinner } from "@/components/ui/spinner";
 
-function FilterSales({ selectedAmount, onAmountChange }: { selectedAmount: number, onAmountChange: (amount: number) => void }) {
+function FilterSales({ selectedAmount, onAmountChange, onQueryChange }: { selectedAmount: number, onAmountChange: (amount: number) => void, onQueryChange: (query: string) => void }) {
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const debounce = useRef<NodeJS.Timeout | null>(null);
+
+    const handleSearch = (query: string) => {
+        setIsLoading(true);
+        setDebouncedSearchQuery(query);
+        if (debounce.current) {
+            clearTimeout(debounce.current);
+        }
+
+        debounce.current = setTimeout(() => {
+            onQueryChange(query);
+            setIsLoading(false);
+        }, 500);
+    }
+
     return (
         <div className="mt-4 flex flex-row justify-between">
             <span className="flex flex-row gap-2 w-100">
@@ -24,7 +42,13 @@ function FilterSales({ selectedAmount, onAmountChange }: { selectedAmount: numbe
                         <IconSearch />
                     </InputGroupAddon>
 
-                    <InputGroupInput placeholder="Cari penjualan" />
+                    <InputGroupInput value={debouncedSearchQuery} onChange={(e) => handleSearch(e.target.value)} placeholder="Cari penjualan" />
+
+                    {isLoading && (
+                        <InputGroupAddon align="inline-end">
+                            <Spinner />
+                        </InputGroupAddon>
+                    )}
                 </InputGroup>
 
                 <Button size="icon">
@@ -38,13 +62,14 @@ function FilterSales({ selectedAmount, onAmountChange }: { selectedAmount: numbe
 }
 
 function GetSalesView() {
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedAmount, setSelectedAmount] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [sales, setSales] = useState<SalesTableData[] | undefined>(undefined);
     const [totalPage, setTotalPage] = useState(1);
 
-    const fetchSales = async () => {
-        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount)
+    const fetchSales = async (currentPage: number, selectedAmount: number, searchQuery: string) => {
+        const [success, salesData, errorMessage, totalPages] = await GetSalesController.getSales(currentPage, selectedAmount, searchQuery)
 
         if (success) {
             setSales(salesData)
@@ -55,13 +80,13 @@ function GetSalesView() {
     }
 
     useEffect(() => {
-        fetchSales()
-    }, [currentPage, selectedAmount])
+        fetchSales(currentPage, selectedAmount, searchQuery)
+    }, [currentPage, selectedAmount, searchQuery])
 
     return (
         <div>
             <Header title="Penjualan" buttonLabel="Tambah penjualan" buttonHref={Routes.SALES.ADD} />
-            <FilterSales selectedAmount={selectedAmount} onAmountChange={setSelectedAmount} />
+            <FilterSales selectedAmount={selectedAmount} onAmountChange={setSelectedAmount} onQueryChange={setSearchQuery} />
             {
                 sales ? (
                     <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Total"]} haveActions>

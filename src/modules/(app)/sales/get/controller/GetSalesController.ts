@@ -6,8 +6,8 @@ class GetSalesController {
         return transactionDetails.reduce((total, detail) => total + detail.price * detail.quantity, 0)
     }
 
-    public static async getSales(page: number, limit: number): Promise<[boolean, SalesTableData[], string, number]> {
-        const res = await fetch(Routes.TRANSACTION_API.DEFAULT + `?page=${page}&limit=${limit}`)
+    public static async getSales(page: number, limit: number, searchQuery: string): Promise<[boolean, SalesTableData[], string, number]> {
+        const res = await fetch(Routes.TRANSACTION_API.DEFAULT + `?page=${page}&limit=${limit}` + (searchQuery ? `&search=${searchQuery}` : ""))
         const data = await res.json()
 
         let sales: SalesTableData[] = []
