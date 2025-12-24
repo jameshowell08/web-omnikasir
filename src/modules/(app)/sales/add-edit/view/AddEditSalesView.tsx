@@ -15,6 +15,7 @@ import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormSch
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
 import AddEditSalesItemSection from "./AddEditSalesItemSection";
+import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
 
 function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string, value?: string }) {
     return (
@@ -59,6 +60,28 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
 
     const handleRemoveItem = (item: AddEditSalesItemFormSchemeType) => {
         form.setValue("items", salesItems.filter((saleItem) => saleItem.sku !== item.sku), {
+            shouldValidate: true,
+        });
+    }
+
+    const handleAddIMEI = (sku: string, imei: IMEIFormSchemeType) => {
+        const item = salesItems.find((saleItem) => saleItem.sku === sku);
+
+        if (item?.imeis.some((saleIMEI) => saleIMEI.value === imei.value)) {
+            toast.error("IMEI dengan nomor yang sama sudah ada");
+        } else {
+            form.setValue("items", salesItems.map((saleItem) => 
+                saleItem.sku === sku ? { ...saleItem, imeis: [...saleItem.imeis, imei] } : saleItem
+            ), {
+                shouldValidate: true,
+            });
+        }
+    }
+
+    const handleRemoveIMEI = (sku: string, imei: IMEIFormSchemeType) => {
+        form.setValue("items", salesItems.map((saleItem) => 
+            saleItem.sku === sku ? { ...saleItem, imeis: saleItem.imeis.filter((saleIMEI) => saleIMEI.value !== imei.value) } : saleItem
+        ), {
             shouldValidate: true,
         });
     }
@@ -132,7 +155,14 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                     control={form.control}
                     render={({ fieldState }) => (
                         <Field>
-                            <AddEditSalesItemSection disableAddItemBtn={disableButton} salesItems={salesItems} onAddItem={handleAddItem} onChangeItem={handleChangeItem} onRemoveItem={handleRemoveItem} />
+                            <AddEditSalesItemSection
+                                disableAddItemBtn={disableButton}
+                                salesItems={salesItems}
+                                onAddItem={handleAddItem}
+                                onChangeItem={handleChangeItem}
+                                onRemoveItem={handleRemoveItem}
+                                onAddIMEI={handleAddIMEI}
+                                onRemoveIMEI={handleRemoveIMEI} />
                             <FieldError errors={[fieldState.error]} />
                         </Field>
                     )}

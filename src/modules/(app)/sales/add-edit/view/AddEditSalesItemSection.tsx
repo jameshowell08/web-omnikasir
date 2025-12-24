@@ -12,6 +12,9 @@ import { useState } from "react";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import AddEditSalesItemDialogContent from "./AddSalesItemDialogContent";
+import IMEIDialogContent from "./IMEIDialogContent";
+import clsx from "clsx";
+import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
 
 function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     const [showDialog, setShowDialog] = useState(false);
@@ -36,7 +39,19 @@ function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disab
     )
 }
 
-function SalesItemRow({ saleItem, onChangeItem, onRemoveItem }: { saleItem: AddEditSalesItemFormSchemeType, onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function SalesItemRow({
+    saleItem,
+    onChangeItem,
+    onRemoveItem,
+    onAddIMEI,
+    onRemoveIMEI
+}: {
+    saleItem: AddEditSalesItemFormSchemeType,
+    onChangeItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onAddIMEI: (imei: IMEIFormSchemeType) => void,
+    onRemoveIMEI: (imei: IMEIFormSchemeType) => void
+}) {
     const [showDialog, setShowDialog] = useState(false);
     const imeiIsInvalid = saleItem.imeis.length < BaseUtil.unformatNumberV2(saleItem.quantity);
 
@@ -48,13 +63,19 @@ function SalesItemRow({ saleItem, onChangeItem, onRemoveItem }: { saleItem: AddE
             <TableCell>Rp{saleItem.price}</TableCell>
             <TableCell>{saleItem.quantity}</TableCell>
             <TableCell>{saleItem.isNeedImei ? (
-                <Badge
-                    variant="outline"
-                    aria-invalid={imeiIsInvalid}
-                    className={imeiIsInvalid ? "text-red-500" : ""}
-                >
-                    {saleItem.imeis.length}/{saleItem.quantity}
-                </Badge>
+                <Dialog>
+                    <DialogTrigger>
+                        <Badge
+                            variant="outline"
+                            aria-invalid={imeiIsInvalid}
+                            className={clsx("cursor-pointer", imeiIsInvalid && "text-red-500")}
+                        >
+                            {saleItem.imeis.length}/{saleItem.quantity}
+                        </Badge>
+                    </DialogTrigger>
+
+                    <IMEIDialogContent imeis={saleItem.imeis} quantity={saleItem.quantity} onAddIMEI={onAddIMEI} onRemoveIMEI={onRemoveIMEI} />
+                </Dialog>
             ) : "-"}
             </TableCell>
             <TableCell>Rp{AddEditSalesController.calculateSubtotalToString(saleItem)}</TableCell>
@@ -92,7 +113,19 @@ function SalesItemRow({ saleItem, onChangeItem, onRemoveItem }: { saleItem: AddE
     )
 }
 
-function AddEditSalesItemTable({ salesItems, onChangeItem, onRemoveItem }: { salesItems: AddEditSalesItemFormSchemeType[], onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function AddEditSalesItemTable({
+    salesItems,
+    onChangeItem,
+    onRemoveItem,
+    onAddIMEI,
+    onRemoveIMEI
+}: {
+    salesItems: AddEditSalesItemFormSchemeType[],
+    onChangeItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onAddIMEI: (sku: string, imei: IMEIFormSchemeType) => void,
+    onRemoveIMEI: (sku: string, imei: IMEIFormSchemeType) => void
+}) {
     return (
         <CustomTable headers={["SKU", "Nama Produk", "Merek", "Harga", "Jumlah", "IMEI", "Subtotal"]} haveActions>
             {
@@ -100,7 +133,14 @@ function AddEditSalesItemTable({ salesItems, onChangeItem, onRemoveItem }: { sal
                     <>
                         {
                             salesItems.map((item) => (
-                                <SalesItemRow key={item.sku} saleItem={item} onChangeItem={onChangeItem} onRemoveItem={onRemoveItem} />
+                                <SalesItemRow
+                                    key={item.sku}
+                                    saleItem={item}
+                                    onChangeItem={onChangeItem}
+                                    onRemoveItem={onRemoveItem}
+                                    onAddIMEI={(data) => onAddIMEI(item.sku, data)}
+                                    onRemoveIMEI={(data) => onRemoveIMEI(item.sku, data)}
+                                />
                             ))
                         }
                         <TableRow>
@@ -121,11 +161,33 @@ function AddEditSalesItemTable({ salesItems, onChangeItem, onRemoveItem }: { sal
     )
 }
 
-function AddEditSalesItemSection({ disableAddItemBtn, salesItems, onAddItem, onChangeItem, onRemoveItem }: { disableAddItemBtn: boolean, salesItems: AddEditSalesItemFormSchemeType[], onAddItem: (item: AddEditSalesItemFormSchemeType) => void, onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function AddEditSalesItemSection({
+    disableAddItemBtn,
+    salesItems,
+    onAddItem,
+    onChangeItem,
+    onRemoveItem,
+    onAddIMEI,
+    onRemoveIMEI
+}: {
+    disableAddItemBtn: boolean,
+    salesItems: AddEditSalesItemFormSchemeType[],
+    onAddItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onChangeItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void,
+    onAddIMEI: (sku: string, imei: IMEIFormSchemeType) => void,
+    onRemoveIMEI: (sku: string, imei: IMEIFormSchemeType) => void
+}) {
     return (
         <section>
             <AddEditSalesItemSectionHeader disableAddItemBtn={disableAddItemBtn} onAddItem={onAddItem} />
-            <AddEditSalesItemTable salesItems={salesItems} onChangeItem={onChangeItem} onRemoveItem={onRemoveItem} />
+            <AddEditSalesItemTable
+                salesItems={salesItems}
+                onChangeItem={onChangeItem}
+                onRemoveItem={onRemoveItem}
+                onAddIMEI={onAddIMEI}
+                onRemoveIMEI={onRemoveIMEI}
+            />
         </section>
     )
 }
