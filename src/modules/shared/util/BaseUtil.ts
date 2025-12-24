@@ -45,7 +45,7 @@ export class BaseUtil {
      * @returns The unformatted number.
      */
     public static unformatNumberV2(value: string): number {
-        return Number(this.unformatNumberV2ToString(value));
+        return value.length === 0 ? 0 : Number(this.unformatNumberV2ToString(value));
     }
 
     /**

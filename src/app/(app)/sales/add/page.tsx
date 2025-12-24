@@ -1,9 +1,7 @@
-import AddSalesView from "@/src/modules/(app)/sales/add/view/AddSalesView";
+import AddEditSalesView from "@/src/modules/(app)/sales/add-edit/view/AddEditSalesView";
 
 function AddSalesPage() {
-    return (
-        <AddSalesView />
-    )
+    return <AddEditSalesView />
 }
 
 export default AddSalesPage;

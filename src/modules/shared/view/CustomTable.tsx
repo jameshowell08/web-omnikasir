@@ -17,7 +17,7 @@ function CustomTable({headers, haveActions = false, children}: {headers: string[
                         {headers.map((header, index) => (
                             <CustomTableHead key={index} heading={header} />
                         ))}
-                        {haveActions && <TableHead />}
+                        {haveActions && <TableHead className="w-0" />}
                     </TableRow>
                 </TableHeader>
                 <TableBody>

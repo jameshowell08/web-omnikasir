@@ -33,15 +33,15 @@ function IMEIDialogContent({ productName, imeis }: { productName: string, imeis:
 
 function SalesDetailItemsTable({ salesItemsData }: { salesItemsData: SalesItemData[] | undefined }) {
     return (
-        <CustomTable headers={["SKU", "Nama Produk", "Merek", "Jumlah", "Harga", "IMEI", "Subtotal"]}>
+        <CustomTable headers={["SKU", "Nama Produk", "Merek", "Harga", "Jumlah", "IMEI", "Subtotal"]}>
             {
                 salesItemsData?.map((salesItemData) => (
                     <TableRow key={salesItemData.id}>
                         <TableCell>{salesItemData.sku}</TableCell>
                         <TableCell>{salesItemData.productName}</TableCell>
                         <TableCell>{salesItemData.brand}</TableCell>
-                        <TableCell>{salesItemData.getQuantity()}</TableCell>
                         <TableCell>{salesItemData.getPrice()}</TableCell>
+                        <TableCell>{salesItemData.getQuantity()}</TableCell>
                         <TableCell>
                             <Dialog>
                                 <DialogTrigger
@@ -114,7 +114,7 @@ function GetSalesDetailView({ id }: { id: string }) {
     return (
         <div>
             <HeaderWithBackButton title="Detail Penjualan" />
-            <div className="mx-2 mt-4">
+            <div className="mx-3 mt-4">
                 <GetSalesHeaderDetail salesHeaderData={salesData?.headerData} />
                 <SalesDetailItemsTable salesItemsData={salesData?.itemsData} />
             </div>
