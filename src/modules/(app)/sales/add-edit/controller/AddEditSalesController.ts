@@ -84,7 +84,7 @@ class AddEditSalesController {
     }
 
     public static calculateTotal(items: AddEditSalesItemFormSchemeType[]): number {
-        return items.reduce((acc, item) => acc + this.calculateSubtotal(item), 0);
+        return items.reduce((acc, item) => acc + BaseUtil.unformatNumberV2(item.subtotal), 0);
     }
 
     public static calculateTotalToString(items: AddEditSalesItemFormSchemeType[]): string {

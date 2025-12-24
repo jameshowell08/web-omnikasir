@@ -9,6 +9,7 @@ export const AddEditSalesItemFormScheme = z.object({
     price: z.string().min(1, "Harga tidak boleh kosong"),
     isNeedImei: z.boolean(),
     imeis: z.array(IMEIFormScheme),
+    subtotal: z.string(),
 })
 
 export type AddEditSalesItemFormSchemeType = z.infer<typeof AddEditSalesItemFormScheme>

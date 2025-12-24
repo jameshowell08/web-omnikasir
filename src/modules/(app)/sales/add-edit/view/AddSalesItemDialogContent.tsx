@@ -51,7 +51,7 @@ function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (i
         if (!isSkuValid) {
             toast.error("SKU tidak valid");
         } else {
-            onAddItem(data);
+            onAddItem({...data, subtotal: AddEditSalesController.calculateSubtotalToString(data)});
         }
     }
 
