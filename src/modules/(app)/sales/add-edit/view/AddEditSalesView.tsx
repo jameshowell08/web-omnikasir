@@ -18,6 +18,7 @@ import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormSch
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
 import AddEditSalesItemSection from "./AddEditSalesItemSection";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string, value?: string }) {
     return (
@@ -28,10 +29,11 @@ function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string
     )
 }
 
-function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[] }) {
+function AddEditSalesForm({ isEdit, customers, paymentMethods, sales }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[], sales?: AddEditSalesFormSchemeType }) {
     const router = useRouter();
     const form = useForm({
         resolver: zodResolver(AddEditSalesFormScheme),
+        values: sales,
         defaultValues: {
             customerId: "",
             paymentId: "",
@@ -93,7 +95,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
         const [success, errorMessage] = await AddEditSalesController.postSales(isEdit, data);
 
         if (success) {
-            toast.success("Penjualan berhasil ditambahkan");
+            toast.success(`Penjualan berhasil ${isEdit ? "diperbarui" : "ditambahkan"}`);
             router.replace(Routes.SALES.DEFAULT);
         } else {
             toast.error(errorMessage);
@@ -105,10 +107,10 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
             <FieldGroup className="flex flex-col gap-4 mt-3">
                 {isEdit &&
                     <div className="flex flex-row gap-4">
-                        <SalesHeaderItem label="ID Transaksi" />
-                        <SalesHeaderItem label="Tanggal Transaksi" />
-                        <SalesHeaderItem label="Metode Transaksi" />
-                        <SalesHeaderItem label="Status Transaksi" />
+                        <SalesHeaderItem label="ID Transaksi" value={sales?.transactionId} />
+                        <SalesHeaderItem label="Tanggal Transaksi" value={sales ? BaseUtil.formatDate(sales.transactionDate!) : undefined} />
+                        <SalesHeaderItem label="Metode Transaksi" value={sales?.transactionMethod} />
+                        <SalesHeaderItem label="Status Transaksi" value={sales?.transactionStatus} />
                     </div>
                 }
 
@@ -119,7 +121,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="gap-2">
                                 <FieldLabel className="font-bold gap-0">Nama Pelanggan<span className="text-red-500">*</span></FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
+                                <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                                     <SelectTrigger aria-invalid={fieldState.invalid}>
                                         <SelectValue placeholder="Pilih Pelanggan" />
                                     </SelectTrigger>
@@ -142,7 +144,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="gap-2">
                                 <FieldLabel className="font-bold gap-0">Metode Pembayaran<span className="text-red-500">*</span></FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
+                                <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                                     <SelectTrigger aria-invalid={fieldState.invalid}>
                                         <SelectValue placeholder="Pilih Metode Pembayaran" />
                                     </SelectTrigger>
@@ -179,15 +181,16 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                 />
             </FieldGroup>
 
-            <Button className="self-end mt-5" disabled={!form.formState.isValid}>Buat Penjualan</Button>
+            <Button className="self-end mt-5" disabled={!form.formState.isValid}>{isEdit ? "Ubah" : "Tambah"} Penjualan</Button>
         </form>
     )
 }
 
-function AddEditSalesView() {
+function AddEditSalesView({ isEdit = false, id = "" }: { isEdit?: boolean, id?: string }) {
     const showLoadingOverlay = useContext(LoadingOverlayContext);
     const [customers, setCustomers] = useState<CustomerData[]>([])
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethodData[]>([])
+    const [sales, setSales] = useState<AddEditSalesFormSchemeType | undefined>(undefined)
 
     const fetchCustomers = async () => {
         const [success, customers, errorMessage] = await AddEditSalesController.getCustomer()
@@ -207,9 +210,20 @@ function AddEditSalesView() {
         }
     }
 
+    const fetchSales = async () => {
+        if (isEdit) {
+            const [success, sales, errorMessage] = await AddEditSalesController.getSales(id)
+            if (success) {
+                setSales(sales)
+            } else {
+                toast.error(errorMessage)
+            }
+        }
+    }
+
     const initializePage = async () => {
         showLoadingOverlay(true)
-        await Promise.all([fetchCustomers(), fetchPaymentMethods()])
+        await Promise.all([fetchCustomers(), fetchPaymentMethods(), fetchSales()])
         showLoadingOverlay(false)
     }
 
@@ -219,8 +233,8 @@ function AddEditSalesView() {
 
     return (
         <div>
-            <HeaderWithBackButton title="Tambah Penjualan" />
-            <AddEditSalesForm customers={customers} paymentMethods={paymentMethods} isEdit={false} />
+            <HeaderWithBackButton title={`${isEdit ? "Ubah" : "Tambah"} Penjualan`} />
+            <AddEditSalesForm customers={customers} paymentMethods={paymentMethods} isEdit={isEdit} sales={sales} />
         </div>
     )
 }

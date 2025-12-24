@@ -35,8 +35,8 @@ class AddEditSalesController {
             items: salesItems
         }
 
-        const res = await fetch(Routes.TRANSACTION_API.DEFAULT, {
-            method: isEdit ? "PUT" : "POST",
+        const res = await fetch(isEdit ? Routes.TRANSACTION_API.BY_ID(sales.transactionId!) : Routes.TRANSACTION_API.DEFAULT, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -47,10 +47,70 @@ class AddEditSalesController {
         let errorMessage = ""
 
         if (!res.ok) {
-            errorMessage = data.message ?? "Gagal menambahkan penjualan"
+            errorMessage = data.message ?? `Gagal ${isEdit ? "memperbarui" : "menambahkan"} penjualan`
         }
 
         return [res.ok, errorMessage];
+    }
+
+    public static async getSales(id: string): Promise<[boolean, AddEditSalesFormSchemeType | undefined, string]> {
+        const res = await fetch(Routes.TRANSACTION_API.BY_ID(id), {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const data = await res.json();
+        let errorMessage = ""
+        let sales: AddEditSalesFormSchemeType | undefined = undefined
+
+        if (res.ok) {
+            sales = {
+                transactionId: data.data.transactionHeaderId,
+                transactionDate: new Date(data.data.transactionDate),
+                transactionMethod: data.data.transactionMethod,
+                transactionStatus: data.data.status,
+                customerId: data.data.customerId,
+                paymentId: data.data.paymentId,
+                items: Object.values(data.data.transactionDetails.reduce((items: Record<string, any>, item: any) => {
+                    if (!items[item.sku]) {
+                        items[item.sku] = {
+                            sku: item.sku,
+                            productName: item.product.productName,
+                            brand: item.product.brand,
+                            quantity: 0,
+                            price: parseFloat(item.price),
+                            isNeedImei: item.imeiCode !== null,
+                            imeis: [],
+                            subtotal: 0,
+                        };
+                    }
+
+                    items[item.sku].quantity += parseFloat(item.quantity);
+
+                    const imeiCode = item.imeiCode;
+
+                    if (imeiCode) {
+                        items[item.sku].imeis.push({
+                            value: imeiCode
+                        })
+                    }
+
+                    return items;
+                }, {})).map((item: any) => {
+                    const subtotal = item.quantity * item.price;
+                    item.quantity = BaseUtil.formatNumberV2(item.quantity);
+                    item.price = BaseUtil.formatNumberV2(item.price);
+                    item.subtotal = BaseUtil.formatNumberV2(subtotal);
+                    return item;
+                })
+            }
+        } else {
+            errorMessage = data.message ?? "Gagal mengambil data penjualan"
+        }
+
+        return [res.ok, sales, errorMessage];
     }
 
     public static async getProduct(sku: string): Promise<[boolean, ProductData | undefined, string]> {

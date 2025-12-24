@@ -229,9 +229,11 @@ function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId:
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem>
-                    <IconEdit />
-                    Edit
+                <DropdownMenuItem asChild>
+                    <Link href={Routes.SALES.EDIT(transactionHeaderId)}>
+                        <IconEdit />
+                        Edit
+                    </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />

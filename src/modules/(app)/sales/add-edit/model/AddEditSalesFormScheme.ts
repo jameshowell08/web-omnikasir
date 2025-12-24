@@ -3,6 +3,10 @@ import z from "zod";
 import { AddEditSalesItemFormScheme } from "./AddEditSalesItemFormScheme";
 
 export const AddEditSalesFormScheme = z.object({
+    transactionId: z.string().optional(),
+    transactionDate: z.date().optional(),
+    transactionMethod: z.string().optional(),
+    transactionStatus: z.string().optional(),
     customerId: z.string().min(1, "Nama pelanggan tidak boleh kosong"),
     paymentId: z.string().min(1, "Metode pembayaran tidak boleh kosong"),
     items: z.array(AddEditSalesItemFormScheme).min(1, "Harus ada minimal 1 item penjualan"),

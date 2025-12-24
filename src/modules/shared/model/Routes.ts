@@ -21,6 +21,7 @@ const Routes = {
     SALES: {
         DEFAULT: "/sales",
         ADD: "/sales/add",
+        EDIT: (id: string) => `/sales/edit/${id}`,
         GET_BY_ID: (id: string) => `/sales/${id}`,
     },
 
