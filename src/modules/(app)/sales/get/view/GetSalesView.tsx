@@ -227,16 +227,12 @@ function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId:
                     </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuSeparator />
-
                 <DropdownMenuItem asChild>
                     <Link href={Routes.SALES.EDIT(transactionHeaderId)}>
                         <IconEdit />
                         Edit
                     </Link>
                 </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
 
                 <DropdownMenuItem variant="destructive">
                     <IconTrash />
