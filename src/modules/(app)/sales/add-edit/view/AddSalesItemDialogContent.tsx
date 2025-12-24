@@ -13,14 +13,15 @@ import toast from "react-hot-toast";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import { Button } from "@/components/ui/button";
 
-function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function AddEditSalesItemForm({ formId, isEdit, initialValues, onSubmitForm }: { formId: string, isEdit: boolean, initialValues?: AddEditSalesItemFormSchemeType, onSubmitForm: (item: AddEditSalesItemFormSchemeType) => void }) {
     const [debouncedSku, setDebouncedSku] = useState("");
-    const [isSkuValid, setIsSkuValid] = useState(false);
+    const [isSkuValid, setIsSkuValid] = useState(isEdit);
     const [isSkuFieldLoading, setIsSkuFieldLoading] = useState(false);
     const skuDebounce = useRef<NodeJS.Timeout | null>(null);
 
     const form = useForm({
         resolver: zodResolver(AddEditSalesItemFormScheme),
+        values: initialValues,
         defaultValues: {
             sku: "",
             productName: "",
@@ -53,7 +54,7 @@ function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (i
         if (!isSkuValid) {
             toast.error("SKU tidak valid");
         } else {
-            onAddItem({ ...data, subtotal: AddEditSalesController.calculateSubtotalToString(data) });
+            onSubmitForm({ ...data, subtotal: AddEditSalesController.calculateSubtotalToString(data) });
         }
     }
 
@@ -93,6 +94,7 @@ function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (i
                                     }}
                                     aria-invalid={fieldState.invalid}
                                     placeholder="Masukkan SKU"
+                                    disabled={isEdit}
                                 />
 
                                 {
@@ -211,21 +213,21 @@ function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (i
     )
 }
 
-function AddSalesItemDialogContent({ onAddItem }: { onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function AddEditSalesItemDialogContent({ isEdit = false, initialValues, onSubmitForm }: { isEdit?: boolean, initialValues?: AddEditSalesItemFormSchemeType, onSubmitForm: (item: AddEditSalesItemFormSchemeType) => void }) {
     return (
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Tambah Item Penjualan</DialogTitle>
-                <DialogDescription>Isi form berikut untuk menambahkan item penjualan.</DialogDescription>
+                <DialogTitle>{isEdit ? "Ubah" : "Tambah"} Item Penjualan</DialogTitle>
+                <DialogDescription>Isi form berikut untuk {isEdit ? "mengubah" : "menambahkan"} item penjualan.</DialogDescription>
             </DialogHeader>
 
-            <AddSalesItemForm formId="add-sales-item-form" onAddItem={onAddItem} />
+            <AddEditSalesItemForm formId="add-sales-item-form" isEdit={isEdit} initialValues={initialValues} onSubmitForm={onSubmitForm} />
 
             <DialogFooter>
-                <Button form="add-sales-item-form">Tambah Item</Button>
+                <Button form="add-sales-item-form">{isEdit ? "Ubah" : "Tambah"} Item</Button>
             </DialogFooter>
         </DialogContent>
     )
 }
 
-export default AddSalesItemDialogContent;
+export default AddEditSalesItemDialogContent;

@@ -10,7 +10,7 @@ import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
-import AddSalesItemDialogContent from "./AddSalesItemDialogContent";
+import AddEditSalesItemDialogContent from "./AddSalesItemDialogContent";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
@@ -27,7 +27,7 @@ function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disab
                     </Button>
                 </DialogTrigger>
 
-                <AddSalesItemDialogContent onAddItem={(item) => {
+                <AddEditSalesItemDialogContent onSubmitForm={(item) => {
                     onAddItem(item);
                     setShowDialog(false);
                 }} />
@@ -36,7 +36,8 @@ function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disab
     )
 }
 
-function SalesItemRow({ saleItem }: { saleItem: AddEditSalesItemFormSchemeType }) {
+function SalesItemRow({ saleItem, onChangeItem, onRemoveItem }: { saleItem: AddEditSalesItemFormSchemeType, onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+    const [showDialog, setShowDialog] = useState(false);
     const imeiIsInvalid = saleItem.imeis.length < BaseUtil.unformatNumberV2(saleItem.quantity);
 
     return (
@@ -58,31 +59,40 @@ function SalesItemRow({ saleItem }: { saleItem: AddEditSalesItemFormSchemeType }
             </TableCell>
             <TableCell>Rp{AddEditSalesController.calculateSubtotalToString(saleItem)}</TableCell>
             <TableCell>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                            <IconDots />
-                        </Button>
-                    </DropdownMenuTrigger>
+                <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon-sm">
+                                <IconDots />
+                            </Button>
+                        </DropdownMenuTrigger>
 
-                    <DropdownMenuContent>
-                        <DropdownMenuItem>
-                            <IconEdit />
-                            Edit
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem variant="destructive">
-                            <IconTrash />
-                            Hapus
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        <DropdownMenuContent align="end">
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem>
+                                    <IconEdit />
+                                    Edit
+                                </DropdownMenuItem>
+                            </DialogTrigger>
+
+                            <DropdownMenuItem variant="destructive" onClick={() => onRemoveItem(saleItem)}>
+                                <IconTrash />
+                                Hapus
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <AddEditSalesItemDialogContent isEdit initialValues={saleItem} onSubmitForm={(data) => {
+                        onChangeItem(data);
+                        setShowDialog(false);
+                    }} />
+                </Dialog>
             </TableCell>
         </TableRow>
     )
 }
 
-function AddEditSalesItemTable({ salesItems }: { salesItems: AddEditSalesItemFormSchemeType[] }) {
+function AddEditSalesItemTable({ salesItems, onChangeItem, onRemoveItem }: { salesItems: AddEditSalesItemFormSchemeType[], onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     return (
         <CustomTable headers={["SKU", "Nama Produk", "Merek", "Harga", "Jumlah", "IMEI", "Subtotal"]} haveActions>
             {
@@ -90,7 +100,7 @@ function AddEditSalesItemTable({ salesItems }: { salesItems: AddEditSalesItemFor
                     <>
                         {
                             salesItems.map((item) => (
-                                <SalesItemRow key={item.sku} saleItem={item} />
+                                <SalesItemRow key={item.sku} saleItem={item} onChangeItem={onChangeItem} onRemoveItem={onRemoveItem} />
                             ))
                         }
                         <TableRow>
@@ -111,11 +121,11 @@ function AddEditSalesItemTable({ salesItems }: { salesItems: AddEditSalesItemFor
     )
 }
 
-function AddEditSalesItemSection({ disableAddItemBtn, salesItems, onAddItem }: { disableAddItemBtn: boolean, salesItems: AddEditSalesItemFormSchemeType[], onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function AddEditSalesItemSection({ disableAddItemBtn, salesItems, onAddItem, onChangeItem, onRemoveItem }: { disableAddItemBtn: boolean, salesItems: AddEditSalesItemFormSchemeType[], onAddItem: (item: AddEditSalesItemFormSchemeType) => void, onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     return (
         <section className="mt-5">
             <AddEditSalesItemSectionHeader disableAddItemBtn={disableAddItemBtn} onAddItem={onAddItem} />
-            <AddEditSalesItemTable salesItems={salesItems} />
+            <AddEditSalesItemTable salesItems={salesItems} onChangeItem={onChangeItem} onRemoveItem={onRemoveItem} />
         </section>
     )
 }

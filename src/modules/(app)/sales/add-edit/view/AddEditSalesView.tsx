@@ -25,7 +25,7 @@ function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string
     )
 }
 
-function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[] }) {
+function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[] }) {    
     const form = useForm({
         resolver: zodResolver(AddEditSalesFormScheme),
         defaultValues: {
@@ -44,6 +44,17 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
         } else {
             form.setValue("items", [...salesItems, item]);
         }
+    }
+
+    const handleChangeItem = (item: AddEditSalesItemFormSchemeType) => {
+        form.setValue("items", salesItems.map((saleItem) =>
+            saleItem.sku === item.sku ?
+                { ...item, subtotal: AddEditSalesController.calculateSubtotalToString(item) }
+                : saleItem));
+    }
+
+    const handleRemoveItem = (item: AddEditSalesItemFormSchemeType) => {
+        form.setValue("items", salesItems.filter((saleItem) => saleItem.sku !== item.sku));
     }
 
     const handleSubmit = (data: AddEditSalesFormSchemeType) => {
@@ -111,7 +122,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                 </div>
             </FieldGroup>
 
-            <AddEditSalesItemSection disableAddItemBtn={disableButton} salesItems={salesItems} onAddItem={handleAddItem} />
+            <AddEditSalesItemSection disableAddItemBtn={disableButton} salesItems={salesItems} onAddItem={handleAddItem} onChangeItem={handleChangeItem} onRemoveItem={handleRemoveItem} />
 
             <Button className="self-end mt-5" disabled={!form.formState.isValid}>Buat Penjualan</Button>
         </form>
