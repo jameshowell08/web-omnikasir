@@ -23,6 +23,7 @@ class GetSalesDetailController {
             const headerData = new SalesHeaderData(
                 response.transactionHeaderId,
                 new Date(response.transactionDate),
+                response.transactionMethod,
                 response.status,
                 response.customer.customerName,
                 response.paymentMethod.paymentName

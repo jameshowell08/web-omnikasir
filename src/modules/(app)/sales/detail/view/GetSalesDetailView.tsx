@@ -48,7 +48,8 @@ function GetSalesHeaderDetail({ salesHeaderData }: { salesHeaderData: SalesHeade
         <section className="flex flex-row gap-10">
             <SalesHeaderDetailItem label="ID Transaksi" value={salesHeaderData?.transactionId || ""} />
             <SalesHeaderDetailItem label="Tanggal Transaksi" value={salesHeaderData?.getTransactionDate() || ""} />
-            <SalesHeaderDetailItem label="Status Transaksi" value={salesHeaderData?.transactionStatus || ""} />
+            <SalesHeaderDetailItem label="Metode Transaksi" value={salesHeaderData?.transactionMethod || ""} />
+            <SalesHeaderDetailItem label="Status Transaksi" value={salesHeaderData?.getTransactionStatus() || ""} />
             <SalesHeaderDetailItem label="Nama Pelanggan" value={salesHeaderData?.customerName || ""} />
             <SalesHeaderDetailItem label="Metode Pembayaran" value={salesHeaderData?.paymentMethod || ""} />
         </section>

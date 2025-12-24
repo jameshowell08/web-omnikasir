@@ -27,6 +27,7 @@ import PaymentMethodData from "../model/PaymentMethodData";
 import SalesTableData from "../model/SalesTableData";
 import { SalesTableFilterFormScheme, SalesTableFilterFormSchemeDefaultValues, SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormScheme";
 import Link from "next/link";
+import SalesUtil from "../../[shared]/util/SalesUtil";
 
 function FilterDialogBody({ initialValues, formId, paymentMethods, handleFilter }: { initialValues: SalesTableFilterFormSchemeType | undefined, formId: string, paymentMethods: PaymentMethodData[], handleFilter: (data: SalesTableFilterFormSchemeType) => void }) {
     const form = useForm({
@@ -253,7 +254,7 @@ function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
                         <TableCell>{sale.transactionHeaderId}</TableCell>
                         <TableCell>{BaseUtil.formatDate(sale.transactionDate)}</TableCell>
                         <TableCell>{sale.transactionMethod}</TableCell>
-                        <TableCell>{GetSalesController.mapStatusLabel(sale.status)}</TableCell>
+                        <TableCell>{SalesUtil.mapStatusLabel(sale.status)}</TableCell>
                         <TableCell>{sale.paymentMethod}</TableCell>
                         <TableCell>{sale.customerName}</TableCell>
                         <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
