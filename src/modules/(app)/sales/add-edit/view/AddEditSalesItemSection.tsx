@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import CustomTable from "@/src/modules/shared/view/CustomTable";
@@ -11,7 +12,6 @@ import { useState } from "react";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import AddEditSalesItemDialogContent from "./AddSalesItemDialogContent";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     const [showDialog, setShowDialog] = useState(false);
@@ -123,7 +123,7 @@ function AddEditSalesItemTable({ salesItems, onChangeItem, onRemoveItem }: { sal
 
 function AddEditSalesItemSection({ disableAddItemBtn, salesItems, onAddItem, onChangeItem, onRemoveItem }: { disableAddItemBtn: boolean, salesItems: AddEditSalesItemFormSchemeType[], onAddItem: (item: AddEditSalesItemFormSchemeType) => void, onChangeItem: (item: AddEditSalesItemFormSchemeType) => void, onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     return (
-        <section className="mt-5">
+        <section>
             <AddEditSalesItemSectionHeader disableAddItemBtn={disableAddItemBtn} onAddItem={onAddItem} />
             <AddEditSalesItemTable salesItems={salesItems} onChangeItem={onChangeItem} onRemoveItem={onRemoveItem} />
         </section>

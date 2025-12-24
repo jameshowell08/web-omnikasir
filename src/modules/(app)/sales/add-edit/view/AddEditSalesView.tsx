@@ -1,4 +1,5 @@
 'use client';
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,11 +11,10 @@ import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesFormScheme, AddEditSalesFormSchemeType } from "../model/AddEditSalesFormScheme";
+import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
 import AddEditSalesItemSection from "./AddEditSalesItemSection";
-import { Button } from "@/components/ui/button";
-import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 
 function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string, value?: string }) {
     return (
@@ -25,7 +25,7 @@ function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string
     )
 }
 
-function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[] }) {    
+function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[] }) {
     const form = useForm({
         resolver: zodResolver(AddEditSalesFormScheme),
         defaultValues: {
@@ -52,9 +52,9 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
         form.setValue("items", salesItems.map((saleItem) =>
             saleItem.sku === item.sku ?
                 { ...item, subtotal: AddEditSalesController.calculateSubtotalToString(item) }
-                : saleItem),{
-                    shouldValidate: true,
-                });
+                : saleItem), {
+            shouldValidate: true,
+        });
     }
 
     const handleRemoveItem = (item: AddEditSalesItemFormSchemeType) => {
@@ -126,9 +126,18 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                         )}
                     />
                 </div>
-            </FieldGroup>
 
-            <AddEditSalesItemSection disableAddItemBtn={disableButton} salesItems={salesItems} onAddItem={handleAddItem} onChangeItem={handleChangeItem} onRemoveItem={handleRemoveItem} />
+                <Controller
+                    name="items"
+                    control={form.control}
+                    render={({ fieldState }) => (
+                        <Field>
+                            <AddEditSalesItemSection disableAddItemBtn={disableButton} salesItems={salesItems} onAddItem={handleAddItem} onChangeItem={handleChangeItem} onRemoveItem={handleRemoveItem} />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
+            </FieldGroup>
 
             <Button className="self-end mt-5" disabled={!form.formState.isValid}>Buat Penjualan</Button>
         </form>
