@@ -42,7 +42,9 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
         if (salesItems.some((saleItem) => saleItem.sku === item.sku)) {
             toast.error("Item dengan SKU yang sama sudah ada");
         } else {
-            form.setValue("items", [...salesItems, item]);
+            form.setValue("items", [...salesItems, item], {
+                shouldValidate: true,
+            });
         }
     }
 
@@ -50,11 +52,15 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
         form.setValue("items", salesItems.map((saleItem) =>
             saleItem.sku === item.sku ?
                 { ...item, subtotal: AddEditSalesController.calculateSubtotalToString(item) }
-                : saleItem));
+                : saleItem),{
+                    shouldValidate: true,
+                });
     }
 
     const handleRemoveItem = (item: AddEditSalesItemFormSchemeType) => {
-        form.setValue("items", salesItems.filter((saleItem) => saleItem.sku !== item.sku));
+        form.setValue("items", salesItems.filter((saleItem) => saleItem.sku !== item.sku), {
+            shouldValidate: true,
+        });
     }
 
     const handleSubmit = (data: AddEditSalesFormSchemeType) => {
