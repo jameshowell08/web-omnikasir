@@ -1,9 +1,9 @@
-import GetTransactionDetailView from "@/src/modules/(app)/sales/detail/view/GetTransactionDetailView";
+import GetSalesDetailView from "@/src/modules/(app)/sales/detail/view/GetSalesDetailView";
 
-async function GetTransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+async function GetSalesDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
 
-    return <GetTransactionDetailView id={id} />
+    return <GetSalesDetailView id={id} />
 }
 
-export default GetTransactionDetailPage;
+export default GetSalesDetailPage;

@@ -52,7 +52,8 @@ const Routes = {
     },
 
     TRANSACTION_API: {
-        DEFAULT: "/api/transaction"
+        DEFAULT: "/api/transaction",
+        BY_ID: (id: string) => `/api/transaction/${id}`
     }
 }
 
