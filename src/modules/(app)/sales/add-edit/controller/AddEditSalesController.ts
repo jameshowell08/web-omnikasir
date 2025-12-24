@@ -1,11 +1,58 @@
 import Routes from "@/src/modules/shared/model/Routes";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import { AddEditSalesFormSchemeType } from "../model/AddEditSalesFormScheme";
+import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
-import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import ProductData from "../model/ProductData";
 
 class AddEditSalesController {
+    public static async postSales(isEdit: boolean, sales: AddEditSalesFormSchemeType): Promise<[boolean, string]> {
+        const salesItems: any[] = []
+
+        sales.items.forEach((item) => {
+            if (item.isNeedImei) {
+                item.imeis.forEach((imei) => {
+                    salesItems.push({
+                        sku: item.sku,
+                        quantity: 1,
+                        price: BaseUtil.unformatNumberV2(item.price),
+                        imeiCode: imei.value,
+                    })
+                })
+            } else {
+                salesItems.push({
+                    sku: item.sku,
+                    quantity: BaseUtil.unformatNumberV2(item.quantity),
+                    price: BaseUtil.unformatNumberV2(item.price),
+                })
+            }
+        })
+
+        const salesData = {
+            customerId: sales.customerId,
+            paymentId: sales.paymentId,
+            items: salesItems
+        }
+
+        const res = await fetch(Routes.TRANSACTION_API.DEFAULT, {
+            method: isEdit ? "PUT" : "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(salesData),
+        });
+
+        const data = await res.json();
+        let errorMessage = ""
+
+        if (!res.ok) {
+            errorMessage = data.message ?? "Gagal menambahkan penjualan"
+        }
+
+        return [res.ok, errorMessage];
+    }
+
     public static async getProduct(sku: string): Promise<[boolean, ProductData | undefined, string]> {
         const res = await fetch(Routes.PRODUCTS_API.GET_BY_ID(sku), {
             method: "GET",

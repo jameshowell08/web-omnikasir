@@ -3,19 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Routes from "@/src/modules/shared/model/Routes";
 import HeaderWithBackButton from "@/src/modules/shared/view/HeaderWithBackButton";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesFormScheme, AddEditSalesFormSchemeType } from "../model/AddEditSalesFormScheme";
 import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
 import AddEditSalesItemSection from "./AddEditSalesItemSection";
-import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
 
 function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string, value?: string }) {
     return (
@@ -27,16 +29,17 @@ function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string
 }
 
 function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boolean, customers: CustomerData[], paymentMethods: PaymentMethodData[] }) {
+    const router = useRouter();
     const form = useForm({
         resolver: zodResolver(AddEditSalesFormScheme),
         defaultValues: {
-            customerName: "",
-            paymentMethod: "",
+            customerId: "",
+            paymentId: "",
             items: [],
         }
     });
 
-    const disableButton = form.watch("customerName").length === 0 || form.watch("paymentMethod").length === 0;
+    const disableButton = form.watch("customerId").length === 0 || form.watch("paymentId").length === 0;
     const salesItems = form.watch("items");
 
     const handleAddItem = (item: AddEditSalesItemFormSchemeType) => {
@@ -70,7 +73,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
         if (item?.imeis.some((saleIMEI) => saleIMEI.value === imei.value)) {
             toast.error("IMEI dengan nomor yang sama sudah ada");
         } else {
-            form.setValue("items", salesItems.map((saleItem) => 
+            form.setValue("items", salesItems.map((saleItem) =>
                 saleItem.sku === sku ? { ...saleItem, imeis: [...saleItem.imeis, imei] } : saleItem
             ), {
                 shouldValidate: true,
@@ -79,15 +82,22 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
     }
 
     const handleRemoveIMEI = (sku: string, imei: IMEIFormSchemeType) => {
-        form.setValue("items", salesItems.map((saleItem) => 
+        form.setValue("items", salesItems.map((saleItem) =>
             saleItem.sku === sku ? { ...saleItem, imeis: saleItem.imeis.filter((saleIMEI) => saleIMEI.value !== imei.value) } : saleItem
         ), {
             shouldValidate: true,
         });
     }
 
-    const handleSubmit = (data: AddEditSalesFormSchemeType) => {
-        console.log(data);
+    const handleSubmit = async (data: AddEditSalesFormSchemeType) => {
+        const [success, errorMessage] = await AddEditSalesController.postSales(isEdit, data);
+
+        if (success) {
+            toast.success("Penjualan berhasil ditambahkan");
+            router.replace(Routes.SALES.DEFAULT);
+        } else {
+            toast.error(errorMessage);
+        }
     }
 
     return (
@@ -104,7 +114,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
 
                 <div className="flex flex-row gap-4">
                     <Controller
-                        name="customerName"
+                        name="customerId"
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="gap-2">
@@ -127,7 +137,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
                     />
 
                     <Controller
-                        name="paymentMethod"
+                        name="paymentId"
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="gap-2">
