@@ -246,7 +246,7 @@ function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId:
 
 function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
     return (
-        <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Total"]} haveActions>
+        <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Pelanggan", "Total"]} haveActions>
             {
                 sales.map((sale) => (
                     <TableRow key={sale.transactionHeaderId}>
@@ -255,6 +255,7 @@ function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
                         <TableCell>{sale.transactionMethod}</TableCell>
                         <TableCell>{GetSalesController.mapStatusLabel(sale.status)}</TableCell>
                         <TableCell>{sale.paymentMethod}</TableCell>
+                        <TableCell>{sale.customerName}</TableCell>
                         <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
                         <TableCell className="w-0">
                             <GetSalesTableCellAction transactionHeaderId={sale.transactionHeaderId} />

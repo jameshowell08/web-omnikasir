@@ -5,6 +5,7 @@ class SalesTableData {
         public transactionMethod: string,
         public status: string,
         public paymentMethod: string,
+        public customerName: string,
         public totalAmount: number
     ) {}
 
