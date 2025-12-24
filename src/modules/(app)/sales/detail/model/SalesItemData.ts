@@ -6,8 +6,9 @@ class SalesItemData {
         public sku: string,
         public productName: string,
         public brand: string,
-        private quantity: number,
-        private price: number
+        public quantity: number,
+        public price: number,
+        public imeis: string[]
     ) { }
 
     public getQuantity(): string {

@@ -10,10 +10,30 @@ import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay"
 import GetSalesDetailController from "../controller/GetSalesDetailController";
 import toast from "react-hot-toast";
 import SalesItemData from "../model/SalesItemData";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+
+function IMEIDialogContent({ productName, imeis }: { productName: string, imeis: string[] }) {
+    return (
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>IMEI</DialogTitle>
+                <DialogDescription>IMEI untuk {productName}</DialogDescription>
+            </DialogHeader>
+
+            <Separator />
+
+            {imeis.map((imei) => (
+                <p key={imei}>{imei}</p>
+            ))}
+        </DialogContent>
+    )
+}
 
 function SalesDetailItemsTable({ salesItemsData }: { salesItemsData: SalesItemData[] | undefined }) {
     return (
-        <CustomTable headers={["SKU", "Nama Produk", "Merek", "Jumlah", "Harga", "Subtotal"]}>
+        <CustomTable headers={["SKU", "Nama Produk", "Merek", "Jumlah", "Harga", "IMEI", "Subtotal"]}>
             {
                 salesItemsData?.map((salesItemData) => (
                     <TableRow key={salesItemData.id}>
@@ -22,12 +42,26 @@ function SalesDetailItemsTable({ salesItemsData }: { salesItemsData: SalesItemDa
                         <TableCell>{salesItemData.brand}</TableCell>
                         <TableCell>{salesItemData.getQuantity()}</TableCell>
                         <TableCell>{salesItemData.getPrice()}</TableCell>
+                        <TableCell>
+                            <Dialog>
+                                <DialogTrigger
+                                    disabled={salesItemData.imeis.length <= 1}
+                                    className="flex flex-row gap-2 items-center cursor-pointer"
+                                >
+                                    {salesItemData.imeis.length === 0 ? "-" : salesItemData.imeis[0]}
+                                    {salesItemData.imeis.length > 1 && (
+                                        <Badge variant="outline">+ {salesItemData.imeis.length - 1}</Badge>
+                                    )}
+                                </DialogTrigger>
+                                <IMEIDialogContent productName={salesItemData.productName} imeis={salesItemData.imeis} />
+                            </Dialog>
+                        </TableCell>
                         <TableCell>{salesItemData.getSubtotalInString()}</TableCell>
                     </TableRow>
                 ))
             }
             <TableRow>
-                <TableCell colSpan={5}>Total</TableCell>
+                <TableCell colSpan={6} className="font-bold">Total</TableCell>
                 <TableCell>{BaseUtil.formatRupiah(GetSalesDetailController.getTotalSales(salesItemsData ?? []))}</TableCell>
             </TableRow>
         </CustomTable>

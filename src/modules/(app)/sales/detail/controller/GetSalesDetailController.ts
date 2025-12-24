@@ -5,6 +5,32 @@ import SalesItemData from "../model/SalesItemData";
 
 class GetSalesDetailController {
 
+    private static parseTransactionDetails(transactionDetails: any[]): SalesItemData[] {
+        return Object.values(
+            transactionDetails.reduce((salesItemDataMap: Record<string, SalesItemData>, transactionDetail: any) => {
+                const sku = transactionDetail.sku
+                const imeiCode = transactionDetail.imeiCode
+
+                if (!salesItemDataMap[sku]) {
+                    salesItemDataMap[sku] = new SalesItemData(
+                        transactionDetail.transactionDetailId,
+                        sku,
+                        transactionDetail.product.productName,
+                        transactionDetail.product.brand,
+                        0,
+                        transactionDetail.price,
+                        []
+                    )
+                }
+
+                salesItemDataMap[sku].quantity += parseFloat(transactionDetail.quantity)
+                if (imeiCode) salesItemDataMap[sku].imeis.push(imeiCode)
+
+                return salesItemDataMap
+            }, {})
+        ) as SalesItemData[]
+    }
+
     public static async getSalesDetail(id: string): Promise<[boolean, SalesData | undefined, string]> {
         const res = await fetch(Routes.TRANSACTION_API.BY_ID(id), {
             method: "GET",
@@ -29,14 +55,9 @@ class GetSalesDetailController {
                 response.paymentMethod.paymentName
             )
 
-            const itemDatas = response.transactionDetails.map((transactionDetail: any) => new SalesItemData(
-                transactionDetail.transactionDetailId,
-                transactionDetail.sku,
-                transactionDetail.product.productName,
-                transactionDetail.product.brand,
-                parseFloat(transactionDetail.quantity),
-                parseFloat(transactionDetail.price)
-            ))
+            const itemDatas = this.parseTransactionDetails(response.transactionDetails)
+
+            console.log(itemDatas)
 
             salesData = new SalesData(headerData, itemDatas)
         } else {
