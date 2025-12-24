@@ -39,7 +39,11 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods }: { isEdit: boole
     const salesItems = form.watch("items");
 
     const handleAddItem = (item: AddEditSalesItemFormSchemeType) => {
-        form.setValue("items", [...form.watch("items"), item]);
+        if (salesItems.some((saleItem) => saleItem.sku === item.sku)) {
+            toast.error("Item dengan SKU yang sama sudah ada");
+        } else {
+            form.setValue("items", [...salesItems, item]);
+        }
     }
 
     const handleSubmit = (data: AddEditSalesFormSchemeType) => {

@@ -28,7 +28,8 @@ function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (i
             quantity: "",
             price: "",
             isNeedImei: false,
-            imeis: []
+            imeis: [],
+            subtotal: ""
         }
     })
 
@@ -48,10 +49,11 @@ function AddSalesItemForm({ formId, onAddItem }: { formId: string, onAddItem: (i
     }
 
     const handleSubmit = (data: AddEditSalesItemFormSchemeType) => {
+        console.log(data);
         if (!isSkuValid) {
             toast.error("SKU tidak valid");
         } else {
-            onAddItem({...data, subtotal: AddEditSalesController.calculateSubtotalToString(data)});
+            onAddItem({ ...data, subtotal: AddEditSalesController.calculateSubtotalToString(data) });
         }
     }
 

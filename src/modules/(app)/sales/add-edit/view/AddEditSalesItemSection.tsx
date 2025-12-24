@@ -6,11 +6,12 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import CustomTable from "@/src/modules/shared/view/CustomTable";
-import { IconDots, IconPlus } from "@tabler/icons-react";
+import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import AddSalesItemDialogContent from "./AddSalesItemDialogContent";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     const [showDialog, setShowDialog] = useState(false);
@@ -57,9 +58,25 @@ function SalesItemRow({ saleItem }: { saleItem: AddEditSalesItemFormSchemeType }
             </TableCell>
             <TableCell>Rp{AddEditSalesController.calculateSubtotalToString(saleItem)}</TableCell>
             <TableCell>
-                <Button variant="ghost" size="icon-sm">
-                    <IconDots />
-                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon-sm">
+                            <IconDots />
+                        </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>
+                            <IconEdit />
+                            Edit
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem variant="destructive">
+                            <IconTrash />
+                            Hapus
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </TableCell>
         </TableRow>
     )
