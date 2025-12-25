@@ -2,6 +2,7 @@
 
 import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderController";
 import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
+import Menu from "@/src/modules/(app)/model/Menu";
 import { Constants } from "@/src/modules/shared/model/Constants";
 import Routes from "@/src/modules/shared/model/Routes";
 import { getUser } from "@/src/modules/shared/util/user";
@@ -23,78 +24,7 @@ function AppLayout({
     }
 
     const [controller] = useState(() => new AppHeaderController(eventCallback))
-    const initialMenus = [
-        {
-            menuName: "Dashboard",
-            menuIcon: IconLayoutDashboard,
-            expanded: true,
-            menuItems: [
-                {
-                    menuItemName: "Overview",
-                    menuItemIcon: IconHome,
-                    menuItemPath: "/overview"
-                }
-            ]
-        },
-        {
-            menuName: "Transaksi",
-            menuIcon: IconReceipt,
-            expanded: true,
-            menuItems: [
-                {
-                    menuItemName: "Penjualan",
-                    menuItemIcon: IconCashRegister,
-                    menuItemPath: Routes.SALES.DEFAULT
-                },
-                {
-                    menuItemName: "Pelanggan",
-                    menuItemIcon: IconUsers,
-                    menuItemPath: Routes.CUSTOMER.DEFAULT
-                }
-            ]
-        },
-        {
-            menuName: "Inventori",
-            menuIcon: IconPackages,
-            expanded: true,
-            menuItems: [
-                {
-                    menuItemName: "Produk",
-                    menuItemIcon: IconPackage,
-                    menuItemPath: Constants.PRODUCTS_URL
-                },
-                {
-                    menuItemName: "Kategori Produk",
-                    menuItemIcon: IconTags,
-                    menuItemPath: Constants.CATEGORIES_URL
-                },
-                {
-                    menuItemName: "Pembelian",
-                    menuItemIcon: IconStackPush,
-                    menuItemPath: Routes.PURCHASE.GET
-                }
-            ]
-        },
-        {
-            menuName: "Pengaturan",
-            menuIcon: IconSettings,
-            expanded: true,
-            menuItems: [
-                {
-                    menuItemName: "Profil Toko",
-                    menuItemIcon: IconBuildingStore,
-                    menuItemPath: "/store-profile"
-                },
-                {
-                    menuItemName: "Metode Pembayaran",
-                    menuItemIcon: IconCreditCardPay,
-                    menuItemPath: Routes.PAYMENT_METHOD.GET
-                }
-            ]
-        }
-    ];
-
-    const [menus, setMenus] = useState(initialMenus);
+    const [menus, setMenus] = useState(AppHeaderController.menus);
     const [isNavbarVisible, showNavbar] = useState(true);
     const pathname = usePathname();
     const [user] = useState(() => getUser());
@@ -122,14 +52,22 @@ function AppLayout({
 
             <section className="flex flex-row flex-1">
                 <nav className={`fixed h-full transition ease-in-out duration-200 p-6 w-2xs border-r ${!isNavbarVisible && '-translate-x-full'}`}>
-                    {menus.map((menu, index) => (
+                    {menus.filter(menu => menu.allowedForRole(user?.role)).map((menu, index) => (
                         <div key={menu.menuName} className="select-none">
                             <div
                                 className={`flex flex-row items-center py-1 px-2 rounded-lg hover:bg-black/10 ${index > 0 && "mt-2"}`}
                                 onClick={() => {
-                                    setMenus(prevMenus => prevMenus.map((m, i) =>
-                                        i === index ? { ...m, expanded: !m.expanded } : m
-                                    ));
+                                    setMenus(prevMenus => prevMenus.map((menu, idx) => {
+                                        if (idx === index) {
+                                            return new Menu(
+                                                menu.menuName,
+                                                menu.menuIcon,
+                                                !menu.expanded,
+                                                menu.menuItems
+                                            )
+                                        }
+                                        return menu
+                                    }));
                                 }}
                             >
                                 {<menu.menuIcon size={18} />}
@@ -137,7 +75,7 @@ function AppLayout({
                                 <IconChevronRight size={18} className={`${menu.expanded && "rotate-90"}`} />
                             </div>
 
-                            {menu.expanded && menu.menuItems.map((menuItem) => (
+                            {menu.expanded && menu.menuItems.filter(menuItem => menuItem.allowedForRole(user?.role)).map((menuItem) => (
                                 <Link key={menuItem.menuItemName} className={`mt-1 ml-2 flex flex-row items-center py-1 px-2 rounded-lg hover:bg-black/10 ${pathname === menuItem.menuItemPath && "bg-black/20"}`} href={menuItem.menuItemPath}>
                                     {<menuItem.menuItemIcon size={18} />}
                                     <p className="text-sm pl-2 flex-1">{menuItem.menuItemName}</p>

@@ -46,8 +46,7 @@ export class LoginController {
                 ))
                 this.eventCallback(new NavigateToOverviewPage())
             } else {
-                const errorJson: { error: string } = await response.json()
-                this.eventCallback(new ShowErrorToast(errorJson.error))
+                this.eventCallback(new ShowErrorToast(data.error))
             }
         } catch (error) {
             console.error(error)
