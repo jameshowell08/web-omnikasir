@@ -210,7 +210,7 @@ function FilterSales({
     )
 }
 
-function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId: string }) {
+function GetSalesTableCellAction({ transactionHeaderId, onDelete }: { transactionHeaderId: string, onDelete: (id: string) => void }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -234,7 +234,7 @@ function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId:
                     </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem variant="destructive">
+                <DropdownMenuItem variant="destructive" onClick={() => onDelete(transactionHeaderId)}>
                     <IconTrash />
                     Hapus
                 </DropdownMenuItem>
@@ -243,7 +243,7 @@ function GetSalesTableCellAction({ transactionHeaderId }: { transactionHeaderId:
     )
 }
 
-function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
+function GetSalesTable({ sales, onDelete }: { sales: SalesTableData[], onDelete: (id: string) => void }) {
     return (
         <CustomTable headers={["ID", "Tanggal", "Metode Transaksi", "Status", "Metode Pembayaran", "Pelanggan", "Total"]} haveActions>
             {
@@ -257,7 +257,7 @@ function GetSalesTable({ sales }: { sales: SalesTableData[] }) {
                         <TableCell>{sale.customerName}</TableCell>
                         <TableCell>{BaseUtil.formatRupiah(sale.totalAmount)}</TableCell>
                         <TableCell className="w-0">
-                            <GetSalesTableCellAction transactionHeaderId={sale.transactionHeaderId} />
+                            <GetSalesTableCellAction transactionHeaderId={sale.transactionHeaderId} onDelete={onDelete} />
                         </TableCell>
                     </TableRow>
                 ))
@@ -304,6 +304,19 @@ function GetSalesView() {
         setFilterFormScheme(data)
     }
 
+    const handleDelete = async (id: string) => {
+        showLoadingOverlay(true)
+        const [isSuccess, errorMessage] = await GetSalesController.removeSales(id)
+
+        if (isSuccess) {
+            toast.success("Penjualan berhasil dihapus!")
+            await fetchSales(currentPage, selectedAmount, searchQuery, filterFormScheme)
+        } else {
+            toast.error(errorMessage)
+        }
+        showLoadingOverlay(false)
+    }
+
     useEffect(() => {
         fetchSales(currentPage, selectedAmount, searchQuery, filterFormScheme)
     }, [currentPage, selectedAmount, searchQuery, filterFormScheme])
@@ -327,7 +340,7 @@ function GetSalesView() {
             />
             {
                 sales ? (
-                    <GetSalesTable sales={sales} />
+                    <GetSalesTable sales={sales} onDelete={handleDelete} />
                 ) : (<TablePlaceholder />)
             }
             <TablePagination currentPage={currentPage} maxPage={totalPage} onChangePage={setCurrentPage} />

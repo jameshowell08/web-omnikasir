@@ -5,6 +5,21 @@ import { SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormSch
 
 
 class GetSalesController {
+    public static async removeSales(id: string): Promise<[boolean, string]> {
+        const res = await fetch(Routes.TRANSACTION_API.BY_ID(id), {
+            method: "POST"
+        })
+        const data = await res.json()
+
+        let errorMessage = ""
+
+        if (!res.ok) {
+            errorMessage = data.message
+        }
+
+        return [res.ok, errorMessage]
+    }
+    
     private static getTotalPrice(transactionDetails: any[]): number {
         return transactionDetails.reduce((total, detail) => total + detail.price * detail.quantity, 0)
     }
