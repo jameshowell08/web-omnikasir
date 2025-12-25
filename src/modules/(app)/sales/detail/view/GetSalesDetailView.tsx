@@ -1,18 +1,23 @@
 'use client';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import CustomTable from "@/src/modules/shared/view/CustomTable";
 import HeaderWithBackButton from "@/src/modules/shared/view/HeaderWithBackButton";
-import { useContext, useEffect, useState } from "react";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { IconPrinter } from "@tabler/icons-react";
+import { useContext, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { useReactToPrint } from "react-to-print";
+import GetSalesDetailController from "../controller/GetSalesDetailController";
+import BillData from "../model/BillData";
 import SalesData from "../model/SalesData";
 import SalesHeaderData from "../model/SalesHeaderData";
-import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
-import GetSalesDetailController from "../controller/GetSalesDetailController";
-import toast from "react-hot-toast";
 import SalesItemData from "../model/SalesItemData";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import SalesBill from "./SalesBill";
 
 function IMEIDialogContent({ productName, imeis }: { productName: string, imeis: string[] }) {
     return (
@@ -90,25 +95,60 @@ function GetSalesHeaderDetail({ salesHeaderData }: { salesHeaderData: SalesHeade
     )
 }
 
+function PrintBillSection({ billData }: { billData: BillData | undefined }) {
+    const contentRef = useRef<HTMLDivElement>(null);
+    const printComponent = useReactToPrint({ contentRef });
+
+    return (
+        <section className="mt-4 flex flex-row justify-end">
+            <Button type="button" onClick={printComponent}>
+                <IconPrinter />
+                Cetak Struk
+            </Button>
+
+            {billData && (
+                <div className="hidden print:block" ref={contentRef}>
+                    <SalesBill billData={billData} />
+                </div>
+            )}
+        </section>
+    )
+}
+
 function GetSalesDetailView({ id }: { id: string }) {
     const showLoadingOverlay = useContext(LoadingOverlayContext);
     const [salesData, setSalesData] = useState<SalesData | undefined>(undefined)
+    const [billData, setBillData] = useState<BillData | undefined>(undefined)
+
+    const fetchStoreProfile = async (sale: SalesData | undefined) => {
+        const [success, data, errorMessage] = await GetSalesDetailController.getStoreData()
+
+        if (success) {
+            setBillData(GetSalesDetailController.mapToBillData(data, sale))
+        } else {
+            toast.error(errorMessage)
+        }
+    }
 
     const fetchSalesDetail = async () => {
-        showLoadingOverlay(true)
         const [success, data, errorMessage] = await GetSalesDetailController.getSalesDetail(id)
 
         if (success) {
             setSalesData(data)
+            await fetchStoreProfile(data)
         } else {
             toast.error(errorMessage)
         }
+    }
 
+    const initializeSalesDetail = async () => {
+        showLoadingOverlay(true)
+        await fetchSalesDetail()
         showLoadingOverlay(false)
     }
 
     useEffect(() => {
-        fetchSalesDetail()
+        initializeSalesDetail()
     }, [])
 
     return (
@@ -117,6 +157,7 @@ function GetSalesDetailView({ id }: { id: string }) {
             <div className="mx-3 mt-4">
                 <GetSalesHeaderDetail salesHeaderData={salesData?.headerData} />
                 <SalesDetailItemsTable salesItemsData={salesData?.itemsData} />
+                <PrintBillSection billData={billData} />
             </div>
         </div>
     )
