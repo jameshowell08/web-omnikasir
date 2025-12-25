@@ -7,7 +7,7 @@ import { SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormSch
 class GetSalesController {
     public static async removeSales(id: string): Promise<[boolean, string]> {
         const res = await fetch(Routes.TRANSACTION_API.BY_ID(id), {
-            method: "POST"
+            method: "PATCH"
         })
         const data = await res.json()
 
