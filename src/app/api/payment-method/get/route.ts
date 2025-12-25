@@ -1,10 +1,13 @@
 // app/api/payment-methods/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
-import { requireAdmin } from "@/src/modules/shared/middleware/auth"
+import {
+  requireAdmin,
+  requireAnyRole,
+} from "@/src/modules/shared/middleware/auth"
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAnyRole(req)
   if ("error" in auth) return auth.error
   try {
     const url = new URL(req.url)

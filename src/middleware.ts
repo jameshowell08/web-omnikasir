@@ -3,27 +3,20 @@ import { verifyJwt } from "./modules/shared/util/auth"
 import { Constants } from "./modules/shared/model/Constants"
 
 export async function middleware(req: NextRequest) {
-  const publicPaths = [Constants.LOGIN_URL, "/api/auth"]
   const { pathname } = req.nextUrl
+  const publicPaths = [Constants.LOGIN_URL, "/api/auth"]
 
   const isPublicPath = publicPaths.some((path) => {
-    if (path === "/") {
-      return pathname === path
-    }
+    if (path === "/") return pathname === path
     return pathname.startsWith(path)
   })
 
   const token = req.cookies.get("token")?.value
   const user = token ? await verifyJwt(token) : null
 
-  // Handle API routes separately
   if (pathname.startsWith("/api")) {
-    // Allow public API paths
-    if (isPublicPath) {
-      return NextResponse.next()
-    }
+    if (isPublicPath) return NextResponse.next()
 
-    // Require auth for protected API routes
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -31,24 +24,44 @@ export async function middleware(req: NextRequest) {
       )
     }
 
-    // Set user header for authenticated API requests
     const response = NextResponse.next()
     response.headers.set("x-user-id", (user.user_id as string) || "")
     return response
   }
 
-  // Handle page routes
-  // If user is logged in and trying to access login page or root, redirect to overview
-  if (user && (pathname === Constants.LOGIN_URL || pathname === "/")) {
+  if (!user) {
+    if (!isPublicPath && pathname !== "/") {
+      return NextResponse.redirect(new URL(Constants.LOGIN_URL, req.url))
+    }
+    return NextResponse.next()
+  }
+
+  if (pathname === Constants.LOGIN_URL || pathname === "/") {
     return NextResponse.redirect(new URL(Constants.OVERVIEW_URL, req.url))
   }
 
-  // If user is NOT logged in and trying to access protected pages, redirect to login
-  if (!user && !isPublicPath && pathname !== "/") {
-    return NextResponse.redirect(new URL(Constants.LOGIN_URL, req.url))
+  if (user.role === "CASHIER") {
+    const allowedCashierPages = [
+      Constants.OVERVIEW_URL,
+      Constants.PRODUCTS_URL,
+      "/sales",
+      "/sales/add",
+    ]
+
+    const normalize = (p: string) =>
+      p.endsWith("/") && p !== "/" ? p.slice(0, -1) : p
+    const normalizedPathname = normalize(pathname)
+
+    const isAllowed = allowedCashierPages.some((path) => {
+      const np = normalize(path)
+      return normalizedPathname === np
+    })
+
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL(Constants.OVERVIEW_URL, req.url))
+    }
   }
 
-  // Allow the request to proceed
   return NextResponse.next()
 }
 
