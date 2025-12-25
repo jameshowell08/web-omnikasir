@@ -23,6 +23,7 @@ import { Category } from "../model/Category";
 import { Product } from "../model/Product";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
+import { getUser } from "@/src/modules/shared/util/user";
 
 
 function ProductsView() {
@@ -35,6 +36,7 @@ function ProductsView() {
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [searchField, setSearchField] = useState<string>("")
+    const [user] = useState(() => getUser())
 
     const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
@@ -130,10 +132,12 @@ function ProductsView() {
         <>
             <header className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold">Produk</h1>
-                <Button onClick={() => { router.push(Constants.ADD_PRODUCT_URL) }} variant="ghost" size="sm">
-                    <IconPlus />
-                    <span className="text-xs font-bold">Tambah Produk</span>
-                </Button>
+                {user?.role === "ADMIN" &&
+                    <Button onClick={() => { router.push(Constants.ADD_PRODUCT_URL) }} variant="ghost" size="sm">
+                        <IconPlus />
+                        <span className="text-xs font-bold">Tambah Produk</span>
+                    </Button>
+                }
             </header>
 
             <section className="mt-4 flex flex-row justify-between items-center">
@@ -419,7 +423,7 @@ function ProductsView() {
                             <TableHead className="font-bold text-white">Kategori</TableHead>
                             <TableHead className="font-bold text-white">Stok</TableHead>
                             <TableHead className="font-bold text-white">Harga</TableHead>
-                            <TableHead />
+                            {user?.role === "ADMIN" && <TableHead />}
                         </TableRow>
                     </TableHeader>
 
@@ -432,43 +436,45 @@ function ProductsView() {
                                 <TableCell>{value.category}</TableCell>
                                 <TableCell>{value.stock}</TableCell>
                                 <TableCell>{value.formatRupiah()}</TableCell>
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <IconDots />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => {
-                                                showLoadingOverlay(true)
-                                                router.push(BaseUtil.formatString(Constants.EDIT_PRODUCT_URL, value.sku))
-                                                showLoadingOverlay(false)
-                                            }}>
-                                                <IconEdit />
-                                                Ubah
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem
-                                                variant="destructive"
-                                                onClick={() => {
-                                                    controller.deleteProduct(
-                                                        value.sku,
-                                                        selectedAmountOfItem,
-                                                        currentPage,
-                                                        searchField == "" ? null : searchField,
-                                                        appliedFilters.category,
-                                                        appliedFilters.minPrice,
-                                                        appliedFilters.maxPrice,
-                                                        appliedFilters.minStock,
-                                                        appliedFilters.maxStock)
+                                {user?.role === "ADMIN" &&
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <IconDots />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => {
+                                                    showLoadingOverlay(true)
+                                                    router.push(BaseUtil.formatString(Constants.EDIT_PRODUCT_URL, value.sku))
+                                                    showLoadingOverlay(false)
                                                 }}>
-                                                <IconTrash />
-                                                Hapus
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
+                                                    <IconEdit />
+                                                    Ubah
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                    variant="destructive"
+                                                    onClick={() => {
+                                                        controller.deleteProduct(
+                                                            value.sku,
+                                                            selectedAmountOfItem,
+                                                            currentPage,
+                                                            searchField == "" ? null : searchField,
+                                                            appliedFilters.category,
+                                                            appliedFilters.minPrice,
+                                                            appliedFilters.maxPrice,
+                                                            appliedFilters.minStock,
+                                                            appliedFilters.maxStock)
+                                                    }}>
+                                                    <IconTrash />
+                                                    Hapus
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                }
                             </TableRow>
                         ))}
                     </TableBody>
