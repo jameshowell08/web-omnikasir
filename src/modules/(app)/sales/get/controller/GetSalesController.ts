@@ -48,7 +48,7 @@ class GetSalesController {
                 sale.transactionMethod,
                 sale.status,
                 sale.paymentMethod.paymentName,
-                sale.customer.customerName,
+                sale.customer?.customerName ?? "",
                 this.getTotalPrice(sale.transactionDetails)
             ))
             totalPages = data.meta.totalPages
