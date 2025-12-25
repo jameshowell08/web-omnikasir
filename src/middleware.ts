@@ -4,7 +4,11 @@ import { Constants } from "./modules/shared/model/Constants"
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const publicPaths = [Constants.LOGIN_URL, "/api/auth"]
+  const publicPaths = [
+    Constants.LOGIN_URL,
+    "/api/auth",
+    "/api/webhooks/ecommerce",
+  ]
 
   const isPublicPath = publicPaths.some((path) => {
     if (path === "/") return pathname === path
