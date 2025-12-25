@@ -2,6 +2,9 @@ import Routes from "@/src/modules/shared/model/Routes";
 import SalesData from "../model/SalesData";
 import SalesHeaderData from "../model/SalesHeaderData";
 import SalesItemData from "../model/SalesItemData";
+import StoreData from "../model/StoreData";
+import BillItemData from "../model/BillItemData";
+import BillData from "../model/BillData";
 
 class GetSalesDetailController {
 
@@ -29,6 +32,50 @@ class GetSalesDetailController {
                 return salesItemDataMap
             }, {})
         ) as SalesItemData[]
+    }
+
+    public static async getStoreData(): Promise<[boolean, StoreData | undefined, string]> {
+        const res = await fetch(Routes.STORE_PROFILE_API.GET, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
+        const data = await res.json()
+        let errorMessage = ""
+        let storeData: StoreData | undefined = undefined
+
+        if (res.ok) {
+            storeData = new StoreData(
+                data.nama,
+                data.alamat,
+                data.noHp,
+                data.profilePicture
+            )
+        } else {
+            errorMessage = data.message ?? "Gagal mengambil data toko"
+        }
+
+        return [res.ok, storeData, errorMessage]
+    }
+
+    public static mapToBillData(storeData: StoreData | undefined, salesData: SalesData | undefined): BillData {
+        return new BillData(
+            storeData?.storeImage ?? "",
+            storeData?.storeName ?? "",
+            storeData?.storeAddress ?? "",
+            storeData?.storePhone ?? "",
+            salesData?.headerData?.transactionId ?? "",
+            salesData?.headerData?.getTransactionDate() ?? "",
+            salesData?.headerData?.paymentMethod ?? "",
+            salesData?.itemsData?.map((item) => new BillItemData(
+                item?.productName ?? "",
+                item?.quantity ?? 0,
+                item?.price ?? 0,
+                item?.getSubtotal() ?? 0
+            )) ?? []
+        )
     }
 
     public static async getSalesDetail(id: string): Promise<[boolean, SalesData | undefined, string]> {
