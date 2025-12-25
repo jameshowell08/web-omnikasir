@@ -29,9 +29,9 @@ function SalesBill({ billData }: { billData: BillData }) {
                             billData.billItemsData.map((billItemData) => (
                                 <TableRow key={billItemData.productName}>
                                     <TableCell>{billItemData.productName}</TableCell>
-                                    <TableCell>{billItemData.getQuantity()}</TableCell>
-                                    <TableCell>{billItemData.getPrice()}</TableCell>
-                                    <TableCell>{billItemData.getSubtotal()}</TableCell>
+                                    <TableCell align="right">{billItemData.getQuantity()}</TableCell>
+                                    <TableCell align="right">{billItemData.getPrice()}</TableCell>
+                                    <TableCell align="right">{billItemData.getSubtotal()}</TableCell>
                                 </TableRow>
                             ))
                         }
