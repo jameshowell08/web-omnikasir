@@ -1,5 +1,7 @@
 import { Constants } from "@/src/modules/shared/model/Constants"
 import { LoginEventCallback, NavigateToOverviewPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
+import { setCookie } from "../../shared/util/CookieUtil";
+import { User } from "../../shared/util/user";
 
 export class LoginController {
     constructor(
@@ -34,7 +36,14 @@ export class LoginController {
                 body: JSON.stringify(payload)
             });
 
+            const data = await response.json()
+
             if (response.ok) {
+                setCookie("user", new User(
+                    data.user.username,
+                    data.user.id,
+                    data.user.role
+                ))
                 this.eventCallback(new NavigateToOverviewPage())
             } else {
                 const errorJson: { error: string } = await response.json()

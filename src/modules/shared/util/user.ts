@@ -1,3 +1,4 @@
+import { getCookie } from "./CookieUtil"
 import { prisma } from "./db"
 
 export async function generateUserId(): Promise<string> {
@@ -20,4 +21,20 @@ export async function generateUserId(): Promise<string> {
     const formatted = `${sequence.format}${String(nextSeq).padStart(3, "0")}`
     return formatted // e.g. US001
   })
+}
+
+export class User {
+  constructor(
+    public username: string,
+    public userId: string,
+    public role: string
+  ) {}
+}
+
+export function getUser(): User | null {
+  const user = getCookie("user");
+  if (!user) {
+    return null;
+  }
+  return JSON.parse(user);
 }

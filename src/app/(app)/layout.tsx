@@ -4,6 +4,7 @@ import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderCon
 import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
 import { Constants } from "@/src/modules/shared/model/Constants";
 import Routes from "@/src/modules/shared/model/Routes";
+import { getUser } from "@/src/modules/shared/util/user";
 import { IconBuildingStore, IconCashRegister, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -96,6 +97,7 @@ function AppLayout({
     const [menus, setMenus] = useState(initialMenus);
     const [isNavbarVisible, showNavbar] = useState(true);
     const pathname = usePathname();
+    const [user] = useState(() => getUser());
 
     return (
         <div className="flex flex-col h-full min-h-screen overflow-x-clip">
@@ -106,10 +108,10 @@ function AppLayout({
                 >
                     menu
                 </span>
-                <h1 className="text-lg font-bold ml-4">Omnikasir</h1>
+                <h1 className="text-lg font-bold ml-4">OmniKasir</h1>
                 <div className="flex flex-col mr-3 flex-1">
-                    <p className="text-right text-2xs">Admin</p>
-                    <p className="text-right text-xs font-bold">John Doe</p>
+                    <p className="text-right text-2xs">{user?.role}</p>
+                    <p className="text-right text-xs font-bold">{user?.username}</p>
                 </div>
                 <span
                     className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
