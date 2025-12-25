@@ -1,0 +1,15 @@
+import z from "zod";
+import { IMEIFormScheme } from "../../../purchase/add-edit/model/IMEIFormScheme";
+
+export const AddEditSalesItemFormScheme = z.object({
+    sku: z.string().min(1, "SKU tidak boleh kosong"),
+    productName: z.string(),
+    brand: z.string(),
+    quantity: z.string().min(1, "Jumlah tidak boleh kosong"),
+    price: z.string().min(1, "Harga tidak boleh kosong"),
+    isNeedImei: z.boolean(),
+    imeis: z.array(IMEIFormScheme),
+    subtotal: z.string(),
+})
+
+export type AddEditSalesItemFormSchemeType = z.infer<typeof AddEditSalesItemFormScheme>

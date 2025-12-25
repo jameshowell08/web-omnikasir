@@ -259,7 +259,7 @@ function GetPurchaseView() {
             {
                 displayedPurchases ? <PurchaseTable purchases={displayedPurchases} onDeletePurchase={onDeletePurchase} /> : <TablePlaceholder />
             }
-            <TablePagination currentPage={currentPage} maxPage={totalPage} onNextPage={() => setCurrentPage(currentPage + 1)} onPreviousPage={() => setCurrentPage(currentPage - 1)} />
+            <TablePagination currentPage={currentPage} maxPage={totalPage} onChangePage={(page) => setCurrentPage(page)} />
         </div>
     )
 }

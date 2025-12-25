@@ -20,7 +20,9 @@ const Routes = {
 
     SALES: {
         DEFAULT: "/sales",
-        ADD: "/sales/add"
+        ADD: "/sales/add",
+        EDIT: (id: string) => `/sales/edit/${id}`,
+        GET_BY_ID: (id: string) => `/sales/${id}`,
     },
 
     PAYMENT_METHOD_API: {
@@ -48,6 +50,11 @@ const Routes = {
     STORE_PROFILE_API: {
         GET: "/api/store/get?id=STORE",
         UPDATE: "api/store/update?id=STORE"
+    },
+
+    TRANSACTION_API: {
+        DEFAULT: "/api/transaction",
+        BY_ID: (id: string) => `/api/transaction/${id}`
     }
 }
 

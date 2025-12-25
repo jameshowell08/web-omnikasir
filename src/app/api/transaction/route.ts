@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
     const paymentId = searchParams.get("paymentId")
+    const transactionMethod = searchParams.get("transactionMethod")
+    const status = searchParams.get("status")
 
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "10")
@@ -37,13 +39,14 @@ export async function GET(req: NextRequest) {
 
     const whereClause: Prisma.TransactionHeaderWhereInput = {
       ...(paymentId && { paymentId }),
-      ...(startDate &&
-        endDate && {
-          transactionDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
-          },
-        }),
+      ...((startDate || endDate) && {
+        transactionDate: {
+          ...(startDate && { gte: new Date(startDate) }),
+          ...(endDate && { lte: new Date(endDate) }),
+        },
+      }),
+      ...(status && { status }),
+      ...(transactionMethod && { transactionMethod }),
       ...(search && {
         OR: [
           { transactionHeaderId: { contains: search, mode: "insensitive" } },
