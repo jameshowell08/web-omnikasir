@@ -5,11 +5,11 @@ import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model
 import Menu from "@/src/modules/(app)/model/Menu";
 import { Constants } from "@/src/modules/shared/model/Constants";
 import Routes from "@/src/modules/shared/model/Routes";
-import { getUser } from "@/src/modules/shared/util/user";
+import { getUser, User } from "@/src/modules/shared/util/user";
 import { IconBuildingStore, IconCashRegister, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function AppLayout({
     children,
@@ -27,7 +27,11 @@ function AppLayout({
     const [menus, setMenus] = useState(AppHeaderController.menus);
     const [isNavbarVisible, showNavbar] = useState(true);
     const pathname = usePathname();
-    const [user] = useState(() => getUser());
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        setUser(getUser());
+    }, []);
 
     return (
         <div className="flex flex-col h-full min-h-screen overflow-x-clip">
