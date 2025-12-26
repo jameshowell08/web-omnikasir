@@ -19,6 +19,8 @@ import UserManagementController from "../controller/UserManagementController";
 import UserData from "../model/UserData";
 import { UserManagementFilterFormScheme, UserManagementFilterFormSchemeDefaultValues, UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import Routes from "@/src/modules/shared/model/Routes";
+import Link from "next/link";
 
 function UserManagementFilterForm({
     formId,
@@ -137,19 +139,19 @@ function UserManagementFilter({
     )
 }
 
-function UserManagementTable({ 
-    users, 
-    currentPage, 
-    maxPage, 
-    onChangePage, 
-    onDeleteUser 
-    }: { 
-        users: UserData[], 
-        currentPage: number, 
-        maxPage: number, 
-        onChangePage: (page: number) => void, 
-        onDeleteUser: (id: string) => void 
-    }) {
+function UserManagementTable({
+    users,
+    currentPage,
+    maxPage,
+    onChangePage,
+    onDeleteUser
+}: {
+    users: UserData[],
+    currentPage: number,
+    maxPage: number,
+    onChangePage: (page: number) => void,
+    onDeleteUser: (id: string) => void
+}) {
     return (
         <div>
             <CustomTable headers={["ID", "Username", "Role"]} haveActions>
@@ -168,9 +170,11 @@ function UserManagementTable({
                                     </DropdownMenuTrigger>
 
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>
-                                            <IconEdit />
-                                            Edit
+                                        <DropdownMenuItem asChild>
+                                            <Link href={Routes.USER_MANAGEMENT.EDIT(user.id)}>
+                                                <IconEdit />
+                                                Edit
+                                            </Link>
                                         </DropdownMenuItem>
 
                                         <DropdownMenuItem onClick={() => onDeleteUser(user.id)} variant="destructive">
@@ -231,7 +235,7 @@ function UserManagementView() {
 
     return (
         <div>
-            <Header title="Manajemen Pengguna" buttonLabel="Tambah Pengguna" buttonHref="" />
+            <Header title="Manajemen Pengguna" buttonLabel="Tambah Pengguna" buttonHref={Routes.USER_MANAGEMENT.ADD} />
             <UserManagementFilter
                 searchLoading={isSearchLoading}
                 pageLimit={pageLimit}

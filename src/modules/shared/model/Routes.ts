@@ -27,6 +27,8 @@ const Routes = {
 
     USER_MANAGEMENT: {
         GET: "/user-management",
+        ADD: "/user-management/add",
+        EDIT: (id: string) => `/user-management/edit/${id}`,
     },
 
     PAYMENT_METHOD_API: {
