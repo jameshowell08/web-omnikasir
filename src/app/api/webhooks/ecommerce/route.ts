@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
           data: { quantity: { decrement: item.qty } },
         })
       }
-      transactionStream.emit("new-transaction", header)
     })
+    transactionStream.emit("new-transaction", "Transaksi online telah dibuat.")
     return NextResponse.json({ success: true, id: externalOrderId })
   } catch (error: any) {
     console.error("Webhook Failed:", error)
