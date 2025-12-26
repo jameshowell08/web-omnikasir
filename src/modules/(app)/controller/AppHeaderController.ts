@@ -1,10 +1,10 @@
 
-import { IconBuildingStore, IconCashRegister, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUsers } from "@tabler/icons-react";
+import { IconBuildingStore, IconCashRegister, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUserCog, IconUsers } from "@tabler/icons-react";
 import { Constants } from "../../shared/model/Constants";
-import { AppHeaderEventCallback, NavigateToUrl } from "../model/AppHeaderEventCallback";
 import Routes from "../../shared/model/Routes";
-import MenuItem from "../model/MenuItem";
+import { AppHeaderEventCallback, NavigateToUrl } from "../model/AppHeaderEventCallback";
 import Menu from "../model/Menu";
+import MenuItem from "../model/MenuItem";
 
 export class AppHeaderController {
 
@@ -81,6 +81,12 @@ export class AppHeaderController {
                     "Metode Pembayaran",
                     IconCreditCardPay,
                     Routes.PAYMENT_METHOD.GET,
+                    ["ADMIN"]
+                ),
+                new MenuItem(
+                    "Manajemen Pengguna",
+                    IconUserCog,
+                    Routes.USER_MANAGEMENT.GET,
                     ["ADMIN"]
                 )
             ]

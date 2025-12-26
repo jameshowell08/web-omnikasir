@@ -23,7 +23,7 @@ import { Category } from "../model/Category";
 import { Product } from "../model/Product";
 import { ProductFilterFormScheme } from "../model/ProductFilterFormScheme";
 import { ApplyFilters, ProductsEventCallback, ShowErrorToast, ShowHideLoadingOverlay, ShowSuccessfulToast, UpdateCategories, UpdateDisplayedProducts, UpdateTotalPageAmount } from "../model/ProductsEventCallback";
-import { getUser } from "@/src/modules/shared/util/user";
+import { getUser, User } from "@/src/modules/shared/util/user";
 
 
 function ProductsView() {
@@ -36,7 +36,12 @@ function ProductsView() {
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [searchField, setSearchField] = useState<string>("")
-    const [user] = useState(() => getUser())
+
+    const [user, setUser] = useState<User | null>(null)
+
+    useEffect(() => {
+        setUser(getUser())
+    }, [])
 
     const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
