@@ -21,6 +21,14 @@ export async function GET(req: NextRequest, { params }: Params) {
   try {
     const user = await db.users.findUnique({
       where: { userId: params.id },
+      select: {
+        userId: true,
+        username: true,
+        role: true,
+        isActive: true,
+        createdDate: true,
+        lastLogin: true,
+      },
     })
 
     if (!user) {
