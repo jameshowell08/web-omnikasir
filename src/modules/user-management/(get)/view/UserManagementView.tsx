@@ -1,23 +1,24 @@
 'use client';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableCell, TableRow } from "@/components/ui/table";
+import TablePagination from "@/src/modules/shared/view/TablePagination";
+import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconDots, IconFilter } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { IconDots, IconEdit, IconFilter, IconTrash } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import CustomTable from "../../../shared/view/CustomTable";
 import Header from "../../../shared/view/Header";
 import ItemAmountSelectSection from "../../../shared/view/ItemAmountSelectSection";
 import SearchField from "../../../shared/view/SearchField";
-import { UserManagementFilterFormScheme, UserManagementFilterFormSchemeDefaultValues, UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";
-import CustomTable from "../../../shared/view/CustomTable";
-import { TableCell, TableRow } from "@/components/ui/table";
-import UserData from "../model/UserData";
 import UserManagementController from "../controller/UserManagementController";
-import toast from "react-hot-toast";
-import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
-import TablePagination from "@/src/modules/shared/view/TablePagination";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import UserData from "../model/UserData";
+import { UserManagementFilterFormScheme, UserManagementFilterFormSchemeDefaultValues, UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 function UserManagementFilterForm({
     formId,
@@ -136,7 +137,19 @@ function UserManagementFilter({
     )
 }
 
-function UserManagementTable({ users, currentPage, maxPage, onChangePage }: { users: UserData[], currentPage: number, maxPage: number, onChangePage: (page: number) => void }) {
+function UserManagementTable({ 
+    users, 
+    currentPage, 
+    maxPage, 
+    onChangePage, 
+    onDeleteUser 
+    }: { 
+        users: UserData[], 
+        currentPage: number, 
+        maxPage: number, 
+        onChangePage: (page: number) => void, 
+        onDeleteUser: (id: string) => void 
+    }) {
     return (
         <div>
             <CustomTable headers={["ID", "Username", "Role"]} haveActions>
@@ -147,9 +160,25 @@ function UserManagementTable({ users, currentPage, maxPage, onChangePage }: { us
                             <TableCell>{user.username}</TableCell>
                             <TableCell>{user.role}</TableCell>
                             <TableCell className="w-0">
-                                <Button size="icon-sm" variant="ghost">
-                                    <IconDots />
-                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button size="icon-sm" variant="ghost">
+                                            <IconDots />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem>
+                                            <IconEdit />
+                                            Edit
+                                        </DropdownMenuItem>
+
+                                        <DropdownMenuItem onClick={() => onDeleteUser(user.id)} variant="destructive">
+                                            <IconTrash />
+                                            Hapus
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </TableCell>
                         </TableRow>
                     ))
@@ -185,6 +214,17 @@ function UserManagementView() {
         setIsSearchLoading(false)
     }
 
+    const handleDeleteUser = async (id: string) => {
+        const [success, errorMessage] = await UserManagementController.removeUser(id)
+
+        if (success) {
+            toast.success("Pengguna berhasil dihapus")
+            await fetchUsers(currentPage, pageLimit, searchValue, filterData)
+        } else {
+            toast.error(errorMessage)
+        }
+    }
+
     useEffect(() => {
         fetchUsers(currentPage, pageLimit, searchValue, filterData)
     }, [currentPage, pageLimit, searchValue, filterData])
@@ -201,7 +241,7 @@ function UserManagementView() {
                 onSearch={setSearchValue}
                 onFilter={handleFilter}
             />
-            {users ? <UserManagementTable users={users!} currentPage={currentPage} maxPage={maxPage} onChangePage={setCurrentPage} /> : <TablePlaceholder />}
+            {users ? <UserManagementTable users={users!} currentPage={currentPage} maxPage={maxPage} onChangePage={setCurrentPage} onDeleteUser={handleDeleteUser} /> : <TablePlaceholder />}
         </div>
     )
 }

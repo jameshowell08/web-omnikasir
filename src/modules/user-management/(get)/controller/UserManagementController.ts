@@ -1,3 +1,4 @@
+import { Route } from "lucide-react";
 import Routes from "../../../shared/model/Routes";
 import UserData from "../model/UserData";
 import { UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";
@@ -10,7 +11,7 @@ class UserManagementController {
         url.searchParams.set("limit", pageLimit.toString())
         if (search.length > 0) url.searchParams.set("search", search)
         if (filterData && filterData.role !== "ALL") url.searchParams.set("role", filterData.role ?? "")
-        
+
         const res = await fetch(url, {
             method: "GET"
         })
@@ -28,6 +29,21 @@ class UserManagementController {
         }
 
         return [res.ok, users, maxPage, errorMessage]
+    }
+
+    public static async removeUser(id: string): Promise<[boolean, string]> {
+        const res = await fetch(Routes.USER_API.BY_ID(id), {
+            method: "DELETE"
+        })
+
+        const data = await res.json()
+        let errorMessage = ""
+
+        if (!res.ok) {
+            errorMessage = data.message
+        }
+
+        return [res.ok, errorMessage]
     }
 }
 

@@ -62,7 +62,8 @@ const Routes = {
     },    
 
     USER_API: {
-        DEFAULT: "/api/user"
+        DEFAULT: "/api/user",
+        BY_ID: (id: string) => `/api/user/${id}`,
     },
 }
 
