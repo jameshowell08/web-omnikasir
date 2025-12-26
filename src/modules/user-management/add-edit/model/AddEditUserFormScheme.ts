@@ -1,21 +1,31 @@
 import z from "zod";
 
-export const AddEditUserFormScheme = z.object({
+export const getAddEditUserFormScheme = (isEdit: boolean) => z.object({
     username: z.string().min(1, "Username tidak boleh kosong!"),
-    password: z.string().min(8, "Password minimal 8 karakter!"),
-    confirmPassword: z.string().min(8, "Konfirmasi password minimal 8 karakter!"),
+    password: z.string(),
+    confirmPassword: z.string(),
     role: z.enum(["ADMIN", "CASHIER"], { error: "Role tidak boleh kosong!" })
 }).superRefine((data, ctx) => {
-    if (data.password !== data.confirmPassword) {
-        ctx.addIssue({
-            code: "custom",
-            message: "Password pada kolom konfirmasi password tidak sama!",
-            path: ["confirmPassword"]
-        })
+    if (!isEdit || data.password.length > 0) {
+        if (data.password.length < 8) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Password minimal 8 karakter!",
+                path: ["password"]
+            })
+        }
+
+        if (data.password !== data.confirmPassword) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Masukkan password yang sama dengan password yang diinputkan sebelumnya pada kolom Password!",
+                path: ["confirmPassword"]
+            })
+        }
     }
 })
 
-export type AddEditUserFormSchemeType = z.infer<typeof AddEditUserFormScheme>
+export type AddEditUserFormSchemeType = z.infer<ReturnType<typeof getAddEditUserFormScheme>>
 
 export const AddEditUserFormSchemeDefaultValues: AddEditUserFormSchemeType = {
     username: "",

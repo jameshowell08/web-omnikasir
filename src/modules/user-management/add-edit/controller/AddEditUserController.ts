@@ -11,7 +11,7 @@ class AddEditUserController {
             body: JSON.stringify({
                 role: formValue.role,
                 username: formValue.username,
-                password: formValue.password,
+                password: formValue.password.length === 0 ? undefined : formValue.password
             })
         })
 

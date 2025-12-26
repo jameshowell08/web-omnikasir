@@ -13,11 +13,11 @@ import { useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import AddEditUserController from "../controller/AddEditUserController";
-import { AddEditUserFormScheme, AddEditUserFormSchemeDefaultValues, AddEditUserFormSchemeType } from "../model/AddEditUserFormScheme";
+import { AddEditUserFormSchemeDefaultValues, AddEditUserFormSchemeType, getAddEditUserFormScheme } from "../model/AddEditUserFormScheme";
 
-function AddEditUserForm({ isEdit, formValue, onSubmit }: { isEdit?: boolean, formValue?: AddEditUserFormSchemeType, onSubmit: (data: AddEditUserFormSchemeType) => void }) {
+function AddEditUserForm({ isEdit = false, formValue, onSubmit }: { isEdit?: boolean, formValue?: AddEditUserFormSchemeType, onSubmit: (data: AddEditUserFormSchemeType) => void }) {
     const form = useForm({
-        resolver: zodResolver(AddEditUserFormScheme),
+        resolver: zodResolver(getAddEditUserFormScheme(isEdit)),
         values: formValue,
         defaultValues: AddEditUserFormSchemeDefaultValues
     })
@@ -64,7 +64,7 @@ function AddEditUserForm({ isEdit, formValue, onSubmit }: { isEdit?: boolean, fo
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel className="gap-0 font-bold">Password<span className="text-red-500">*</span></FieldLabel>
+                                <FieldLabel className="gap-0 font-bold">Password{!isEdit && <span className="text-red-500">*</span>}</FieldLabel>
                                 <PasswordField value={field.value} onChange={field.onChange} aria-invalid={fieldState.invalid} placeholder="Masukkan password..." />
                                 <FieldError errors={[fieldState.error]} />
                             </Field>
@@ -76,7 +76,7 @@ function AddEditUserForm({ isEdit, formValue, onSubmit }: { isEdit?: boolean, fo
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel className="gap-0 font-bold">Konfirmasi Password<span className="text-red-500">*</span></FieldLabel>
+                                <FieldLabel className="gap-0 font-bold">Konfirmasi Password{!isEdit && <span className="text-red-500">*</span>}</FieldLabel>
                                 <PasswordField value={field.value} onChange={field.onChange} aria-invalid={fieldState.invalid} placeholder="Masukkan password lagi..." />
                                 <FieldError errors={[fieldState.error]} />
                             </Field>
