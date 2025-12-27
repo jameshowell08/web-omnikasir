@@ -19,7 +19,7 @@ function CashierOverview() {
 function CustomChartCard({ title, children }: { title: string, children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-5 flex-1 border rounded-lg p-5">
-            <h1 className="text-xl font-bold text-center">{title}</h1>
+            <h1 className="text-md font-bold text-center">{title}</h1>
             <Separator />
             {children}
         </div>
@@ -54,17 +54,38 @@ function SalesAmountChart({ salesChartData }: { salesChartData: ChartData[] }) {
 }
 
 function PurchaseAmountChart({ purchaseChartData }: { purchaseChartData: ChartData[] }) {
+    const purchaseChartConfig = {
+        value: {
+            label: "Nominal",
+            color: "black"
+        }
+    } satisfies ChartConfig
+
     return (
-        <></>
+        <CustomChartCard title="Jumlah Pembelian (Rp)">
+            <ChartContainer config={purchaseChartConfig}>
+                <BarChart accessibilityLayer data={purchaseChartData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                        dataKey="label"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent hideIndicator />} />
+                    <Bar dataKey="value" fill="var(--label-color)" radius={4} />
+                </BarChart>
+            </ChartContainer>
+        </CustomChartCard>
     )
 }
 
 function AdminOverview({ chartData }: { chartData: OverviewChartData }) {
     return (
         <div className="flex flex-col gap-10">
-            <div className="flex flex-row gap-10 flex-1">
+            <div className="flex flex-row gap-5 flex-1">
                 <SalesAmountChart salesChartData={chartData.sales} />
-
+                <PurchaseAmountChart purchaseChartData={chartData.purchase} />
             </div>
 
             <div className="flex flex-row gap-10 flex-1">
