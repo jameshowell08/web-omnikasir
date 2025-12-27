@@ -56,9 +56,10 @@ export async function GET(req: NextRequest) {
     )
 
     const stockByCategory = categoryStock.map((cat) => ({
-      category: cat.categoryName,
-      totalStock: cat.products.reduce((acc, p) => acc + p.quantity, 0),
-    }))
+        category: cat.categoryName,
+        totalStock: cat.products.reduce((acc, p) => acc + p.quantity, 0),
+      }))
+      .sort((a, b) => b.totalStock - a.totalStock)
 
     const formatMonthlyData = (data: any[], dateField: string) => {
       const months = [
@@ -81,9 +82,9 @@ export async function GET(req: NextRequest) {
         const monthIdx = new Date(item[dateField]).getMonth()
         const total = item.transactionDetails
           ? item.transactionDetails.reduce(
-              (sum: number, d: any) => sum + Number(d.price) * d.quantity,
-              0
-            )
+            (sum: number, d: any) => sum + Number(d.price) * d.quantity,
+            0
+          )
           : Number(item.totalPrice || 0)
 
         grouped[monthIdx].total += total

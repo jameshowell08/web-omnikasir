@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { getUser } from "@/src/modules/shared/util/user";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis, YAxis } from "recharts";
 import OverviewController from "../controller/OverviewController";
 import { ChartData, OverviewChartData } from "../model/OverviewChartData";
 
@@ -93,8 +93,8 @@ function HighestProductSoldChart({ highestProductSoldData }: { highestProductSol
             <ChartContainer config={highestProductSoldChartConfig}>
                 <BarChart accessibilityLayer data={highestProductSoldData} layout="vertical">
                     <CartesianGrid vertical={true} />
-                    <XAxis 
-                        dataKey="value" 
+                    <XAxis
+                        dataKey="value"
                         type="number"
                         tickLine={false}
                         tickMargin={10}
@@ -115,6 +115,32 @@ function HighestProductSoldChart({ highestProductSoldData }: { highestProductSol
     )
 }
 
+function StockBasedOnCategoryChart({ stockBasedOnCategoryData }: { stockBasedOnCategoryData: ChartData[] }) {
+    const stockBasedOnCategoryChartConfig = {
+        value: {
+            label: "Stok"
+        }
+    } satisfies ChartConfig
+
+    return (
+        <CustomChartCard title="Stok Berdasarkan Kategori">
+            <ChartContainer config={stockBasedOnCategoryChartConfig}>
+                <PieChart>
+                    <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent />}
+                    />
+                    <Pie data={stockBasedOnCategoryData.map((item: ChartData, index: number) => ({
+                        label: item.label,
+                        value: item.value,
+                        fill: `var(--chart-${(index % 5) + 1})`
+                    }))} dataKey="value" nameKey="label" />
+                </PieChart>
+            </ChartContainer>
+        </CustomChartCard>
+    )
+}
+
 function AdminOverview({ chartData }: { chartData: OverviewChartData }) {
     return (
         <div className="flex flex-col gap-10">
@@ -125,6 +151,7 @@ function AdminOverview({ chartData }: { chartData: OverviewChartData }) {
 
             <div className="flex flex-row gap-5 flex-1">
                 <HighestProductSoldChart highestProductSoldData={chartData.mostSales} />
+                <StockBasedOnCategoryChart stockBasedOnCategoryData={chartData.stockBasedOnCategory} />
             </div>
         </div>
     )
