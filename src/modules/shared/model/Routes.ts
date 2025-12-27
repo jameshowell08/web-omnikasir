@@ -67,6 +67,10 @@ const Routes = {
         DEFAULT: "/api/user",
         BY_ID: (id: string) => `/api/user/${id}`,
     },
+
+    DASHBOARD_API: {
+        DEFAULT: "/api/dashboard"
+    }
 }
 
 export default Routes;

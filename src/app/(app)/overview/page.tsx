@@ -1,9 +1,7 @@
+import OverviewView from "@/src/modules/(app)/overview/view/OverviewView"
+
 function OverviewPage() {
-    return (
-        <div className="flex flex-col items-center justify-center flex-1 font-bold text-2xl">
-            Selamat Bekerja!
-        </div>
-    )
+    return <OverviewView />
 }
 
 export default OverviewPage
