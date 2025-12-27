@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { getUser } from "@/src/modules/shared/util/user";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import OverviewController from "../controller/OverviewController";
 import { ChartData, OverviewChartData } from "../model/OverviewChartData";
 
@@ -80,6 +80,41 @@ function PurchaseAmountChart({ purchaseChartData }: { purchaseChartData: ChartDa
     )
 }
 
+function HighestProductSoldChart({ highestProductSoldData }: { highestProductSoldData: ChartData[] }) {
+    const highestProductSoldChartConfig = {
+        value: {
+            label: "Jumlah",
+            color: "black"
+        }
+    } satisfies ChartConfig
+
+    return (
+        <CustomChartCard title="Penjualan Produk Tertinggi">
+            <ChartContainer config={highestProductSoldChartConfig}>
+                <BarChart accessibilityLayer data={highestProductSoldData} layout="vertical">
+                    <CartesianGrid vertical={true} />
+                    <XAxis 
+                        dataKey="value" 
+                        type="number"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    />
+                    <YAxis
+                        dataKey="label"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent hideIndicator />} />
+                    <Bar dataKey="value" fill="var(--label-color)" radius={4} />
+                </BarChart>
+            </ChartContainer>
+        </CustomChartCard>
+    )
+}
+
 function AdminOverview({ chartData }: { chartData: OverviewChartData }) {
     return (
         <div className="flex flex-col gap-10">
@@ -88,8 +123,8 @@ function AdminOverview({ chartData }: { chartData: OverviewChartData }) {
                 <PurchaseAmountChart purchaseChartData={chartData.purchase} />
             </div>
 
-            <div className="flex flex-row gap-10 flex-1">
-
+            <div className="flex flex-row gap-5 flex-1">
+                <HighestProductSoldChart highestProductSoldData={chartData.mostSales} />
             </div>
         </div>
     )
