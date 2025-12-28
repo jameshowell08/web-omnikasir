@@ -1,8 +1,8 @@
 'use client';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Separator } from "@/components/ui/separator";
 import { getUser } from "@/src/modules/shared/util/user";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis, YAxis } from "recharts";
 import OverviewController from "../controller/OverviewController";
@@ -116,11 +116,9 @@ function HighestProductSoldChart({ highestProductSoldData }: { highestProductSol
 }
 
 function StockBasedOnCategoryChart({ stockBasedOnCategoryData }: { stockBasedOnCategoryData: ChartData[] }) {
-    const stockBasedOnCategoryChartConfig = {
-        value: {
-            label: "Stok"
-        }
-    } satisfies ChartConfig
+    const stockBasedOnCategoryChartConfig = useMemo(() => {
+        return OverviewController.getStockBasedOnCategoryChartConfig(stockBasedOnCategoryData);
+    }, [stockBasedOnCategoryData]);
 
     return (
         <CustomChartCard title="Stok Berdasarkan Kategori">
@@ -130,11 +128,16 @@ function StockBasedOnCategoryChart({ stockBasedOnCategoryData }: { stockBasedOnC
                         cursor={false}
                         content={<ChartTooltipContent />}
                     />
-                    <Pie data={stockBasedOnCategoryData.map((item: ChartData, index: number) => ({
+                    <Pie data={stockBasedOnCategoryData.map((item) => ({
                         label: item.label,
                         value: item.value,
-                        fill: `var(--chart-${(index % 5) + 1})`
-                    }))} dataKey="value" nameKey="label" />
+                        configKey: OverviewController.sanitizeLabel(item.label),
+                        fill: `var(--color-${OverviewController.sanitizeLabel(item.label)})`
+                    }))} dataKey="value" nameKey="configKey" />
+                    <ChartLegend
+                        content={<ChartLegendContent nameKey="configKey" />}
+                        className="flex flex-wrap gap-2"
+                    />
                 </PieChart>
             </ChartContainer>
         </CustomChartCard>
