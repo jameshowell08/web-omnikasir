@@ -15,7 +15,7 @@ const UserSchema = z.object({
     .string()
     .min(5, "Username must be at least 5 characters")
     .max(255),
-  password: z.string().min(8, "Password must be at least 68 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   role: z.nativeEnum(UserRole).optional().default(UserRole.CASHIER),
   isActive: z.boolean().optional().default(true),
 })
