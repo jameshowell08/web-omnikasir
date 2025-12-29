@@ -21,7 +21,7 @@ export class ProductFormController {
     }
 
     private async getProductDetail(sku: string) {
-        const res = await fetch(Constants.GET_PRODUCT_DETAIL_API + sku)
+        const res = await fetch(Constants.GET_PRODUCT_DETAIL_API + encodeURIComponent(sku))
         const data = await res.json()
 
         if (res.ok) {
