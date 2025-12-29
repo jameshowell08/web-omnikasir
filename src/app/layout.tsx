@@ -3,7 +3,7 @@ import { DM_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import LoadingOverlay from "../modules/shared/view/LoadingOverlay";
 import "./globals.css";
-import TransactionListener from "../modules/shared/view/TransactionListener";
+
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -26,7 +26,7 @@ export default function RootLayout({
         className={`${dmSans.variable} font-sans antialiased`}
       >
         <LoadingOverlay>
-          <TransactionListener />
+
           <Toaster
             position="bottom-center"
             reverseOrder={false}
