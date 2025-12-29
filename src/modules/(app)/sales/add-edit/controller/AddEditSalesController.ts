@@ -130,7 +130,7 @@ class AddEditSalesController {
                 data.data.sku,
                 data.data.productName,
                 data.data.brand,
-                BaseUtil.formatNumberV2(data.data.buyingPrice),
+                BaseUtil.formatNumberV2(data.data.sellingPrice),
                 data.data.isNeedImei
             )
         } else {
