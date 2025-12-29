@@ -2,9 +2,8 @@
 
 import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
-import Routes from "../model/Routes"
 import { toast, Toaster } from "sonner"
-import { Button } from "@/components/ui/button"
+import Routes from "../model/Routes"
 
 export const TRANSACTION_CREATED_EVENT = "transaction-created"
 
