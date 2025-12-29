@@ -3,10 +3,9 @@
 import { AppHeaderController } from "@/src/modules/(app)/controller/AppHeaderController";
 import { AppHeaderEventCallback, NavigateToUrl } from "@/src/modules/(app)/model/AppHeaderEventCallback";
 import Menu from "@/src/modules/(app)/model/Menu";
-import { Constants } from "@/src/modules/shared/model/Constants";
-import Routes from "@/src/modules/shared/model/Routes";
 import { getUser, User } from "@/src/modules/shared/util/user";
-import { IconBuildingStore, IconCashRegister, IconChevronRight, IconCreditCardPay, IconHome, IconLayoutDashboard, IconPackage, IconPackages, IconReceipt, IconSettings, IconStackPush, IconTags, IconUser, IconUsers } from "@tabler/icons-react";
+import TransactionListener from "@/src/modules/shared/view/TransactionListener";
+import { IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -35,6 +34,7 @@ function AppLayout({
 
     return (
         <div className="flex flex-col h-full min-h-screen overflow-x-clip">
+            <TransactionListener />
             <header className="px-5 py-3 flex items-center border-b z-10 sticky top-0 bg-white">
                 <span
                     className="material-symbols-rounded p-2 hover:bg-black/10 rounded-lg select-none"
