@@ -87,7 +87,7 @@ function AddEditCustomerForm({ initialCustomerData, isEdit }: { initialCustomerD
                     render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid}>
                             <FieldLabel htmlFor="email" className="gap-0 font-bold">Email</FieldLabel>
-                            <Input {...field} placeholder="Email..." aria-invalid={fieldState.invalid} />
+                            <Input {...field} placeholder="Email..." aria-invalid={fieldState.invalid} type="email" />
                             <FieldError errors={[fieldState.error]} />
                         </Field>
                     )}
