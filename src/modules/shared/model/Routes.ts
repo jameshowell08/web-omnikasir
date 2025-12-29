@@ -25,6 +25,12 @@ const Routes = {
         GET_BY_ID: (id: string) => `/sales/${id}`,
     },
 
+    USER_MANAGEMENT: {
+        GET: "/user-management",
+        ADD: "/user-management/add",
+        EDIT: (id: string) => `/user-management/edit/${id}`,
+    },
+
     PAYMENT_METHOD_API: {
         CREATE: "/api/payment-method/create",
         UPDATE: (id: string) => `/api/payment-method/${id}/update`,
@@ -55,6 +61,15 @@ const Routes = {
     TRANSACTION_API: {
         DEFAULT: "/api/transaction",
         BY_ID: (id: string) => `/api/transaction/${id}`
+    },    
+
+    USER_API: {
+        DEFAULT: "/api/user",
+        BY_ID: (id: string) => `/api/user/${id}`,
+    },
+
+    DASHBOARD_API: {
+        DEFAULT: "/api/dashboard"
     }
 }
 

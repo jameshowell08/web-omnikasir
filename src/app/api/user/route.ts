@@ -13,9 +13,9 @@ import bcrypt from "bcryptjs"
 const UserSchema = z.object({
   username: z
     .string()
-    .min(3, "Username must be at least 3 characters")
+    .min(5, "Username must be at least 5 characters")
     .max(255),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   role: z.nativeEnum(UserRole).optional().default(UserRole.CASHIER),
   isActive: z.boolean().optional().default(true),
 })
