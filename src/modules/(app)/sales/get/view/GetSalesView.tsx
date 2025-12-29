@@ -1,6 +1,7 @@
 'use client';
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/datepicker";
+import { TRANSACTION_CREATED_EVENT } from "@/src/modules/shared/view/TransactionListener";
 import { DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -319,6 +320,18 @@ function GetSalesView() {
 
     useEffect(() => {
         fetchSales(currentPage, selectedAmount, searchQuery, filterFormScheme)
+    }, [currentPage, selectedAmount, searchQuery, filterFormScheme])
+
+    useEffect(() => {
+        const handleTransactionCreated = () => {
+            fetchSales(currentPage, selectedAmount, searchQuery, filterFormScheme)
+        }
+
+        window.addEventListener(TRANSACTION_CREATED_EVENT, handleTransactionCreated)
+
+        return () => {
+            window.removeEventListener(TRANSACTION_CREATED_EVENT, handleTransactionCreated)
+        }
     }, [currentPage, selectedAmount, searchQuery, filterFormScheme])
 
     useEffect(() => {

@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
 import { requireAnyRole } from "@/src/modules/shared/middleware/auth"
+import { SyncService } from "@/src/modules/shared/util/sync-service"
 
 const TransactionItemSchema = z.object({
   sku: z.string().min(1),
@@ -207,8 +208,9 @@ export async function POST(req: NextRequest) {
         })
       }
 
-      return header
+      return { header, items }
     })
+    SyncService.notifyEcommerce(result.header.transactionHeaderId, result.items)
 
     return NextResponse.json({ success: true, data: result })
   } catch (error: any) {
