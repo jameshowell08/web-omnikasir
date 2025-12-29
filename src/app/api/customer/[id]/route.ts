@@ -3,7 +3,7 @@ import { db } from "../../../../modules/shared/util/db"
 import { z } from "zod"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
-import { requireAdmin } from "@/src/modules/shared/middleware/auth"
+import { requireAnyRole } from "@/src/modules/shared/middleware/auth"
 
 const UpdateCustomerSchema = z
   .object({
@@ -18,7 +18,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAnyRole(req)
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -48,7 +48,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAnyRole(req)
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -108,7 +108,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAnyRole(req)
   if ("error" in auth) return auth.error
   try {
     const { id } = await params

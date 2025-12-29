@@ -50,6 +50,9 @@ export async function middleware(req: NextRequest) {
       Constants.PRODUCTS_URL,
       "/sales",
       "/sales/add",
+      "/customer",
+      "/customer/add",
+      "/customer/edit/[id]",
     ]
 
     const normalize = (p: string) =>
@@ -58,6 +61,13 @@ export async function middleware(req: NextRequest) {
 
     const isAllowed = allowedCashierPages.some((path) => {
       const np = normalize(path)
+
+      if (np.includes("[id]")) {
+        const base = np.replace("/[id]", "")
+        if (!normalizedPathname.startsWith(base + "/")) return false
+        const extra = normalizedPathname.slice(base.length + 1)
+        return extra.length > 0 && !extra.includes("/")
+      }
       return normalizedPathname === np
     })
 

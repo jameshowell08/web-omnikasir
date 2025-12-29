@@ -42,20 +42,36 @@ export async function GET(req: NextRequest) {
         }),
       ])
 
-    const topProductsWithDetails = await Promise.all(
-      topProducts.map(async (item) => {
-        const product = await prisma.product.findUnique({
-          where: { sku: item.sku },
-          select: { productName: true, brand: true },
-        })
-        return {
-          name: product?.brand || product?.productName || "Unknown",
-          value: item._sum.quantity,
-        }
-      })
-    )
+    // aggregate the grouped SKU sums into brand totals
+    const skuSums = topProducts
+    const skus = skuSums.map((s) => s.sku).filter(Boolean) as string[]
 
-    const stockByCategory = categoryStock.map((cat) => ({
+    const products = await prisma.product.findMany({
+      where: { sku: { in: skus } },
+      select: { sku: true, brand: true, productName: true },
+    })
+
+    const bySku: Record<
+      string,
+      { sku: string; brand?: string; productName?: string }
+    > = Object.fromEntries(products.map((p) => [p.sku, p]))
+
+    const brandTotals: Record<string, number> = {}
+    skuSums.forEach((s) => {
+      const sku = s.sku
+      const qty = s._sum?.quantity ?? 0
+      const prod = bySku[sku]
+      const brand = prod?.brand || prod?.productName || "Unknown"
+      brandTotals[brand] = (brandTotals[brand] || 0) + qty
+    })
+
+    const topProductsWithDetails = Object.entries(brandTotals)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5)
+
+    const stockByCategory = categoryStock
+      .map((cat) => ({
         category: cat.categoryName,
         totalStock: cat.products.reduce((acc, p) => acc + p.quantity, 0),
       }))
@@ -82,9 +98,9 @@ export async function GET(req: NextRequest) {
         const monthIdx = new Date(item[dateField]).getMonth()
         const total = item.transactionDetails
           ? item.transactionDetails.reduce(
-            (sum: number, d: any) => sum + Number(d.price) * d.quantity,
-            0
-          )
+              (sum: number, d: any) => sum + Number(d.price) * d.quantity,
+              0
+            )
           : Number(item.totalPrice || 0)
 
         grouped[monthIdx].total += total

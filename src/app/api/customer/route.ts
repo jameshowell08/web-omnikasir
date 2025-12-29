@@ -4,10 +4,7 @@ import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { verifyJwt } from "@/src/modules/shared/util/auth"
 import { cookies } from "next/headers"
-import {
-  requireAdmin,
-  requireAnyRole,
-} from "@/src/modules/shared/middleware/auth"
+import { requireAnyRole } from "@/src/modules/shared/middleware/auth"
 
 const CustomerSchema = z.object({
   customerName: z.string().min(1, "Name is required").max(255),
@@ -88,7 +85,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAnyRole(req)
   if ("error" in auth) return auth.error
   try {
     // 1. AUTHENTICATION
