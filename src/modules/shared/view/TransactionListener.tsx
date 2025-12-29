@@ -3,7 +3,8 @@
 import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
 import Routes from "../model/Routes"
-import { toast } from "sonner"
+import { toast, Toaster } from "sonner"
+import { Button } from "@/components/ui/button"
 
 export const TRANSACTION_CREATED_EVENT = "transaction-created"
 
@@ -59,5 +60,5 @@ export default function TransactionListener() {
         }
     }, []) // Empty dependency array ensures connection is created once
 
-    return null
+    return <Toaster position="top-right" />
 }
