@@ -141,7 +141,7 @@ class AddEditSalesController {
     }
 
     public static async getCustomer(): Promise<[boolean, CustomerData[], string]> {
-        const res = await fetch(Routes.CUSTOMER_API.DEFAULT + "?limit=0", {
+        const res = await fetch(Routes.CUSTOMER_API.DEFAULT + "?limit=0&isActive=true", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
