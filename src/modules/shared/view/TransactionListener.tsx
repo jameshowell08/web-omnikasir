@@ -41,6 +41,7 @@ export default function TransactionListener() {
                     toast.success("Transaksi online masuk!", {
                         description: parsedData.content
                     })
+                    console.log("Notification Pushed!")
                 }
             } catch (error) {
                 console.error("Error parsing SSE data", error)
