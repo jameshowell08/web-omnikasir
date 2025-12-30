@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
-import fs from 'fs';
-import path from 'path';
+import fs from "fs"
+import path from "path"
 
 const prisma = new PrismaClient()
 
@@ -234,13 +234,21 @@ async function main() {
   }
 
   // --- Stores ---
-  const placeholderPath = path.join(process.cwd(), "public", "assets", "omnikasir-png.png")
+  const placeholderPath = path.join(
+    process.cwd(),
+    "public",
+    "assets",
+    "omnikasir-png.png"
+  )
   let profilePicture: Buffer | undefined
 
   try {
     profilePicture = fs.readFileSync(placeholderPath)
   } catch (error) {
-    console.warn("Warning: Could not load placeholder image for seeding:", error)
+    console.warn(
+      "Warning: Could not load placeholder image for seeding:",
+      error
+    )
   }
 
   await prisma.store.upsert({
@@ -256,67 +264,77 @@ async function main() {
   })
   console.log("Seeded Store")
 
-  // --- Transactions ---
+  // --- Transactions (use upsert so seeding is idempotent) ---
   const transactionCount = 15
   const customers = ["cust-001", "cust-002", "cust-003", "cust-004", "cust-005"]
 
   for (let i = 1; i <= transactionCount; i++) {
-    const txId = `TX-${Date.now()}-${i}`.slice(0, 20) // Ensure simpler ID
+    const txId = `TRX-${i.toString().padStart(4, "0")}`
     const randomUser = users[Math.floor(Math.random() * users.length)]
-    const randomCustomer = customers[Math.floor(Math.random() * customers.length)]
-    const randomPayment = payMethods[Math.floor(Math.random() * payMethods.length)]
+    const randomCustomer =
+      customers[Math.floor(Math.random() * customers.length)]
+    const randomPayment =
+      payMethods[Math.floor(Math.random() * payMethods.length)]
     const paymentId = `pay-00${payMethods.indexOf(randomPayment) + 1}`
 
     // Random date within last 30 days
     const date = new Date()
     date.setDate(date.getDate() - Math.floor(Math.random() * 30))
 
-    await prisma.transactionHeader.create({
-      data: {
-        transactionHeaderId: `TRX-${i.toString().padStart(4, '0')}`,
+    // Build transaction details (and upsert any SOLD IMEIs)
+    const details = await Promise.all(
+      Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(
+        async (_, idx) => {
+          const randomProduct =
+            products[Math.floor(Math.random() * products.length)]
+          let qty = 1
+          let imeiCode: string | null = null
+
+          if (randomProduct.isNeedImei) {
+            imeiCode = `SOLD-IMEI-${i}-${idx}`
+            await prisma.imei.upsert({
+              where: { imei: imeiCode },
+              update: {},
+              create: {
+                imei: imeiCode,
+                sku: randomProduct.sku,
+                isSold: true,
+              },
+            })
+          } else {
+            qty = Math.floor(Math.random() * 5) + 1
+          }
+
+          return {
+            quantity: qty,
+            price: randomProduct.sellingPrice,
+            sku: randomProduct.sku,
+            imeiCode,
+          }
+        }
+      )
+    )
+
+    // Upsert the header (if exists, do nothing/update as needed)
+    await prisma.transactionHeader.upsert({
+      where: { transactionHeaderId: txId },
+      update: {},
+      create: {
+        transactionHeaderId: txId,
         transactionDate: date,
         paymentId: paymentId,
         userId: randomUser,
-        transactionMethod: i % 2 == 0 ? "POS": "ONLINE",
+        transactionMethod: i % 2 == 0 ? "POS" : "ONLINE",
         customerId: randomCustomer,
         status: "SUCCESS",
         createdById: randomUser,
-
         transactionDetails: {
-          create: await Promise.all(
-            Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(async (_, idx) => {
-              const randomProduct = products[Math.floor(Math.random() * products.length)]
-              let qty = 1
-              let imeiCode: string | null = null
-
-              if (randomProduct.isNeedImei) {
-                // Generate a SOLD IMEI for this historical transaction
-                imeiCode = `SOLD-IMEI-${i}-${idx}`
-                await prisma.imei.create({
-                  data: {
-                    imei: imeiCode,
-                    sku: randomProduct.sku,
-                    isSold: true,
-                  }
-                })
-              } else {
-                qty = Math.floor(Math.random() * 5) + 1
-              }
-
-              return {
-                quantity: qty,
-                price: randomProduct.sellingPrice,
-                sku: randomProduct.sku,
-                imeiCode: imeiCode,
-              }
-            })
-          )
-        }
-      }
+          create: details,
+        },
+      },
     })
   }
   console.log("Seeded Transactions")
-
   console.log("Seeding completed.")
 }
 
