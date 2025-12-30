@@ -36,11 +36,11 @@ export default function TransactionListener() {
                     // Check the current pathname using the ref
                     if (pathnameRef.current === Routes.SALES.DEFAULT) {
                         window.dispatchEvent(new Event(TRANSACTION_CREATED_EVENT))
-                    } else {
-                        toast.success("Transaksi online masuk!", {
-                            description: parsedData.content
-                        })
                     }
+
+                    toast.success("Transaksi online masuk!", {
+                        description: parsedData.content
+                    })
                 }
             } catch (error) {
                 console.error("Error parsing SSE data", error)

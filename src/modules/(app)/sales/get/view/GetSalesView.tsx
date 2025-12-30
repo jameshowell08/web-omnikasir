@@ -324,8 +324,6 @@ function GetSalesView() {
     }, [currentPage, selectedAmount, searchQuery, filterFormScheme])
 
     useEffect(() => {
-
-
         const fetchPaymentMethods = async () => {
             showLoadingOverlay(true)
             const [success, paymentMethodsData, errorMessage] = await GetSalesController.getPaymentMethods()
