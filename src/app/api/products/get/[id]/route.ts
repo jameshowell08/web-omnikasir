@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
-import { requireAdmin } from "@/src/modules/shared/middleware/auth"
+import { requireAnyRole } from "@/src/modules/shared/middleware/auth"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAdmin(request)
+  const auth = await requireAnyRole(request)
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
