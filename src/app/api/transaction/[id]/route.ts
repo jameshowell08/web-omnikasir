@@ -22,7 +22,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAnyRole(request)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -70,7 +70,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAnyRole(request)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
 
   try {
@@ -215,7 +215,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAnyRole(request)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
 
   try {

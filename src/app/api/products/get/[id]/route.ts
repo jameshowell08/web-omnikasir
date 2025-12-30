@@ -6,7 +6,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAnyRole(request)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -36,13 +36,13 @@ export async function GET(
 
     const sellingPriceNumber =
       product.sellingPrice &&
-      typeof (product.sellingPrice as any).toNumber === "function"
+        typeof (product.sellingPrice as any).toNumber === "function"
         ? (product.sellingPrice as any).toNumber()
         : Number(product.sellingPrice)
 
     const buyingPriceNumber =
       product.buyingPrice &&
-      typeof (product.buyingPrice as any).toNumber === "function"
+        typeof (product.buyingPrice as any).toNumber === "function"
         ? (product.buyingPrice as any).toNumber()
         : Number(product.buyingPrice)
 
