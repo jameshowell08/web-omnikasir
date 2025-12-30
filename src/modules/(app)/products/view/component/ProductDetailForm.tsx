@@ -104,7 +104,7 @@ function ProductDetailForm(
 
     useEffect(() => {
         controller.initializeForm(sku)
-    }, [])
+    }, [controller, sku])
 
     return (
         <div className="flex flex-col">

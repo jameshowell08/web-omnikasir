@@ -5,7 +5,7 @@ import { cookies } from "next/headers"
 import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const cookieStore = cookies()

@@ -20,7 +20,7 @@ const CreateInventorySchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const url = new URL(req.url)
@@ -43,11 +43,11 @@ export async function GET(req: NextRequest) {
       }),
       ...(startDate &&
         endDate && {
-          createdDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
-          },
-        }),
+        createdDate: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      }),
       ...(search && {
         OR: [
           { id: { contains: search, mode: "insensitive" } },
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     // 1. AUTHENTICATION

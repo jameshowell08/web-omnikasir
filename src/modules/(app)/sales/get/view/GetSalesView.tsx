@@ -1,9 +1,8 @@
 'use client';
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/datepicker";
-import { TRANSACTION_CREATED_EVENT } from "@/src/modules/shared/view/TransactionListener";
 import { DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,18 +16,19 @@ import ItemAmountSelectSection from "@/src/modules/shared/view/ItemAmountSelectS
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import TablePagination from "@/src/modules/shared/view/TablePagination";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
+import { TRANSACTION_CREATED_EVENT } from "@/src/modules/shared/view/TransactionListener";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog } from "@radix-ui/react-dialog";
 import { IconDots, IconEdit, IconEye, IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
+import Link from "next/link";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import SalesUtil from "../../[shared]/util/SalesUtil";
 import GetSalesController from "../controller/GetSalesController";
 import PaymentMethodData from "../model/PaymentMethodData";
 import SalesTableData from "../model/SalesTableData";
 import { SalesTableFilterFormScheme, SalesTableFilterFormSchemeDefaultValues, SalesTableFilterFormSchemeType } from "../model/SalesTableFilterFormScheme";
-import Link from "next/link";
-import SalesUtil from "../../[shared]/util/SalesUtil";
 
 function FilterDialogBody({ initialValues, formId, paymentMethods, handleFilter }: { initialValues: SalesTableFilterFormSchemeType | undefined, formId: string, paymentMethods: PaymentMethodData[], handleFilter: (data: SalesTableFilterFormSchemeType) => void }) {
     const form = useForm({
@@ -290,17 +290,6 @@ function GetSalesView() {
         setIsSearchLoading(false)
     }
 
-    const fetchPaymentMethods = async () => {
-        showLoadingOverlay(true)
-        const [success, paymentMethodsData, errorMessage] = await GetSalesController.getPaymentMethods()
-        if (success) {
-            setPaymentMethods(paymentMethodsData)
-        } else {
-            toast.error(errorMessage)
-        }
-        showLoadingOverlay(false)
-    }
-
     const handleFilter = (data: SalesTableFilterFormSchemeType) => {
         setFilterFormScheme(data)
     }
@@ -335,8 +324,21 @@ function GetSalesView() {
     }, [currentPage, selectedAmount, searchQuery, filterFormScheme])
 
     useEffect(() => {
+
+
+        const fetchPaymentMethods = async () => {
+            showLoadingOverlay(true)
+            const [success, paymentMethodsData, errorMessage] = await GetSalesController.getPaymentMethods()
+            if (success) {
+                setPaymentMethods(paymentMethodsData)
+            } else {
+                toast.error(errorMessage)
+            }
+            showLoadingOverlay(false)
+        }
+
         fetchPaymentMethods()
-    }, [])
+    }, [showLoadingOverlay])
 
     return (
         <div>

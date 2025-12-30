@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"
-import { db } from "../../../modules/shared/util/db"
-import { z } from "zod"
-import { Prisma, UserRole } from "@prisma/client"
-import { verifyJwt } from "@/src/modules/shared/util/auth"
-import { cookies } from "next/headers"
 import {
   requireAdmin,
   requireAnyRole,
 } from "@/src/modules/shared/middleware/auth"
+import { Prisma, UserRole } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
+import { db } from "../../../modules/shared/util/db"
 
 const UserSchema = z.object({
   username: z
@@ -21,7 +19,7 @@ const UserSchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
 
   try {
@@ -94,7 +92,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
   try {

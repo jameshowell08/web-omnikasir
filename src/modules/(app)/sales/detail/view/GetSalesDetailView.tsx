@@ -120,36 +120,36 @@ function GetSalesDetailView({ id }: { id: string }) {
     const [salesData, setSalesData] = useState<SalesData | undefined>(undefined)
     const [billData, setBillData] = useState<BillData | undefined>(undefined)
 
-    const fetchStoreProfile = async (sale: SalesData | undefined) => {
-        const [success, data, errorMessage] = await GetSalesDetailController.getStoreData()
-
-        if (success) {
-            setBillData(GetSalesDetailController.mapToBillData(data, sale))
-        } else {
-            toast.error(errorMessage)
-        }
-    }
-
-    const fetchSalesDetail = async () => {
-        const [success, data, errorMessage] = await GetSalesDetailController.getSalesDetail(id)
-
-        if (success) {
-            setSalesData(data)
-            await fetchStoreProfile(data)
-        } else {
-            toast.error(errorMessage)
-        }
-    }
-
-    const initializeSalesDetail = async () => {
-        showLoadingOverlay(true)
-        await fetchSalesDetail()
-        showLoadingOverlay(false)
-    }
-
     useEffect(() => {
+        const fetchStoreProfile = async (sale: SalesData | undefined) => {
+            const [success, data, errorMessage] = await GetSalesDetailController.getStoreData()
+
+            if (success) {
+                setBillData(GetSalesDetailController.mapToBillData(data, sale))
+            } else {
+                toast.error(errorMessage)
+            }
+        }
+
+        const fetchSalesDetail = async () => {
+            const [success, data, errorMessage] = await GetSalesDetailController.getSalesDetail(id)
+
+            if (success) {
+                setSalesData(data)
+                await fetchStoreProfile(data)
+            } else {
+                toast.error(errorMessage)
+            }
+        }
+
+        const initializeSalesDetail = async () => {
+            showLoadingOverlay(true)
+            await fetchSalesDetail()
+            showLoadingOverlay(false)
+        }
+
         initializeSalesDetail()
-    }, [])
+    }, [showLoadingOverlay,id])
 
     return (
         <div>

@@ -21,7 +21,7 @@ const CreateTransactionSchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const url = new URL(req.url)
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     // 1. Auth Check

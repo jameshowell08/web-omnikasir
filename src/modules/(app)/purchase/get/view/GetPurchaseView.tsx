@@ -11,7 +11,7 @@ import TablePagination from "@/src/modules/shared/view/TablePagination";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import { IconDots, IconEdit, IconEye, IconFilter, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import z from "zod";
 import GetPurchaseController from "../controller/GetPurchaseController";
@@ -212,7 +212,7 @@ function GetPurchaseView() {
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [appliedFilters, setAppliedFilters] = useState<z.infer<typeof PurchaseFilterFormScheme>>(DefaultFilterFormValues);
 
-    const fetchPurchasesData = async () => {
+    const fetchPurchasesData = useCallback(async () => {
         const [isSuccess, totalPage, fetchedPurchases, errorMsg] = await GetPurchaseController.getPurchases(itemAmount, currentPage, debouncedSearchQuery, appliedFilters);
         if (isSuccess) {
             setDisplayedPurchases(fetchedPurchases);
@@ -221,7 +221,7 @@ function GetPurchaseView() {
             toast.error(errorMsg)
         }
         setIsSearchLoading(false);
-    }
+    }, [itemAmount, currentPage, debouncedSearchQuery, appliedFilters])
 
     const onDeletePurchase = async (id: string) => {
         showLoadingOverlay(true)
@@ -250,7 +250,7 @@ function GetPurchaseView() {
 
     useEffect(() => {
         fetchPurchasesData();
-    }, [itemAmount, currentPage, debouncedSearchQuery, appliedFilters]);
+    }, [itemAmount, currentPage, debouncedSearchQuery, appliedFilters, fetchPurchasesData]);
 
     return (
         <div>

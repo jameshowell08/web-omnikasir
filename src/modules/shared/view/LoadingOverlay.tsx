@@ -2,7 +2,7 @@
 import Image from "next/image"
 import { createContext, useState } from "react"
 
-export const LoadingOverlayContext = createContext<(showLoadingOverlay: boolean) => void>((_: boolean) => {})
+export const LoadingOverlayContext = createContext<(showLoadingOverlay: boolean) => void>(() => {})
 
 export default function LoadingOverlay({children}: {children: React.ReactNode}) {
     const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)

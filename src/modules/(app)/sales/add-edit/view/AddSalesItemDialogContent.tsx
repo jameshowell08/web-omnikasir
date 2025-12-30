@@ -34,21 +34,6 @@ function AddEditSalesItemForm({ formId, isEdit, initialValues, onSubmitForm }: {
         }
     })
 
-    const fetchProductData = async (sku: string) => {
-        const [isSuccess, productData, errorMessage] = await AddEditSalesController.getProduct(sku);
-
-        if (isSuccess) {
-            setIsSkuValid(true);
-            form.setValue("productName", productData?.name ?? "");
-            form.setValue("brand", productData?.brand ?? "");
-            form.setValue("price", productData?.price ?? "");
-            form.setValue("isNeedImei", productData?.isNeedImei ?? false);
-        } else {
-            toast.error(errorMessage);
-        }
-        setIsSkuFieldLoading(false);
-    }
-
     const handleSubmit = (data: AddEditSalesItemFormSchemeType) => {
         console.log(data);
         if (!isSkuValid) {
@@ -68,10 +53,25 @@ function AddEditSalesItemForm({ formId, isEdit, initialValues, onSubmitForm }: {
             setIsSkuValid(false);
 
             skuDebounce.current = setTimeout(() => {
+                const fetchProductData = async (sku: string) => {
+                    const [isSuccess, productData, errorMessage] = await AddEditSalesController.getProduct(sku);
+
+                    if (isSuccess) {
+                        setIsSkuValid(true);
+                        form.setValue("productName", productData?.name ?? "");
+                        form.setValue("brand", productData?.brand ?? "");
+                        form.setValue("price", productData?.price ?? "");
+                        form.setValue("isNeedImei", productData?.isNeedImei ?? false);
+                    } else {
+                        toast.error(errorMessage);
+                    }
+                    setIsSkuFieldLoading(false);
+                }
+
                 fetchProductData(debouncedSku);
             }, 500);
         }
-    }, [debouncedSku])
+    }, [debouncedSku, form])
 
     return (
         <form id={formId} onSubmit={(e) => {

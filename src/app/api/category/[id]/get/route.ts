@@ -1,17 +1,16 @@
 // app/api/categories/[id]/get/route.ts
+import {
+  requireAnyRole
+} from "@/src/modules/shared/middleware/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
-import {
-  requireAdmin,
-  requireAnyRole,
-} from "@/src/modules/shared/middleware/auth"
 
 type Params = {
   params: { id: string }
 }
 
 export async function GET(req: NextRequest, { params }: Params) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const { id } = params

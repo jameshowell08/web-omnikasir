@@ -15,7 +15,7 @@ const UpdateUserSchema = z.object({
 type Params = { params: { id: string } }
 
 export async function GET(req: NextRequest, { params }: Params) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
   try {
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     }
 
     return NextResponse.json({ success: true, data: user })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Internal Server Error" },
       { status: 500 }
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
   try {
@@ -90,7 +90,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(req: NextRequest, { params }: Params) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
   try {
@@ -103,7 +103,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
       success: true,
       message: "User berhasil dinonaktifkan",
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Gagal menonaktifkan user" },
       { status: 500 }

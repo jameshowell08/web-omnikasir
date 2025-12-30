@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
 import { requireAdmin } from "@/src/modules/shared/middleware/auth"
+import { PrismaClient } from "@prisma/client"
+import { NextResponse } from "next/server"
 
 const prisma = new PrismaClient()
 
-export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req)
+export async function GET() {
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const currentYear = new Date().getFullYear()

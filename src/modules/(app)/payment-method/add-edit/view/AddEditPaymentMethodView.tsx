@@ -73,21 +73,21 @@ function AddEditPaymentMethodView({ isEdit = false, id = "" }: { isEdit?: boolea
         }
     }
 
-    const fetchInitialData = async () => {
-        const [res, paymentMethodName, errorMsg] = await AddEditPaymentMethodController.getPaymentMethodById(id)
-
-        if (!res.ok) {
-            toast.error(errorMsg)
-        } else {
-            form.setValue("paymentName", paymentMethodName)
-        }
-    }
-
     useEffect(() => {
         if (isEdit) {
+            const fetchInitialData = async () => {
+                const [res, paymentMethodName, errorMsg] = await AddEditPaymentMethodController.getPaymentMethodById(id)
+
+                if (!res.ok) {
+                    toast.error(errorMsg)
+                } else {
+                    form.setValue("paymentName", paymentMethodName)
+                }
+            }
+
             fetchInitialData()
         }
-    }, [])
+    }, [isEdit, id, form])
 
     return (
         <div>

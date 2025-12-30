@@ -8,7 +8,7 @@ type Params = {
 }
 
 export async function GET(req: NextRequest, { params }: Params) {
-  const auth = await requireAdmin(req)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const { id } = params

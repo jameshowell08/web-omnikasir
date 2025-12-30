@@ -14,10 +14,8 @@ const CustomerSchema = z.object({
   isActive: z.boolean().optional().default(true),
 })
 
-const UpdateCustomerSchema = CustomerSchema.partial()
-
 export async function GET(req: NextRequest) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
 
   try {
@@ -76,7 +74,7 @@ export async function GET(req: NextRequest) {
         totalPages: shouldFetchAll ? 1 : Math.ceil(total / limit),
       },
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Gagal mengambil data customer" },
       { status: 500 }
@@ -85,7 +83,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     // 1. AUTHENTICATION

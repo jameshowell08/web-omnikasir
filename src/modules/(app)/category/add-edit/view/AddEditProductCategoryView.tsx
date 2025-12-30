@@ -1,21 +1,20 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { IconArrowBackUp } from "@tabler/icons-react";
-import { Controller, useForm, UseFormReturn } from "react-hook-form";
-import AddEditProductCategoryFormScheme from "../model/AddEditProductCategoryFormScheme";
-import z from "zod";
-import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import BackButton from "@/src/modules/shared/view/BackButton";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import { Controller, useForm, UseFormReturn } from "react-hook-form";
+import toast from "react-hot-toast";
+import z from "zod";
 import AddEditProductCategoryController from "../controller/AddEditProductCategoryController";
 import { AddEditProductCategoryCallback, NavigateTo, ShowErrorToast, ShowHideLoadingOverlay, UpdateCategoryData } from "../model/AddEditProductCategoryCallback";
-import toast from "react-hot-toast";
-import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
-import BackButton from "@/src/modules/shared/view/BackButton";
+import AddEditProductCategoryFormScheme from "../model/AddEditProductCategoryFormScheme";
 
 function AddEditProductCategoryHeader({isEdit}: {isEdit: boolean}) {
     return (
@@ -102,7 +101,7 @@ function AddEditProductCategoryView({ isEdit, sku = "" }: { isEdit: boolean, sku
         if (isEdit) {
             controller.getCategoryData(sku)
         }
-    }, [])
+    }, [controller, isEdit, sku])
 
     return (
         <div>

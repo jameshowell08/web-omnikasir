@@ -121,7 +121,7 @@ function ProductCategoryListView() {
 
     useEffect(() => {
         controller.getCategories()
-    }, [])
+    }, [controller])
 
     useEffect(() => {
         if (timerId.current) {
@@ -135,7 +135,7 @@ function ProductCategoryListView() {
                 clearTimeout(timerId.current)
             }
         }
-    }, [searchQuery])
+    }, [controller, searchQuery])
 
     return (
         <div className="flex flex-col w-full">

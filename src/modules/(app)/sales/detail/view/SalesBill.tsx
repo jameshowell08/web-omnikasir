@@ -1,10 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import BillData from "../model/BillData";
+import Image from "next/image";
 
 function SalesBill({ billData }: { billData: BillData }) {
     return (
         <div className="flex flex-col items-center m-5">
-            <img src={billData.storeImage} alt="Bill" width={200} height={200} loading="eager" />
+            <Image src={billData.storeImage} alt="Bill" width={200} height={200} loading="eager" />
             <h1 className="mt-2 font-bold text-xl">{billData.storeName}</h1>
             <h5>{billData.storeAddress}</h5>
             <h5>+62 {billData.storePhone}</h5>

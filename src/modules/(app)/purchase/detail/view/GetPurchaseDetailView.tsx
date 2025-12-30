@@ -130,19 +130,19 @@ function GetPurchaseDetailTable({ purchaseDetailItems, totalPrice }: { purchaseD
 function GetPurchaseDetailView({ id }: { id: string }) {
     const [purchaseDetail, setPurchaseDetail] = useState<PurchaseDetailData | null>(null)
 
-    const fetchProductDetail = async () => {
-        const [isSuccess, purchaseDetail, errorMsg] = await GetPurchaseDetailController.getPurchaseDetail(id)
-
-        if (isSuccess) {
-            setPurchaseDetail(purchaseDetail)
-        } else {
-            toast.error(errorMsg)
-        }
-    }
-
     useEffect(() => {
+        const fetchProductDetail = async () => {
+            const [isSuccess, purchaseDetail, errorMsg] = await GetPurchaseDetailController.getPurchaseDetail(id)
+
+            if (isSuccess) {
+                setPurchaseDetail(purchaseDetail)
+            } else {
+                toast.error(errorMsg)
+            }
+        }
+
         fetchProductDetail()
-    }, [])
+    }, [id])
 
     return (
         <div>

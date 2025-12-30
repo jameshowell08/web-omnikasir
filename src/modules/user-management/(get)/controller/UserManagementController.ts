@@ -1,4 +1,3 @@
-import { Route } from "lucide-react";
 import Routes from "../../../shared/model/Routes";
 import UserData from "../model/UserData";
 import { UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";

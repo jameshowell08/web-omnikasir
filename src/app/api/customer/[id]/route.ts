@@ -18,7 +18,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -48,7 +48,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -108,7 +108,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await requireAnyRole(req)
+  const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -132,7 +132,7 @@ export async function DELETE(
       message: "Customer berhasil didelete (deactivated)",
       data: { customerId: softDeletedCustomer.customerId, isActive: false },
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Gagal mengahapus customer" },
       { status: 500 }

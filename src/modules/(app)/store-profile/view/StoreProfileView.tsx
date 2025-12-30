@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,7 +121,7 @@ function StoreProfileForm({ storeProfile, refreshData }: { storeProfile: z.infer
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
                                 <FieldLabel className="gap-0 font-bold">Nomor telepon <span className="text-red-500">*</span></FieldLabel>
-                                <FieldDescription>Dimulai dari angka setelah '0'. Contoh: 081234567890 ditulis menjadi 81234567890</FieldDescription>
+                                <FieldDescription>Dimulai dari angka setelah &apos;0&apos;. Contoh: 081234567890 ditulis menjadi 81234567890</FieldDescription>
                                 <InputGroup>
                                     <InputGroupAddon>
                                         <InputGroupText>+62</InputGroupText>
@@ -185,7 +185,7 @@ function StoreProfileView() {
     const showLoadingOverlay = useContext(LoadingOverlayContext);
     const [storeProfile, setStoreProfile] = useState<z.infer<typeof StoreProfileFormScheme> | undefined>(undefined)
 
-    const fetchStoreProfileData = async () => {
+    const fetchStoreProfileData = useCallback(async () => {
         showLoadingOverlay(true)
         const [success, storeProfile, errorMessage] = await StoreProfileController.getStoreProfile()
 
@@ -196,11 +196,11 @@ function StoreProfileView() {
         }
 
         showLoadingOverlay(false)
-    }
+    }, [showLoadingOverlay])
 
     useEffect(() => {
         fetchStoreProfileData()
-    }, [])
+    }, [fetchStoreProfileData])
 
     return (
         <div>

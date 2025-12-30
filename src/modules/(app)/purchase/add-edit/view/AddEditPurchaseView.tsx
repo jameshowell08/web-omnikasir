@@ -352,7 +352,7 @@ function AddEditPurchaseItemFooter({ formId, isButtonDisabled, isEdit }: { formI
 function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?: boolean }) {
     const router = useRouter();
     const showLoadingOverlay = useContext(LoadingOverlayContext);
-    
+
     const form = useForm<z.infer<typeof AddPurchaseFormScheme>>({
         resolver: zodResolver(AddPurchaseFormScheme),
         defaultValues: {
@@ -396,22 +396,22 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
         }
     }
 
-    const fetchPurchaseDetail = async (id: string) => {
-        showLoadingOverlay(true)
-        const [isSuccess, data, errorMessage] = await AddEditPurchaseController.getPurchaseById(id)
-        if (isSuccess) {
-            form.reset(data)
-        } else {
-            toast.error(errorMessage)
-        }
-        showLoadingOverlay(false)
-    }
-
     useEffect(() => {
         if (isEdit) {
+            const fetchPurchaseDetail = async (id: string) => {
+                showLoadingOverlay(true)
+                const [isSuccess, data, errorMessage] = await AddEditPurchaseController.getPurchaseById(id)
+                if (isSuccess) {
+                    form.reset(data)
+                } else {
+                    toast.error(errorMessage)
+                }
+                showLoadingOverlay(false)
+            }
+
             fetchPurchaseDetail(id)
         }
-    }, [])
+    }, [isEdit, id, form, showLoadingOverlay])
 
     return (
         <div>

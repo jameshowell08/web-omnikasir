@@ -6,7 +6,7 @@ class GetPaymentMethodController {
         const res = await fetch(`${Routes.PAYMENT_METHOD_API.GET}?page=${page}&limit=${limit}&search=${searchQuery}`);
         const data = await res.json();
 
-        let paymentMethods: PaymentMethod[] = [];
+        const paymentMethods: PaymentMethod[] = [];
         let errorMessage = "";
         let totalPages = 0;
 

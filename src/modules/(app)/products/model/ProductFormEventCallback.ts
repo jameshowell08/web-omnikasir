@@ -1,6 +1,5 @@
 import { Callback } from "@/src/modules/shared/model/Callback";
 import { Category } from "./Category";
-import { Brand } from "./Brand";
 
 export abstract class ProductFormEventCallback extends Callback {
     constructor() { super("product-form") }

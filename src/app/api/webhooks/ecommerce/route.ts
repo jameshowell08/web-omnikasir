@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     //   return NextResponse.json({ message: "Ignored event" }, { status: 200 })
     // }
 
-    const { externalOrderId, items, customer } = body.data
+    const { externalOrderId, items } = body.data
 
     console.log(`📦 Processing Online Order: ${externalOrderId}`)
     console.log("📥 Received Webhook Body:", JSON.stringify(body, null, 2))

@@ -7,7 +7,7 @@ import Routes from "@/src/modules/shared/model/Routes";
 import TablePlaceholder from "@/src/modules/shared/view/TablePlaceholder";
 import { IconArrowLeft, IconArrowRight, IconDots, IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import GetCustomerController from "../controller/GetCustomerController";
 import CustomerTableData from "../model/CustomerTableData";
@@ -177,7 +177,7 @@ function GetCustomerView() {
     const [customers, setCustomers] = useState<CustomerTableData[] | undefined>(undefined)
     const [searchQuery, setSearchQuery] = useState("")
 
-    const fetchCustomerData = async (searchValue: string, page: number, limit: number) => {
+    const fetchCustomerData = useCallback(async (searchValue: string, page: number, limit: number) => {
         showLoadingOverlay(true)
         const [isSuccess, data, errorMessage, totalPages] = await GetCustomerController.getCustomers(searchValue, page, limit)
 
@@ -188,7 +188,7 @@ function GetCustomerView() {
             toast.error(errorMessage)
         }
         showLoadingOverlay(false)
-    }
+    }, [showLoadingOverlay])
 
     const onDeleteCustomer = async (id: string) => {
         const [isSuccess, errorMessage] = await GetCustomerController.deleteCustomer(id)
@@ -203,7 +203,7 @@ function GetCustomerView() {
 
     useEffect(() => {
         fetchCustomerData(searchQuery, page, limit)
-    }, [searchQuery, page, limit])
+    }, [fetchCustomerData, searchQuery, page, limit])
 
     return (
         <div className="flex flex-col">

@@ -106,23 +106,23 @@ function AddEditUserView({ isEdit = false, id }: { isEdit?: boolean, id?: string
         }
     }
 
-    const fetchUser = async () => {
-        showLoadingOverlay(true)
-        const [success, data, errorMessage] = await AddEditUserController.getUser(id ?? "")
-
-        if (success) {
-            setFormValue(data)
-        } else {
-            toast.error(errorMessage)
-        }
-        showLoadingOverlay(false)
-    }
-
     useEffect(() => {
         if (isEdit) {
+            const fetchUser = async () => {
+                showLoadingOverlay(true)
+                const [success, data, errorMessage] = await AddEditUserController.getUser(id ?? "")
+
+                if (success) {
+                    setFormValue(data)
+                } else {
+                    toast.error(errorMessage)
+                }
+                showLoadingOverlay(false)
+            }
+
             fetchUser()
         }
-    }, [isEdit])
+    }, [isEdit, id, showLoadingOverlay])
 
     return (
         <div>

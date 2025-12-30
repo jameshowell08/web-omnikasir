@@ -192,44 +192,44 @@ function AddEditSalesView({ isEdit = false, id = "" }: { isEdit?: boolean, id?: 
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethodData[]>([])
     const [sales, setSales] = useState<AddEditSalesFormSchemeType | undefined>(undefined)
 
-    const fetchCustomers = async () => {
-        const [success, customers, errorMessage] = await AddEditSalesController.getCustomer()
-        if (success) {
-            setCustomers(customers)
-        } else {
-            toast.error(errorMessage)
-        }
-    }
-
-    const fetchPaymentMethods = async () => {
-        const [success, paymentMethods, errorMessage] = await AddEditSalesController.getPaymentMethod()
-        if (success) {
-            setPaymentMethods(paymentMethods)
-        } else {
-            toast.error(errorMessage)
-        }
-    }
-
-    const fetchSales = async () => {
-        if (isEdit) {
-            const [success, sales, errorMessage] = await AddEditSalesController.getSales(id)
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            const [success, customers, errorMessage] = await AddEditSalesController.getCustomer()
             if (success) {
-                setSales(sales)
+                setCustomers(customers)
             } else {
                 toast.error(errorMessage)
             }
         }
-    }
 
-    const initializePage = async () => {
-        showLoadingOverlay(true)
-        await Promise.all([fetchCustomers(), fetchPaymentMethods(), fetchSales()])
-        showLoadingOverlay(false)
-    }
+        const fetchPaymentMethods = async () => {
+            const [success, paymentMethods, errorMessage] = await AddEditSalesController.getPaymentMethod()
+            if (success) {
+                setPaymentMethods(paymentMethods)
+            } else {
+                toast.error(errorMessage)
+            }
+        }
 
-    useEffect(() => {
+        const fetchSales = async () => {
+            if (isEdit) {
+                const [success, sales, errorMessage] = await AddEditSalesController.getSales(id)
+                if (success) {
+                    setSales(sales)
+                } else {
+                    toast.error(errorMessage)
+                }
+            }
+        }
+
+        const initializePage = async () => {
+            showLoadingOverlay(true)
+            await Promise.all([fetchCustomers(), fetchPaymentMethods(), fetchSales()])
+            showLoadingOverlay(false)
+        }
+
         initializePage()
-    }, [])
+    }, [isEdit, id, showLoadingOverlay])
 
     return (
         <div>

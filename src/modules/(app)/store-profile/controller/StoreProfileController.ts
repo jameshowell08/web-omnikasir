@@ -48,7 +48,7 @@ class StoreProfileController {
             }
 
             return [res.ok, storeProfile, errorMessage]
-        } catch (e) {
+        } catch {
             return [false, undefined, "Terjadi kesalahan."]
         }
     }
@@ -79,7 +79,7 @@ class StoreProfileController {
             } else {
                 return [false, responseData.error || "Gagal memperbarui profil toko."];
             }
-        } catch (error) {
+        } catch {
             return [false, "Terjadi kesalahan saat memperbarui profil."];
         }
     }

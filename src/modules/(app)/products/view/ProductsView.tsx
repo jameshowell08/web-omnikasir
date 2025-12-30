@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -36,6 +35,7 @@ function ProductsView() {
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [searchField, setSearchField] = useState<string>("")
+    const [debouncedSearchField, setDebouncedSearchField] = useState<string>("") 
 
     const [user, setUser] = useState<User | null>(null)
 
@@ -45,23 +45,10 @@ function ProductsView() {
 
     const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
-    function performSearch(searchTerm: string) {
-        controller.getProducts(
-            selectedAmountOfItem,
-            currentPage,
-            searchTerm == "" ? null : searchTerm,
-            appliedFilters.category,
-            appliedFilters.minPrice,
-            appliedFilters.maxPrice,
-            appliedFilters.minStock,
-            appliedFilters.maxStock
-        )
-    }
-
     function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
         if (e.key === "Enter") {
             if (debounceTimer.current) clearTimeout(debounceTimer.current)
-            performSearch(searchField)
+            setDebouncedSearchField(searchField)
         }
     }
 
@@ -110,23 +97,23 @@ function ProductsView() {
         controller.getProducts(
             selectedAmountOfItem,
             currentPage,
-            searchField == "" ? null : searchField,
+            debouncedSearchField == "" ? null : debouncedSearchField,
             appliedFilters.category,
             appliedFilters.minPrice,
             appliedFilters.maxPrice,
             appliedFilters.minStock,
             appliedFilters.maxStock
         )
-    }, [controller, selectedAmountOfItem, currentPage, appliedFilters])
+    }, [controller, selectedAmountOfItem, currentPage, appliedFilters, debouncedSearchField])
 
     useEffect(() => {
         controller.initialize()
-    }, [])
+    }, [controller])
 
     useEffect(() => {
         if (debounceTimer.current) clearTimeout(debounceTimer.current)
         debounceTimer.current = setTimeout(() => {
-            performSearch(searchField)
+            setDebouncedSearchField(searchField)
         }, 500)
         return () => {
             if (debounceTimer.current) clearTimeout(debounceTimer.current)

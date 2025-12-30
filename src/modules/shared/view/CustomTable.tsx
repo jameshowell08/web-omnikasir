@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IconDots } from "@tabler/icons-react";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function CustomTableHead({heading}: {heading: string}) {
     return (

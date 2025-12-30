@@ -99,7 +99,7 @@ function AddEditCustomerForm({ initialCustomerData, isEdit }: { initialCustomerD
                     render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid}>
                             <FieldLabel htmlFor="phoneNumber" className="gap-0 font-bold">Nomor Telepon</FieldLabel>
-                            <FieldDescription>Nomor telepon dimulai setelah angka '0', contoh: 08123456789 akan ditulis +62 8123456789</FieldDescription>
+                            <FieldDescription>Nomor telepon dimulai setelah angka &apos;0&apos;, contoh: 08123456789 akan ditulis +62 8123456789</FieldDescription>
                             <InputGroup>
                                 <InputGroupAddon>
                                     <span className="font-bold">+62</span>
@@ -135,22 +135,22 @@ function AddEditCustomerView({ id, isEdit = false }: { id?: string, isEdit?: boo
     const showLoadingOverlay = useContext(LoadingOverlayContext)
     const [initialCustomerData, setInitialCustomerData] = useState<z.infer<typeof AddEditCustomerFormScheme> | undefined>(undefined)
 
-    const fetchInitialCustomerData = async () => {
-        if (isEdit) {
-            showLoadingOverlay(true)
-            const [isSuccess, data, errorMessage] = await AddEditCustomerController.getCustomerById(id!)
-            if (isSuccess) {
-                setInitialCustomerData(data)
-            } else {
-                toast.error(errorMessage)
-            }
-            showLoadingOverlay(false)
-        }
-    }
-
     useEffect(() => {
-        fetchInitialCustomerData()
-    }, [isEdit, id])
+        if (isEdit) {
+            const fetchInitialCustomerData = async () => {
+                showLoadingOverlay(true)
+                const [isSuccess, data, errorMessage] = await AddEditCustomerController.getCustomerById(id!)
+                if (isSuccess) {
+                    setInitialCustomerData(data)
+                } else {
+                    toast.error(errorMessage)
+                }
+                showLoadingOverlay(false)
+            }
+
+            fetchInitialCustomerData()
+        }
+    }, [isEdit, id, showLoadingOverlay])
 
     return (
         <div className="flex flex-col gap-2">

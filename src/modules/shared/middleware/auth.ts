@@ -1,13 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { verifyJwt, JwtPayload } from "../util/auth"
+import { NextResponse } from "next/server"
+import { JwtPayload, verifyJwt } from "../util/auth"
 
 /**
  * Base authentication check
  */
-export async function authenticate(
-  req: NextRequest
-): Promise<{ user: JwtPayload } | { error: NextResponse }> {
+export async function authenticate(): Promise<{ user: JwtPayload } | { error: NextResponse }> {
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value
 
@@ -33,8 +31,8 @@ export async function authenticate(
 /**
  * Use this for Inventory, Users, and Reports
  */
-export async function requireAdmin(req: NextRequest) {
-  const result = await authenticate(req)
+export async function requireAdmin() {
+  const result = await authenticate()
   if ("error" in result) return result
 
   if (result.user.role !== "ADMIN") {
@@ -52,6 +50,6 @@ export async function requireAdmin(req: NextRequest) {
 /**
  * Use this for Transactions (Both Cashier and Admin)
  */
-export async function requireAnyRole(req: NextRequest) {
-  return await authenticate(req)
+export async function requireAnyRole() {
+  return await authenticate()
 }
