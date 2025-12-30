@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         nama,
         alamat,
         noHp,
-        profilePicture: profilePictureBuffer,
+        profilePicture: profilePictureBuffer ? new Uint8Array(profilePictureBuffer) : null,
       },
     })
 

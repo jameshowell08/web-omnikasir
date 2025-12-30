@@ -4,14 +4,14 @@ import { db } from "../../../../../modules/shared/util/db"
 import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 type Params = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function PUT(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
-    const { id } = params
+    const { id } = await params
     const body = await req.json()
 
     const { categoryName, description, modifiedById } = body

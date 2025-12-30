@@ -22,7 +22,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAdmin(request)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -76,7 +76,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAdmin(request)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params
@@ -223,7 +223,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAdmin(request)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
     const { id } = await params

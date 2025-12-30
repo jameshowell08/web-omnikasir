@@ -1,9 +1,9 @@
+import { requireAnyRole } from "@/src/modules/shared/middleware/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
-import { requireAnyRole } from "@/src/modules/shared/middleware/auth"
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAnyRole()

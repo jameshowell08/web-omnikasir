@@ -1,17 +1,17 @@
 // app/api/categories/[id]/delete/route.ts
+import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
-import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 type Params = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function DELETE(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
-    const { id } = params
+    const { id } = await params
 
     const category = await db.productCategory.findUnique({
       where: { categoryId: id },

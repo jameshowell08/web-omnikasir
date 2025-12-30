@@ -12,15 +12,17 @@ const UpdateUserSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
-type Params = { params: { id: string } }
+type Params = { params: Promise<{ id: string }> }
 
 export async function GET(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
+  const { id } = await params
+
   try {
     const user = await db.users.findUnique({
-      where: { userId: params.id },
+      where: { userId: id },
       select: {
         userId: true,
         username: true,
@@ -51,6 +53,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
+  const { id } = await params
+
   try {
     const body = await req.json()
     const validation = UpdateUserSchema.safeParse(body)
@@ -70,7 +74,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
 
     const updatedUser = await db.users.update({
-      where: { userId: params.id },
+      where: { userId: id },
       data: dataToUpdate,
     })
 
@@ -93,9 +97,11 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
+  const { id } = await params
+
   try {
     await db.users.update({
-      where: { userId: params.id },
+      where: { userId: id },
       data: { isActive: false },
     })
 

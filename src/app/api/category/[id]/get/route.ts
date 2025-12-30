@@ -6,14 +6,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../../modules/shared/util/db"
 
 type Params = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function GET(req: NextRequest, { params }: Params) {
   const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
   try {
-    const { id } = params
+    const { id } = await params
 
     const category = await db.productCategory.findUnique({
       where: { categoryId: id },

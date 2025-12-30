@@ -16,7 +16,7 @@ const UpdateCustomerSchema = z
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
@@ -46,7 +46,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAnyRole()
   if ("error" in auth) return auth.error
@@ -106,7 +106,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAnyRole()
   if ("error" in auth) return auth.error

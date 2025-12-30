@@ -4,21 +4,21 @@ import { requireAdmin } from "@/src/modules/shared/middleware/auth"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAdmin(request)
+  const auth = await requireAdmin()
   if ("error" in auth) return auth.error
   try {
-    const sku = params.id
+    const { id } = await params
 
-    if (!sku || sku.trim().length === 0) {
+    if (!id || id.trim().length === 0) {
       return NextResponse.json(
         { status: false, message: "SKU is required" },
         { status: 400 }
       )
     }
 
-    const trimmedSku = sku.trim()
+    const trimmedSku = id.trim()
 
     const product = await db.product.findUnique({
       where: { sku: trimmedSku },
