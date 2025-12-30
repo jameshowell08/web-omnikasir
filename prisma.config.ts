@@ -9,6 +9,6 @@ export default defineConfig({
   },
   datasource: {
     url: env("DATABASE_URL"),
-    directUrl: env("POSTGRES_URL_NON_POOLING"),
+    directUrl: env("DATABASE_URL_UNPOOLED"),
   },
 })
