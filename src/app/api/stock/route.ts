@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
     )
 
     return NextResponse.json({ success: true, data: result })
-  } catch (error: any) {
+  } catch {
     // ... error handling ...
   }
 }
