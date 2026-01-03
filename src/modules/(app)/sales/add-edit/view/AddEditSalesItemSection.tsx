@@ -14,7 +14,7 @@ import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormSch
 import AddEditSalesItemDialogContent from "./AddSalesItemDialogContent";
 import IMEIDialogContent from "./IMEIDialogContent";
 import clsx from "clsx";
-import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
+import { IMEIFormSchemeType } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 
 function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
     const [showDialog, setShowDialog] = useState(false);

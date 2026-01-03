@@ -1,13 +1,13 @@
-import z from "zod";
-import { AddPurchaseItemFormScheme } from "./AddPurchaseItemFormScheme";
+import { AddEditItemFormScheme } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
+import z from "zod";
 
 export const AddPurchaseFormScheme = z.object({
     status: z.enum(["DRAFT", "COMPLETED", "CANCELLED"], {
         error: "Status tidak valid."
     }),
     supplier: z.string().min(1, "Supplier tidak boleh kosong."),
-    items: z.array(AddPurchaseItemFormScheme).min(1, "Harus ada minimal 1 item."),
+    items: z.array(AddEditItemFormScheme).min(1, "Harus ada minimal 1 item."),
 }).superRefine((data, ctx) => {
     if (data.status === "COMPLETED") {
         data.items.forEach((item) => {

@@ -11,7 +11,7 @@ import { IconEdit, IconPlus, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { IMEIFormScheme } from "../model/IMEIFormScheme";
+import { IMEIFormScheme } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 
 function IMEIForm({ imeiInputted, quantity, onAddImei }: { imeiInputted: string, quantity: string, onAddImei: (imei: string) => void }) {
     const form = useForm<z.infer<typeof IMEIFormScheme>>({
@@ -96,7 +96,7 @@ function ManageIMEIDialog({
                 )}
             >
                 <span>{imeiInputted}/{quantity}</span>
-                { !disableDialog && <IconEdit className="size-3" /> }
+                {!disableDialog && <IconEdit className="size-3" />}
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

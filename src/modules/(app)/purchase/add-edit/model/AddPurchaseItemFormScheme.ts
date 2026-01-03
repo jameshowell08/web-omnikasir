@@ -1,5 +1,5 @@
 import z from "zod";
-import { IMEIFormScheme } from "./IMEIFormScheme";
+import { IMEIFormScheme } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 
 export const AddPurchaseItemFormScheme = z.object({
     sku: z.string().min(1, "SKU tidak boleh kosong."),

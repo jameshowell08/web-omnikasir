@@ -2,7 +2,7 @@
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { DefaultIMEIFormScheme, IMEIFormScheme, IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
+import { DefaultIMEIFormScheme, IMEIFormScheme, IMEIFormSchemeType } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

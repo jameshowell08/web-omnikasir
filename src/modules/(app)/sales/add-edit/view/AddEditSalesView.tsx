@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
+import { IMEIFormSchemeType } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesFormScheme, AddEditSalesFormSchemeType } from "../model/AddEditSalesFormScheme";
 import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";

@@ -1,29 +1,14 @@
 'use client';
-import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import AddEditPurchaseItemDialogForm from "./AddEditPurchaseItemDialogForm";
-import { Button } from "@/components/ui/button";
-import z from "zod";
-import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
+import AddEditItemDialogContent from "@/src/modules/shared/component/add_edit_item_dialog/view/AddEditItemDialogContent";
 
-function AddEditPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => void }) {
+function AddEditPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: AddEditItemFormSchemeType) => void }) {
     return (
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Tambah Item</DialogTitle>
-                <DialogDescription>
-                    Tambahkan item baru ke dalam pembelian ini.
-                </DialogDescription>
-            </DialogHeader>
-
-            <Separator />
-
-            <AddEditPurchaseItemDialogForm id="add-purchase-item-form" onSubmitForm={onAddPurchaseItem} />
-
-            <DialogFooter>
-                <Button type="submit" form="add-purchase-item-form">Tambah Item</Button>
-            </DialogFooter>
-        </DialogContent>
+        <AddEditItemDialogContent
+            dialogTitle="Tambah Item"
+            dialogDescription="Tambahkan item baru ke dalam pembelian ini."
+            onSubmit={onAddPurchaseItem}
+        />
     )
 }
 

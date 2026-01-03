@@ -24,6 +24,7 @@ import ManageIMEIDialog from "./ManageIMEIDialog";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { useRouter } from "next/navigation";
 import Routes from "@/src/modules/shared/model/Routes";
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 
 function AddEditPurchaseHeader({ isEdit = false }: { isEdit?: boolean }) {
     return (
@@ -105,7 +106,7 @@ function AddEditPurchaseDetailItemHeader({
     onAddPurchaseItem
 }: {
     isButtonDisabled: boolean,
-    onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => boolean
+    onAddPurchaseItem: (productItem: AddEditItemFormSchemeType) => boolean
 }) {
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -374,7 +375,7 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
         }), { shouldValidate: true })
     }
 
-    const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>): boolean => {
+    const onAddPurchaseItem = (productItem: AddEditItemFormSchemeType): boolean => {
         const currentItems = form.getValues("items")
 
         if (currentItems.some(item => item.sku === productItem.sku)) {
