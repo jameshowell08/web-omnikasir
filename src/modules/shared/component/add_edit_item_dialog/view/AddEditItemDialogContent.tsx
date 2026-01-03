@@ -10,15 +10,17 @@ import { AddEditItemFormSchemeType } from "../model/AddEditItemFormScheme";
 const selectProductFormId = "select-product-form"
 const addEditItemFormId = "add-edit-item-form"
 
-function AddEditDialogBody({
+function AddEditItemDialogBody({
     dialogTitle,
     dialogDescription,
     item,
+    mode,
     onSubmit
 }: {
     dialogTitle: string,
     dialogDescription?: string,
     item?: AddEditItemFormSchemeType,
+    mode: "BUY" | "SELL",
     onSubmit: (data: AddEditItemFormSchemeType) => void
 }) {
     const [selectedSku, setSelectedSku] = useState(item?.sku || "")
@@ -44,7 +46,7 @@ function AddEditDialogBody({
                             setStep(2)
                         }} />
                 ) : (
-                    <AddEditItemForm formId={addEditItemFormId} item={item} sku={selectedSku} onSubmit={onSubmit} />
+                    <AddEditItemForm formId={addEditItemFormId} item={item} sku={selectedSku} onSubmit={onSubmit} mode={mode} />
                 )
             }
 
@@ -68,27 +70,30 @@ function AddEditDialogBody({
     )
 }
 
-function AddEditDialogContent({
+function AddEditItemDialogContent({
     dialogTitle,
     dialogDescription,
     item,
+    mode,
     onSubmit
 }: {
     dialogTitle: string,
     dialogDescription?: string,
     item?: AddEditItemFormSchemeType,
+    mode: "BUY" | "SELL",
     onSubmit: (data: AddEditItemFormSchemeType) => void
 }) {
     return (
         <DialogContent className="block">
-            <AddEditDialogBody
+            <AddEditItemDialogBody
                 dialogTitle={dialogTitle}
                 dialogDescription={dialogDescription}
                 item={item}
+                mode={mode}
                 onSubmit={onSubmit}
             />
         </DialogContent>
     )
 }
 
-export default AddEditDialogContent;
+export default AddEditItemDialogContent;

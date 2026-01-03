@@ -38,7 +38,7 @@ class AddEditItemDialogController {
         return payload
     }
 
-    public static async getProductById(sku: string) : Promise<ProductByIdPayload> {
+    public static async getProductById(sku: string, mode: "BUY" | "SELL") : Promise<ProductByIdPayload> {
         const url = new URL(Routes.PRODUCTS_API.GET_BY_ID(sku), window.location.origin)
 
         const res = await fetch(url)
@@ -60,11 +60,13 @@ class AddEditItemDialogController {
         )
 
         if (res.ok) {
+            const price = mode === "BUY" ? data.data.buyingPrice : data.data.sellingPrice
+
             payload.data.sku = data.data.sku
             payload.data.productName = data.data.productName
             payload.data.productBrand = data.data.brand
             payload.data.productCategory = data.data.categoryName
-            payload.data.price = BaseUtil.formatNumberV2(parseFloat(data.data.buyingPrice)) // todo need to be changed if the page is sales
+            payload.data.price = BaseUtil.formatNumberV2(parseFloat(price))
             payload.data.isNeedImei = data.data.isNeedImei
         } else {
             payload.message = data.message

@@ -8,6 +8,7 @@ function AddEditPurchaseItemDialogContent({ item, onSubmit }: { item?: AddEditIt
             dialogTitle={ item ? "Ubah Item" : "Tambah Item" }
             dialogDescription={ item ? "Ubah item ini" : "Tambahkan item baru ke dalam pembelian ini." }
             item={item}
+            mode="BUY"
             onSubmit={onSubmit}
         />
     )
