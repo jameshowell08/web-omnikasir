@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 import Routes from "@/src/modules/shared/model/Routes";
+import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import HeaderWithBackButton from "@/src/modules/shared/view/HeaderWithBackButton";
 import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,14 +13,12 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
+import { IMEIFormSchemeType } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 import AddEditSalesController from "../controller/AddEditSalesController";
 import { AddEditSalesFormScheme, AddEditSalesFormSchemeType } from "../model/AddEditSalesFormScheme";
-import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
 import AddEditSalesItemSection from "./AddEditSalesItemSection";
-import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 
 function SalesHeaderItem({ label, value = "(Dibuat Otomatis)" }: { label: string, value?: string }) {
     return (
@@ -44,7 +44,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods, sales }: { isEdit
     const disableButton = form.watch("customerId").length === 0 || form.watch("paymentId").length === 0;
     const salesItems = form.watch("items");
 
-    const handleAddItem = (item: AddEditSalesItemFormSchemeType) => {
+    const handleAddItem = (item: AddEditItemFormSchemeType) => {
         if (salesItems.some((saleItem) => saleItem.sku === item.sku)) {
             toast.error("Item dengan SKU yang sama sudah ada");
         } else {
@@ -54,7 +54,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods, sales }: { isEdit
         }
     }
 
-    const handleChangeItem = (item: AddEditSalesItemFormSchemeType) => {
+    const handleChangeItem = (item: AddEditItemFormSchemeType) => {
         form.setValue("items", salesItems.map((saleItem) =>
             saleItem.sku === item.sku ?
                 { ...item, subtotal: AddEditSalesController.calculateSubtotalToString(item) }
@@ -63,7 +63,7 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods, sales }: { isEdit
         });
     }
 
-    const handleRemoveItem = (item: AddEditSalesItemFormSchemeType) => {
+    const handleRemoveItem = (item: AddEditItemFormSchemeType) => {
         form.setValue("items", salesItems.filter((saleItem) => saleItem.sku !== item.sku), {
             shouldValidate: true,
         });

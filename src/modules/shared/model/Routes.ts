@@ -45,6 +45,7 @@ const Routes = {
     },
 
     PRODUCTS_API: {
+        DEFAULT: "/api/products/get",
         GET_BY_ID: (id: string) => `/api/products/get/${encodeURIComponent(id)}`,
     },
 

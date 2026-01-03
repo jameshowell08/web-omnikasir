@@ -1,8 +1,7 @@
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme"
 import Routes from "@/src/modules/shared/model/Routes"
-import PurchaseItemData from "../model/PurchaseItemData"
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil"
 import z from "zod"
-import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme"
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme"
 
 class AddEditPurchaseController {
@@ -63,32 +62,6 @@ class AddEditPurchaseController {
     }
 
     return [res.ok, addPurchaseFormValue, errorMessage]
-  }
-
-  public static async getPurchaseItemBySku(
-    sku: string
-  ): Promise<[boolean, PurchaseItemData | null, string]> {
-    const res = await fetch(Routes.PRODUCTS_API.GET_BY_ID(sku))
-
-    const data = await res.json()
-    let purchaseItemData: PurchaseItemData | null = null
-    let errorMessage = ""
-
-    if (res.ok) {
-      const content = data.data
-      purchaseItemData = new PurchaseItemData(
-        content.sku,
-        content.productName,
-        content.categoryName,
-        content.brand,
-        content.buyingPrice,
-        content.isNeedImei
-      )
-    } else {
-      errorMessage = data.message ?? "Ada yang salah. Coba lagi."
-    }
-
-    return [res.ok, purchaseItemData, errorMessage]
   }
 
   public static async postPurchase(
@@ -168,7 +141,7 @@ class AddEditPurchaseController {
   }
 
   public static calculateTotal(
-    purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[]
+    purchaseItems: AddEditItemFormSchemeType[]
   ): string {
     let total = 0
     purchaseItems.forEach((item) => {
@@ -178,7 +151,7 @@ class AddEditPurchaseController {
   }
 
   public static isImeiBadgeError(
-    item: z.infer<typeof AddPurchaseItemFormScheme>
+    item: AddEditItemFormSchemeType
   ): boolean {
     const quantityInt = BaseUtil.unformatNumberV2(item.quantity)
     return item.isNeedImei && quantityInt !== item.imeis.length

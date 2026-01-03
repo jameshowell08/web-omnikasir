@@ -1,7 +1,7 @@
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 import Routes from "@/src/modules/shared/model/Routes";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import { AddEditSalesFormSchemeType } from "../model/AddEditSalesFormScheme";
-import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import CustomerData from "../model/CustomerData";
 import PaymentMethodData from "../model/PaymentMethodData";
 import ProductData from "../model/ProductData";
@@ -182,19 +182,19 @@ class AddEditSalesController {
         return [res.ok, paymentMethods, errorMessage];
     }
 
-    public static calculateSubtotal(item: AddEditSalesItemFormSchemeType): number {
+    public static calculateSubtotal(item: AddEditItemFormSchemeType): number {
         return BaseUtil.unformatNumberV2(item.price) * BaseUtil.unformatNumberV2(item.quantity);
     }
 
-    public static calculateSubtotalToString(item: AddEditSalesItemFormSchemeType): string {
+    public static calculateSubtotalToString(item: AddEditItemFormSchemeType): string {
         return BaseUtil.formatNumberV2(this.calculateSubtotal(item));
     }
 
-    public static calculateTotal(items: AddEditSalesItemFormSchemeType[]): number {
-        return items.reduce((acc, item) => acc + BaseUtil.unformatNumberV2(item.subtotal), 0);
+    public static calculateTotal(items: AddEditItemFormSchemeType[]): number {
+        return items.reduce((acc, item) => acc + this.calculateSubtotal(item), 0);
     }
 
-    public static calculateTotalToString(items: AddEditSalesItemFormSchemeType[]): string {
+    public static calculateTotalToString(items: AddEditItemFormSchemeType[]): string {
         return BaseUtil.formatNumberV2(this.calculateTotal(items));
     }
 }

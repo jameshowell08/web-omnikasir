@@ -1,6 +1,6 @@
+import { AddEditItemFormScheme } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import z from "zod";
-import { AddEditSalesItemFormScheme } from "./AddEditSalesItemFormScheme";
 
 export const AddEditSalesFormScheme = z.object({
     transactionId: z.string().optional(),
@@ -9,7 +9,7 @@ export const AddEditSalesFormScheme = z.object({
     transactionStatus: z.string().optional(),
     customerId: z.string().min(1, "Nama pelanggan tidak boleh kosong"),
     paymentId: z.string().min(1, "Metode pembayaran tidak boleh kosong"),
-    items: z.array(AddEditSalesItemFormScheme).min(1, "Harus ada minimal 1 item penjualan"),
+    items: z.array(AddEditItemFormScheme).min(1, "Harus ada minimal 1 item penjualan"),
 }).superRefine((data, ctx) => {
     for (let i = 0; i < data.items.length; i++) {
         const item = data.items[i];

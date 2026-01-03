@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 import { BaseUtil } from "@/src/modules/shared/util/BaseUtil";
 import CustomTable from "@/src/modules/shared/view/CustomTable";
 import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import clsx from "clsx";
 import { useState } from "react";
+import { IMEIFormSchemeType } from "../../../../shared/component/add_edit_item_dialog/model/IMEIFormScheme";
 import AddEditSalesController from "../controller/AddEditSalesController";
-import { AddEditSalesItemFormSchemeType } from "../model/AddEditSalesItemFormScheme";
 import AddEditSalesItemDialogContent from "./AddSalesItemDialogContent";
 import IMEIDialogContent from "./IMEIDialogContent";
-import clsx from "clsx";
-import { IMEIFormSchemeType } from "../../../purchase/add-edit/model/IMEIFormScheme";
 
-function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditSalesItemFormSchemeType) => void }) {
+function AddEditSalesItemSectionHeader({ disableAddItemBtn, onAddItem }: { disableAddItemBtn: boolean, onAddItem: (item: AddEditItemFormSchemeType) => void }) {
     const [showDialog, setShowDialog] = useState(false);
 
     return (
@@ -46,9 +46,9 @@ function SalesItemRow({
     onAddIMEI,
     onRemoveIMEI
 }: {
-    saleItem: AddEditSalesItemFormSchemeType,
-    onChangeItem: (item: AddEditSalesItemFormSchemeType) => void,
-    onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void,
+    saleItem: AddEditItemFormSchemeType,
+    onChangeItem: (item: AddEditItemFormSchemeType) => void,
+    onRemoveItem: (item: AddEditItemFormSchemeType) => void,
     onAddIMEI: (imei: IMEIFormSchemeType) => void,
     onRemoveIMEI: (imei: IMEIFormSchemeType) => void
 }) {
@@ -59,7 +59,7 @@ function SalesItemRow({
         <TableRow>
             <TableCell>{saleItem.sku}</TableCell>
             <TableCell>{saleItem.productName}</TableCell>
-            <TableCell>{saleItem.brand}</TableCell>
+            <TableCell>{saleItem.productBrand}</TableCell>
             <TableCell>Rp{saleItem.price}</TableCell>
             <TableCell>{saleItem.quantity}</TableCell>
             <TableCell>{saleItem.isNeedImei ? (
@@ -71,6 +71,7 @@ function SalesItemRow({
                             className={clsx("cursor-pointer", imeiIsInvalid && "text-red-500")}
                         >
                             {saleItem.imeis.length}/{saleItem.quantity}
+                            <IconEdit size={13} />
                         </Badge>
                     </DialogTrigger>
 
@@ -103,7 +104,7 @@ function SalesItemRow({
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <AddEditSalesItemDialogContent isEdit initialValues={saleItem} onSubmitForm={(data) => {
+                    <AddEditSalesItemDialogContent initialValues={saleItem} onSubmitForm={(data) => {
                         onChangeItem(data);
                         setShowDialog(false);
                     }} />
@@ -120,9 +121,9 @@ function AddEditSalesItemTable({
     onAddIMEI,
     onRemoveIMEI
 }: {
-    salesItems: AddEditSalesItemFormSchemeType[],
-    onChangeItem: (item: AddEditSalesItemFormSchemeType) => void,
-    onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void,
+    salesItems: AddEditItemFormSchemeType[],
+    onChangeItem: (item: AddEditItemFormSchemeType) => void,
+    onRemoveItem: (item: AddEditItemFormSchemeType) => void,
     onAddIMEI: (sku: string, imei: IMEIFormSchemeType) => void,
     onRemoveIMEI: (sku: string, imei: IMEIFormSchemeType) => void
 }) {
@@ -171,10 +172,10 @@ function AddEditSalesItemSection({
     onRemoveIMEI
 }: {
     disableAddItemBtn: boolean,
-    salesItems: AddEditSalesItemFormSchemeType[],
-    onAddItem: (item: AddEditSalesItemFormSchemeType) => void,
-    onChangeItem: (item: AddEditSalesItemFormSchemeType) => void,
-    onRemoveItem: (item: AddEditSalesItemFormSchemeType) => void,
+    salesItems: AddEditItemFormSchemeType[],
+    onAddItem: (item: AddEditItemFormSchemeType) => void,
+    onChangeItem: (item: AddEditItemFormSchemeType) => void,
+    onRemoveItem: (item: AddEditItemFormSchemeType) => void,
     onAddIMEI: (sku: string, imei: IMEIFormSchemeType) => void,
     onRemoveIMEI: (sku: string, imei: IMEIFormSchemeType) => void
 }) {

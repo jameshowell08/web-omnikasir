@@ -7,23 +7,22 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
+import Routes from "@/src/modules/shared/model/Routes";
 import BackButton from "@/src/modules/shared/view/BackButton";
+import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconDots, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { Control, Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import z from "zod";
 import AddEditPurchaseController from "../controller/AddEditPurchaseController";
 import { AddPurchaseFormScheme } from "../model/AddPurchaseFormScheme";
-import { AddPurchaseItemFormScheme } from "../model/AddPurchaseItemFormScheme";
 import AddEditPurchaseItemDialogContent from "./AddEditPurchaseItemDialogContent";
-import EditPurchaseItemDialogContent from "./EditPurchaseItemDialogContent";
 import ManageIMEIDialog from "./ManageIMEIDialog";
-import { LoadingOverlayContext } from "@/src/modules/shared/view/LoadingOverlay";
-import { useRouter } from "next/navigation";
-import Routes from "@/src/modules/shared/model/Routes";
 
 function AddEditPurchaseHeader({ isEdit = false }: { isEdit?: boolean }) {
     return (
@@ -105,7 +104,7 @@ function AddEditPurchaseDetailItemHeader({
     onAddPurchaseItem
 }: {
     isButtonDisabled: boolean,
-    onAddPurchaseItem: (productItem: z.infer<typeof AddPurchaseItemFormScheme>) => boolean
+    onAddPurchaseItem: (productItem: AddEditItemFormSchemeType) => boolean
 }) {
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -122,7 +121,7 @@ function AddEditPurchaseDetailItemHeader({
                         Tambah Item
                     </Button>
                 </DialogTrigger>
-                <AddEditPurchaseItemDialogContent onAddPurchaseItem={(data) => {
+                <AddEditPurchaseItemDialogContent onSubmit={(data) => {
                     const isAddSuccessful = onAddPurchaseItem(data)
                     if (isAddSuccessful) setDialogOpen(false)
                 }} />
@@ -147,11 +146,11 @@ function PurchaseItemRow({
     onEditPurchaseItem,
     onDeleteItem
 }: {
-    item: z.infer<typeof AddPurchaseItemFormScheme>,
+    item: AddEditItemFormSchemeType,
     status: string,
     onAddImei: (imei: string) => void,
     onDeleteImei: (imei: string) => void,
-    onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void,
+    onEditPurchaseItem: (item: AddEditItemFormSchemeType) => void,
     onDeleteItem: (sku: string) => void
 }) {
     const [open, setOpen] = useState(false)
@@ -203,7 +202,7 @@ function PurchaseItemRow({
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <EditPurchaseItemDialogContent item={item} onEditPurchaseItem={(data) => {
+                    <AddEditPurchaseItemDialogContent item={item} onSubmit={(data) => {
                         onEditPurchaseItem(data)
                         setOpen(false)
                     }} />
@@ -221,11 +220,11 @@ function PurchaseItemTableBody({
     onEditPurchaseItem,
     onDeleteItem
 }: {
-    purchaseItems: z.infer<typeof AddPurchaseItemFormScheme>[],
+    purchaseItems: AddEditItemFormSchemeType[],
     status: string,
     onAddImei: (sku: string, imei: string) => void,
     onDeleteImei: (sku: string, imei: string) => void,
-    onEditPurchaseItem: (item: z.infer<typeof AddPurchaseItemFormScheme>) => void,
+    onEditPurchaseItem: (item: AddEditItemFormSchemeType) => void,
     onDeleteItem: (sku: string) => void
 }) {
     return (
@@ -255,19 +254,19 @@ function PurchaseItemTableBody({
 }
 
 function PurchaseItemTable({ control, status }: { control: Control<z.infer<typeof AddPurchaseFormScheme>>, status: string }) {
-    const onEditPurchaseItem = (item: z.infer<typeof AddPurchaseItemFormScheme>, value: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+    const onEditPurchaseItem = (item: AddEditItemFormSchemeType, value: AddEditItemFormSchemeType[], onChange: (value: AddEditItemFormSchemeType[]) => void) => {
         onChange(value.map((it) => it.sku === item.sku ? item : it))
     }
 
     const onDeleteItem = (
         sku: string,
-        value: z.infer<typeof AddPurchaseItemFormScheme>[],
-        onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void
+        value: AddEditItemFormSchemeType[],
+        onChange: (value: AddEditItemFormSchemeType[]) => void
     ) => {
         onChange(value.filter((item) => item.sku !== sku))
     }
 
-    const onAddImei = (sku: string, imei: string, items: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+    const onAddImei = (sku: string, imei: string, items: AddEditItemFormSchemeType[], onChange: (value: AddEditItemFormSchemeType[]) => void) => {
         const newItems = items.map((item) => {
             if (item.sku === sku) {
                 if (!item.imeis.some((it) => it.value === imei)) {
@@ -281,7 +280,7 @@ function PurchaseItemTable({ control, status }: { control: Control<z.infer<typeo
         onChange(newItems)
     }
 
-    const onDeleteImei = (sku: string, imei: string, items: z.infer<typeof AddPurchaseItemFormScheme>[], onChange: (value: z.infer<typeof AddPurchaseItemFormScheme>[]) => void) => {
+    const onDeleteImei = (sku: string, imei: string, items: AddEditItemFormSchemeType[], onChange: (value: AddEditItemFormSchemeType[]) => void) => {
         const newItems = items.map((item) => {
             if (item.sku === sku) {
                 item.imeis = item.imeis.filter((it) => it.value !== imei)
@@ -374,7 +373,7 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
         }), { shouldValidate: true })
     }
 
-    const onAddPurchaseItem = (productItem: z.infer<typeof AddPurchaseItemFormScheme>): boolean => {
+    const onAddPurchaseItem = (productItem: AddEditItemFormSchemeType): boolean => {
         const currentItems = form.getValues("items")
 
         if (currentItems.some(item => item.sku === productItem.sku)) {
