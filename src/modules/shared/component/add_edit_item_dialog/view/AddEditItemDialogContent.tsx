@@ -13,14 +13,16 @@ const addEditItemFormId = "add-edit-item-form"
 function AddEditDialogBody({
     dialogTitle,
     dialogDescription,
+    item,
     onSubmit
 }: {
     dialogTitle: string,
     dialogDescription?: string,
+    item?: AddEditItemFormSchemeType,
     onSubmit: (data: AddEditItemFormSchemeType) => void
 }) {
-    const [selectedSku, setSelectedSku] = useState("")
-    const [step, setStep] = useState(1)
+    const [selectedSku, setSelectedSku] = useState(item?.sku || "")
+    const [step, setStep] = useState(item ? 2 : 1)
 
     return (
         <div>
@@ -42,24 +44,24 @@ function AddEditDialogBody({
                             setStep(2)
                         }} />
                 ) : (
-                    <AddEditItemForm formId={addEditItemFormId} sku={selectedSku} onSubmit={onSubmit} />
+                    <AddEditItemForm formId={addEditItemFormId} item={item} sku={selectedSku} onSubmit={onSubmit} />
                 )
             }
 
             <DialogFooter className="mt-5">
                 {
-                    step === 2 &&
+                    step === 2 && !item &&
                     <Button type="button" variant="ghost" onClick={() => setStep(1)}>
                         Kembali
                     </Button>
                 }
                 <Button form={step === 1 ? selectProductFormId : addEditItemFormId}>
-                    { step === 1 ? (
+                    {step === 1 ? (
                         <>
                             Lanjut
                             <IconArrowRight />
                         </>
-                    ) : "Simpan" }
+                    ) : "Simpan"}
                 </Button>
             </DialogFooter>
         </div>
@@ -69,15 +71,22 @@ function AddEditDialogBody({
 function AddEditDialogContent({
     dialogTitle,
     dialogDescription,
+    item,
     onSubmit
 }: {
     dialogTitle: string,
     dialogDescription?: string,
+    item?: AddEditItemFormSchemeType,
     onSubmit: (data: AddEditItemFormSchemeType) => void
 }) {
     return (
         <DialogContent className="block">
-            <AddEditDialogBody dialogTitle={dialogTitle} dialogDescription={dialogDescription} onSubmit={onSubmit} />
+            <AddEditDialogBody
+                dialogTitle={dialogTitle}
+                dialogDescription={dialogDescription}
+                item={item}
+                onSubmit={onSubmit}
+            />
         </DialogContent>
     )
 }

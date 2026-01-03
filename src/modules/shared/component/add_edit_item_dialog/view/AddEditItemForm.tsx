@@ -9,9 +9,10 @@ import { useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
 import AddEditItemDialogController from "../controller/AddEditItemDialogController";
 
-function AddEditItemForm({ formId, sku, onSubmit }: { formId: string, sku: string, onSubmit: (data: AddEditItemFormSchemeType) => void }) {
+function AddEditItemForm({ formId, sku, item, onSubmit }: { formId: string, sku: string, item?: AddEditItemFormSchemeType, onSubmit: (data: AddEditItemFormSchemeType) => void }) {
     const form = useForm({
         resolver: zodResolver(AddEditItemFormScheme),
+        values: item,
         defaultValues: AddEditItemFormSchemeDefaultValues
     })
 
@@ -26,8 +27,8 @@ function AddEditItemForm({ formId, sku, onSubmit }: { formId: string, sku: strin
     }, [sku, form])
 
     useEffect(() => {
-        fetchProductBySku()
-    }, [fetchProductBySku])
+        if (!item) fetchProductBySku()
+    }, [fetchProductBySku, item])
 
     return (
         <form

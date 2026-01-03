@@ -2,12 +2,13 @@
 import { AddEditItemFormSchemeType } from "@/src/modules/shared/component/add_edit_item_dialog/model/AddEditItemFormScheme";
 import AddEditItemDialogContent from "@/src/modules/shared/component/add_edit_item_dialog/view/AddEditItemDialogContent";
 
-function AddEditPurchaseItemDialogContent({ onAddPurchaseItem }: { onAddPurchaseItem: (productItem: AddEditItemFormSchemeType) => void }) {
+function AddEditPurchaseItemDialogContent({ item, onSubmit }: { item?: AddEditItemFormSchemeType, onSubmit: (productItem: AddEditItemFormSchemeType) => void }) {
     return (
         <AddEditItemDialogContent
-            dialogTitle="Tambah Item"
-            dialogDescription="Tambahkan item baru ke dalam pembelian ini."
-            onSubmit={onAddPurchaseItem}
+            dialogTitle={ item ? "Ubah Item" : "Tambah Item" }
+            dialogDescription={ item ? "Ubah item ini" : "Tambahkan item baru ke dalam pembelian ini." }
+            item={item}
+            onSubmit={onSubmit}
         />
     )
 }

@@ -1,4 +1,5 @@
 import Routes from "../../../model/Routes";
+import { BaseUtil } from "../../../util/BaseUtil";
 import ProductByIdPayload from "../model/ProductByIdPayload";
 import ProductData from "../model/ProductData";
 import ProductPayload from "../model/ProductPayload";
@@ -63,7 +64,7 @@ class AddEditItemDialogController {
             payload.data.productName = data.data.productName
             payload.data.productBrand = data.data.brand
             payload.data.productCategory = data.data.categoryName
-            payload.data.price = data.data.buyingPrice.toString() // todo need to be changed if the page is sales
+            payload.data.price = BaseUtil.formatNumberV2(parseFloat(data.data.buyingPrice)) // todo need to be changed if the page is sales
             payload.data.isNeedImei = data.data.isNeedImei
         } else {
             payload.message = data.message
