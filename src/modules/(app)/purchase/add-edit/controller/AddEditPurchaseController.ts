@@ -104,7 +104,7 @@ class AddEditPurchaseController {
     }[] = []
 
     purchase.items.forEach((item) => {
-      if (item.isNeedImei) {
+      if (purchase.status === "COMPLETED" && item.isNeedImei && item.imeis.length > 0) {
         item.imeis.forEach((imei) => {
           requestBodyItems.push({
             sku: item.sku,
