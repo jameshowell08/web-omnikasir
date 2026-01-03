@@ -24,7 +24,7 @@ function AddEditItemForm({ formId, sku, item, mode, onSubmit }: { formId: string
         } else {
             toast.error(payload.message)
         }
-    }, [sku, form])
+    }, [sku, form, mode])
 
     useEffect(() => {
         if (!item) fetchProductBySku()
