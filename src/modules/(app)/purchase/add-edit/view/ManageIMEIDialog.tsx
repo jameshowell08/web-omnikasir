@@ -96,7 +96,7 @@ function ManageIMEIDialog({
                 )}
             >
                 <span>{imeiInputted}/{quantity}</span>
-                {!disableDialog && <IconEdit className="size-3" />}
+                {!disableDialog && <IconEdit size={13} />}
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

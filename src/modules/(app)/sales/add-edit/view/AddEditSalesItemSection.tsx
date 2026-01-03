@@ -71,6 +71,7 @@ function SalesItemRow({
                             className={clsx("cursor-pointer", imeiIsInvalid && "text-red-500")}
                         >
                             {saleItem.imeis.length}/{saleItem.quantity}
+                            <IconEdit size={13} />
                         </Badge>
                     </DialogTrigger>
 
