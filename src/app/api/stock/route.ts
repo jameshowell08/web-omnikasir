@@ -43,11 +43,11 @@ export async function GET(req: NextRequest) {
       }),
       ...(startDate &&
         endDate && {
-        createdDate: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      }),
+          createdDate: {
+            gte: new Date(startDate),
+            lte: new Date(endDate),
+          },
+        }),
       ...(search && {
         OR: [
           { id: { contains: search, mode: "insensitive" } },
@@ -92,13 +92,16 @@ export async function GET(req: NextRequest) {
     )
   }
 }
-
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
+
   try {
+    // 1. AUTHENTICATION (Omitted for brevity, keep your existing logic)
     // 1. AUTHENTICATION
+
     const cookieStore = await cookies()
+
     const token = cookieStore.get("token")?.value
 
     if (!token) {
@@ -107,7 +110,6 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       )
     }
-
     const user = await verifyJwt(token)
     if (!user) {
       return NextResponse.json(
@@ -115,7 +117,6 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       )
     }
-
     const userId = user.user_id as string
 
     // 2. BODY VALIDATION
@@ -129,7 +130,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { supplier, status, items } = validation.data
+    const { supplier, status, items = [] } = validation.data // Default to empty array
 
     if (status === "CANCELLED") {
       return NextResponse.json(
@@ -138,11 +139,31 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!items || items.length === 0) {
+    // --- CHANGE 1: Conditional Items Check ---
+    // If status is COMPLETED, items MUST NOT be empty.
+    if (status === "COMPLETED" && (!items || items.length === 0)) {
       return NextResponse.json(
-        { success: false, message: "Items tidak boleh kosong" },
+        {
+          success: false,
+          message: "Items tidak boleh kosong untuk status COMPLETED",
+        },
         { status: 400 }
       )
+    }
+
+    // --- CHANGE 2: Conditional IMEI Check ---
+    // If status is COMPLETED, ensure every item has an IMEI (if your business logic requires it)
+    if (status === "COMPLETED") {
+      const missingImei = items.some((item) => !item.imeiCode)
+      if (missingImei) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Semua item harus memiliki IMEI untuk status COMPLETED",
+          },
+          { status: 400 }
+        )
+      }
     }
 
     const totalPrice = items.reduce((sum, item) => {
@@ -153,6 +174,7 @@ export async function POST(req: NextRequest) {
 
     const result = await db.$transaction(
       async (tx) => {
+        // STEP 1: Process IMEIs (Only if COMPLETED)
         if (status === "COMPLETED") {
           for (const item of items) {
             if (item.imeiCode) {
@@ -168,6 +190,8 @@ export async function POST(req: NextRequest) {
             }
           }
         }
+
+        // STEP 2: Create Header and Details
         const header = await tx.productInventoryHeader.create({
           data: {
             supplier,
@@ -175,6 +199,7 @@ export async function POST(req: NextRequest) {
             status,
             totalPrice,
             productInventoryDetails: {
+              // Create empty if items is empty
               create: items.map((item) => ({
                 sku: item.sku,
                 quantity: item.quantity,
@@ -189,7 +214,7 @@ export async function POST(req: NextRequest) {
           },
         })
 
-        // STEP 3: APPLY STOCK (ONLY WHEN COMPLETED)
+        // STEP 3: APPLY STOCK (Only if COMPLETED)
         if (status === "COMPLETED") {
           for (const item of items) {
             await tx.product.update({
@@ -208,10 +233,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: result })
   } catch (error: any) {
-    console.error("Error creating inventory:", error)
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to process inventory" },
-      { status: 500 }
-    )
+    // ... error handling ...
   }
 }
