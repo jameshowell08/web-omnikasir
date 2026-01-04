@@ -1,4 +1,4 @@
-import UserManagementView from "@/src/modules/user-management/(get)/view/UserManagementView";
+import UserManagementView from "@/src/modules/(app)/user-management/(get)/view/UserManagementView";
 
 function UserManagementPage() {
     return <UserManagementView />

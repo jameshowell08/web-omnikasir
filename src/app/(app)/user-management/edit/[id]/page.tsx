@@ -1,4 +1,4 @@
-import AddEditUserView from "@/src/modules/user-management/add-edit/view/AddEditUserView"
+import AddEditUserView from "@/src/modules/(app)/user-management/add-edit/view/AddEditUserView"
 
 async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
