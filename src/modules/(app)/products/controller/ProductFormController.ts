@@ -75,7 +75,7 @@ export class ProductFormController {
         this.eventCallback(new ShowHideLoadingOverlay(false))
 
         if (res.ok) {
-            this.eventCallback(new ShowSuccessfulToast("Produk berhasil dibuat!"))
+            this.eventCallback(new ShowSuccessfulToast(`Produk berhasil ${isEdit ? "diperbarui" : "dibuat"}!`))
             this.eventCallback(new NavigateTo(Constants.PRODUCTS_URL))
         } else {
             const resVal = await res.json()
