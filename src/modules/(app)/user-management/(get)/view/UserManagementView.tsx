@@ -11,16 +11,16 @@ import { IconDots, IconEdit, IconFilter, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import CustomTable from "../../../shared/view/CustomTable";
-import Header from "../../../shared/view/Header";
-import ItemAmountSelectSection from "../../../shared/view/ItemAmountSelectSection";
-import SearchField from "../../../shared/view/SearchField";
 import UserManagementController from "../controller/UserManagementController";
 import UserData from "../model/UserData";
 import { UserManagementFilterFormScheme, UserManagementFilterFormSchemeDefaultValues, UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import Routes from "@/src/modules/shared/model/Routes";
 import Link from "next/link";
+import ItemAmountSelectSection from "@/src/modules/shared/view/ItemAmountSelectSection";
+import SearchField from "@/src/modules/shared/view/SearchField";
+import CustomTable from "@/src/modules/shared/view/CustomTable";
+import Routes from "@/src/modules/shared/model/Routes";
+import Header from "@/src/modules/shared/view/Header";
 
 function UserManagementFilterForm({
     formId,
