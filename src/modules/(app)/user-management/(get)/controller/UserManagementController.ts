@@ -1,4 +1,4 @@
-import Routes from "../../../shared/model/Routes";
+import Routes from "@/src/modules/shared/model/Routes";
 import UserData from "../model/UserData";
 import { UserManagementFilterFormSchemeType } from "../model/UserManagementFilterFormScheme";
 
