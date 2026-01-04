@@ -71,6 +71,10 @@ const Routes = {
 
     DASHBOARD_API: {
         DEFAULT: "/api/dashboard"
+    },
+
+    ECOMMERCE_API: {
+        CHECKOUT: "/api/webhooks/ecommerce"
     }
 }
 
