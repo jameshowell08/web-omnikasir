@@ -78,7 +78,8 @@ class AddEditSalesController {
                         items[item.sku] = {
                             sku: item.sku,
                             productName: item.product.productName,
-                            brand: item.product.brand,
+                            productBrand: item.product.brand,
+                            productCategory: item.product.category.categoryName,
                             quantity: 0,
                             price: parseFloat(item.price),
                             isNeedImei: item.imeiCode !== null,
