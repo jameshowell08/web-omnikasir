@@ -388,7 +388,7 @@ function AddEditPurchaseView({ id = "", isEdit = false }: { id?: string, isEdit?
     const handleSubmit = async (data: z.infer<typeof AddPurchaseFormScheme>) => {
         const [isSuccess, errorMessage] = await AddEditPurchaseController.postPurchase(data, isEdit, id)
         if (isSuccess) {
-            toast.success("Pembelian berhasil ditambahkan.")
+            toast.success(`Pembelian berhasil ${isEdit ? "diperbarui" : "ditambahkan"}.`)
             router.replace(Routes.PURCHASE.GET)
         } else {
             toast.error(errorMessage)
