@@ -64,24 +64,48 @@ export async function POST(req: NextRequest) {
           throw new Error(`Online Order Error: OOS for ${item.sku}`)
         }
 
-        // Handle IMEI if needed (Mockoon must send specific IMEI if product requires it)
-        if (item.imei) {
-          await tx.imei.update({
-            where: { imei: item.imei },
+        // Handle IMEI logic
+        if (product.isNeedImei) {
+          const availableImeis = await tx.imei.findMany({
+            where: { sku: item.sku, isSold: false },
+            take: item.qty,
+          })
+
+          if (availableImeis.length < item.qty) {
+            throw new Error(`Online Order Error: Not enough available IMEIs for ${item.sku}`)
+          }
+
+          // Mark as sold
+          const imeiList = availableImeis.map((i) => i.imei)
+          await tx.imei.updateMany({
+            where: { imei: { in: imeiList } },
             data: { isSold: true },
           })
-        }
 
-        // Create Detail
-        await tx.transactionDetail.create({
-          data: {
-            transactionHeaderId: header.transactionHeaderId,
-            sku: item.sku,
-            quantity: item.qty,
-            price: product.sellingPrice, // Use current price or price from webhook
-            imeiCode: item.imei || null,
-          },
-        })
+          // Create details for each IMEI
+          for (const imeiRecord of availableImeis) {
+            await tx.transactionDetail.create({
+              data: {
+                transactionHeaderId: header.transactionHeaderId,
+                sku: item.sku,
+                quantity: 1,
+                price: product.sellingPrice,
+                imeiCode: imeiRecord.imei,
+              },
+            })
+          }
+        } else {
+          // Standard item
+          await tx.transactionDetail.create({
+            data: {
+              transactionHeaderId: header.transactionHeaderId,
+              sku: item.sku,
+              quantity: item.qty,
+              price: product.sellingPrice,
+              imeiCode: null,
+            },
+          })
+        }
 
         // Update Product Quantity
         await tx.product.update({

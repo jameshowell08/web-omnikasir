@@ -7,7 +7,7 @@ export async function middleware(req: NextRequest) {
   const publicPaths = [
     Constants.LOGIN_URL,
     "/api/auth",
-    "/api/webhooks/ecommerce",
+    "/api/webhooks/ecommerce"
   ]
 
   const isPublicPath = publicPaths.some((path) => {
