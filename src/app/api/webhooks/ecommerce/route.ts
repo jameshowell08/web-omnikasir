@@ -116,6 +116,10 @@ export async function POST(req: NextRequest) {
         })
       }
     })
+    console.log("🔍 DEBUG ENV VARS:")
+    console.log("Key:", process.env.PUSHER_KEY)
+    console.log("Secret exists?", !!process.env.PUSHER_SECRET) // Should be true
+    console.log("App ID:", process.env.PUSHER_APP_ID)
     await pusherServer.trigger("ONLINE_ECOMMERCE", "new-transaction", {
       message: "New Transaction!",
     })
