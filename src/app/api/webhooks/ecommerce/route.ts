@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "../../../../modules/shared/util/db"
-import { transactionStream } from "@/src/modules/shared/util/stream"
+import { pusherServer } from "@/src/modules/shared/util/pusher"
 
 export async function POST(req: NextRequest) {
   try {
@@ -72,7 +72,9 @@ export async function POST(req: NextRequest) {
           })
 
           if (availableImeis.length < item.qty) {
-            throw new Error(`Online Order Error: Not enough available IMEIs for ${item.sku}`)
+            throw new Error(
+              `Online Order Error: Not enough available IMEIs for ${item.sku}`
+            )
           }
 
           // Mark as sold
@@ -114,7 +116,10 @@ export async function POST(req: NextRequest) {
         })
       }
     })
-    transactionStream.emit("new-transaction", "Transaksi online telah dibuat.")
+    await pusherServer.trigger("ONLINE_ECOMMERCE", "new-transaction", {
+      message: "New Transaction!",
+    })
+    console.log("PUSHER_KEY:", process.env.PUSHER_KEY)
     return NextResponse.json({ success: true, id: externalOrderId })
   } catch (error: any) {
     console.error("Webhook Failed:", error)
