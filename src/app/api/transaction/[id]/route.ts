@@ -41,7 +41,7 @@ export async function GET(
           orderBy: { sku: "asc" },
           include: {
             product: {
-              select: { productName: true, brand: true, sku: true },
+              select: { productName: true, brand: true, category: { select: { categoryName: true } }, sku: true },
             },
             imei: { select: { imei: true } },
           },

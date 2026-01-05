@@ -92,11 +92,11 @@ function AddEditSalesForm({ isEdit, customers, paymentMethods, sales }: { isEdit
     }
 
     const handleSubmit = async (data: AddEditSalesFormSchemeType) => {
-        const [success, errorMessage] = await AddEditSalesController.postSales(isEdit, data);
+        const [success, transactionId, errorMessage] = await AddEditSalesController.postSales(isEdit, data);
 
         if (success) {
             toast.success(`Penjualan berhasil ${isEdit ? "diperbarui" : "ditambahkan"}`);
-            router.replace(Routes.SALES.DEFAULT);
+            router.replace(Routes.SALES.GET_BY_ID(transactionId));
         } else {
             toast.error(errorMessage);
         }

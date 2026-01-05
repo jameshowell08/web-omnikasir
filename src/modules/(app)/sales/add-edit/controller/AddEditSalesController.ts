@@ -7,7 +7,7 @@ import PaymentMethodData from "../model/PaymentMethodData";
 import ProductData from "../model/ProductData";
 
 class AddEditSalesController {
-    public static async postSales(isEdit: boolean, sales: AddEditSalesFormSchemeType): Promise<[boolean, string]> {
+    public static async postSales(isEdit: boolean, sales: AddEditSalesFormSchemeType): Promise<[boolean, string, string]> {
         const salesItems: any[] = []
 
         sales.items.forEach((item) => {
@@ -45,12 +45,15 @@ class AddEditSalesController {
 
         const data = await res.json();
         let errorMessage = ""
+        let transactionId: string = ""
 
         if (!res.ok) {
             errorMessage = data.message ?? `Gagal ${isEdit ? "memperbarui" : "menambahkan"} penjualan`
+        } else {
+            transactionId = data.data.header.transactionHeaderId
         }
 
-        return [res.ok, errorMessage];
+        return [res.ok, transactionId, errorMessage];
     }
 
     public static async getSales(id: string): Promise<[boolean, AddEditSalesFormSchemeType | undefined, string]> {
@@ -78,7 +81,8 @@ class AddEditSalesController {
                         items[item.sku] = {
                             sku: item.sku,
                             productName: item.product.productName,
-                            brand: item.product.brand,
+                            productBrand: item.product.brand,
+                            productCategory: item.product.category.categoryName,
                             quantity: 0,
                             price: parseFloat(item.price),
                             isNeedImei: item.imeiCode !== null,
