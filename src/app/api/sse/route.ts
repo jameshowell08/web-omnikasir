@@ -2,7 +2,7 @@
 import { NextRequest } from "next/server"
 import { transactionStream } from "../../../modules/shared/util/stream"
 
-export const runtime = "nodejs" // Must be nodejs to use EventEmitter
+export const runtime = "edge" // Must be nodejs to use EventEmitter
 
 export async function GET(request: NextRequest) {
   const stream = new ReadableStream({
