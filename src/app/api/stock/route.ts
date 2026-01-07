@@ -92,16 +92,13 @@ export async function GET(req: NextRequest) {
     )
   }
 }
+
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin()
   if ("error" in auth) return auth.error
 
   try {
-    // 1. AUTHENTICATION (Omitted for brevity, keep your existing logic)
-    // 1. AUTHENTICATION
-
     const cookieStore = await cookies()
-
     const token = cookieStore.get("token")?.value
 
     if (!token) {
@@ -119,7 +116,6 @@ export async function POST(req: NextRequest) {
     }
     const userId = user.user_id as string
 
-    // 2. BODY VALIDATION
     const body = await req.json()
     const validation = CreateInventorySchema.safeParse(body)
 
@@ -130,7 +126,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { supplier, status, items = [] } = validation.data // Default to empty array
+    const { supplier, status, items = [] } = validation.data
 
     if (status === "CANCELLED") {
       return NextResponse.json(
@@ -139,8 +135,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // --- CHANGE 1: Conditional Items Check ---
-    // If status is COMPLETED, items MUST NOT be empty.
     if (status === "COMPLETED" && (!items || items.length === 0)) {
       return NextResponse.json(
         {
@@ -151,18 +145,36 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // --- CHANGE 2: Conditional IMEI Check ---
-    // If status is COMPLETED, ensure every item has an IMEI (if your business logic requires it)
+    // Ambil produk untuk semua SKU yang dikirim
+    const skus = Array.from(new Set(items.map((it) => it.sku)))
+    const products = await db.product.findMany({
+      where: { sku: { in: skus } },
+      select: { sku: true, isNeedImei: true },
+    })
+    const productMap = new Map(products.map((p) => [p.sku, p]))
+
+    // Validasi IMEI hanya untuk produk yang membutuhkan IMEI
     if (status === "COMPLETED") {
-      const missingImei = items.some((item) => !item.imeiCode)
-      if (missingImei) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Semua item harus memiliki IMEI untuk status COMPLETED",
-          },
-          { status: 400 }
-        )
+      for (const item of items) {
+        const prod = productMap.get(item.sku)
+        if (!prod) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Produk dengan sku ${item.sku} tidak ditemukan`,
+            },
+            { status: 400 }
+          )
+        }
+        if (prod.isNeedImei && !item.imeiCode) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Produk ${item.sku} membutuhkan IMEI pada status COMPLETED`,
+            },
+            { status: 400 }
+          )
+        }
       }
     }
 
@@ -174,24 +186,19 @@ export async function POST(req: NextRequest) {
 
     const result = await db.$transaction(
       async (tx) => {
-        // STEP 1: Process IMEIs (Only if COMPLETED)
         if (status === "COMPLETED") {
           for (const item of items) {
-            if (item.imeiCode) {
+            const prod = productMap.get(item.sku)
+            if (item.imeiCode && prod?.isNeedImei) {
               await tx.imei.upsert({
                 where: { imei: item.imeiCode },
                 update: { sku: item.sku },
-                create: {
-                  imei: item.imeiCode,
-                  sku: item.sku,
-                  isSold: false,
-                },
+                create: { imei: item.imeiCode, sku: item.sku, isSold: false },
               })
             }
           }
         }
 
-        // STEP 2: Create Header and Details
         const header = await tx.productInventoryHeader.create({
           data: {
             supplier,
@@ -199,7 +206,6 @@ export async function POST(req: NextRequest) {
             status,
             totalPrice,
             productInventoryDetails: {
-              // Create empty if items is empty
               create: items.map((item) => ({
                 sku: item.sku,
                 quantity: item.quantity,
@@ -214,14 +220,11 @@ export async function POST(req: NextRequest) {
           },
         })
 
-        // STEP 3: APPLY STOCK (Only if COMPLETED)
         if (status === "COMPLETED") {
           for (const item of items) {
             await tx.product.update({
               where: { sku: item.sku },
-              data: {
-                quantity: { increment: item.quantity },
-              },
+              data: { quantity: { increment: item.quantity } },
             })
           }
         }
