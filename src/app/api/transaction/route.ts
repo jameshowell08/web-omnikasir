@@ -17,6 +17,7 @@ const TransactionItemSchema = z.object({
 const CreateTransactionSchema = z.object({
   customerId: z.string().optional().nullable(),
   paymentId: z.string().min(1),
+  transactionMethod: z.string().optional().default("POS"), // Add this line
   items: z.array(TransactionItemSchema).min(1),
 })
 
@@ -97,7 +98,7 @@ export async function GET(req: NextRequest) {
     console.error("Error fetching transactions:", error)
     return NextResponse.json(
       { success: false, error: "Failed to fetch transactions" },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }
@@ -112,14 +113,14 @@ export async function POST(req: NextRequest) {
     if (!token)
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       )
 
     const user = await verifyJwt(token)
     if (!user)
       return NextResponse.json(
         { success: false, error: "Invalid Token" },
-        { status: 401 }
+        { status: 401 },
       )
     const userId = user.user_id as string
 
@@ -128,11 +129,11 @@ export async function POST(req: NextRequest) {
     if (!validation.success) {
       return NextResponse.json(
         { success: false, error: validation.error.format() },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
-    const { customerId, paymentId, items } = validation.data
+    const { customerId, paymentId, items, transactionMethod } = validation.data
 
     const result = await db.$transaction(async (tx) => {
       let seqRecord = await tx.seqNo.findUnique({
@@ -161,7 +162,7 @@ export async function POST(req: NextRequest) {
           userId,
           createdById: userId,
           customerId: customerId || null,
-          transactionMethod: "POS",
+          transactionMethod: transactionMethod,
           status: "SUCCESS",
         },
       })
@@ -217,7 +218,7 @@ export async function POST(req: NextRequest) {
     console.error("Transaction failed:", error)
     return NextResponse.json(
       { success: false, error: error.message || "Transaction failed" },
-      { status: 400 }
+      { status: 400 },
     )
   }
 }
