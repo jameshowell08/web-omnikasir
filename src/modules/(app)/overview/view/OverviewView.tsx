@@ -7,11 +7,12 @@ import toast from "react-hot-toast";
 import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis, YAxis } from "recharts";
 import OverviewController from "../controller/OverviewController";
 import { ChartData, OverviewChartData } from "../model/OverviewChartData";
+import { Spinner } from "@/components/ui/spinner";
 
-function CashierOverview() {
+function Loader() {
     return (
         <div className="flex flex-col items-center justify-center flex-1 font-bold text-2xl">
-            Selamat bekerja!
+            <Spinner />
         </div>
     )
 }
@@ -177,11 +178,13 @@ function OverviewView() {
         const user = getUser()
         if (user?.role === "ADMIN") {
             fetchStats()
+        } else {
+            toast.error("Anda tidak memiliki akses ke halaman ini")
         }
     }, [])
 
     return (
-        chartData ? <AdminOverview chartData={chartData!} /> : <CashierOverview />
+        chartData ? <AdminOverview chartData={chartData!} /> : <Loader />
     )
 }
 

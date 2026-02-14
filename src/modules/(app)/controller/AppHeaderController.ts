@@ -18,7 +18,7 @@ export class AppHeaderController {
                     "Overview",
                     IconHome,
                     "/overview",
-                    ["ADMIN", "CASHIER"]
+                    ["ADMIN"]
                 )
             ]
         ),

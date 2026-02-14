@@ -1,5 +1,5 @@
 import { Constants } from "@/src/modules/shared/model/Constants"
-import { LoginEventCallback, NavigateToOverviewPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
+import { LoginEventCallback, NavigateToOverviewPage, NavigateToTransactionPage, ShowErrorOnField, ShowErrorToast } from "../model/LoginEventCallback";
 import { setCookie } from "../../shared/util/CookieUtil";
 import { User } from "../../shared/util/user";
 
@@ -44,7 +44,16 @@ export class LoginController {
                     data.user.id,
                     data.user.role
                 ))
-                this.eventCallback(new NavigateToOverviewPage())
+
+                let event;
+
+                if (data.user.role === "ADMIN") {
+                    event = new NavigateToOverviewPage()
+                } else {
+                    event = new NavigateToTransactionPage()
+                }
+
+                this.eventCallback(event)
             } else {
                 this.eventCallback(new ShowErrorToast(data.error))
             }

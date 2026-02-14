@@ -6,6 +6,8 @@ export abstract class LoginEventCallback extends Callback {
 
 export class NavigateToOverviewPage extends LoginEventCallback { }
 
+export class NavigateToTransactionPage extends LoginEventCallback { }
+
 export class ShowErrorOnField extends LoginEventCallback {
     constructor(
         public fieldName: string, 
